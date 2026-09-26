@@ -1,0 +1,12 @@
+[
+  {
+    "IpProtocol": "tcp",
+    "FromPort": 8000,
+    "ToPort": 8000,
+    "UserIdGroupPairs": [
+      {
+        "GroupId": "sg-031144fe0cd0c0c3e"
+      }
+    ]
+  }
+]

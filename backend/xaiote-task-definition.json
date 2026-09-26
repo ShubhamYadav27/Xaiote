@@ -1,0 +1,65 @@
+{
+  "family": "xaiote-backend",
+  "requiresCompatibilities": ["FARGATE"],
+  "networkMode": "awsvpc",
+  "cpu": "512",
+  "memory": "1024",
+  "executionRoleArn": "arn:aws:iam::394920712303:role/service-role/ecsTaskExecutionRole",
+  "taskRoleArn": "arn:aws:iam::394920712303:role/xaiote-backend-task-role",
+  "containerDefinitions": [
+    {
+      "name": "xaiote-backend",
+      "image": "394920712303.dkr.ecr.ap-south-1.amazonaws.com/xaiote-backend@sha256:729a4089151f1a2aa54c7c54b57add7100326c38a99a2550960b9ca91d67f3a7",
+      "essential": true,
+      "portMappings": [
+        {
+          "containerPort": 8000,
+          "protocol": "tcp"
+        }
+      ],
+      "secrets": [
+        {
+          "name": "DATABASE_URL",
+          "valueFrom": "arn:aws:secretsmanager:ap-south-1:394920712303:secret:xaiote/production-aAx408:DATABASE_URL::"
+        },
+        {
+          "name": "JWT_SECRET",
+          "valueFrom": "arn:aws:secretsmanager:ap-south-1:394920712303:secret:xaiote/production-aAx408:JWT_SECRET::"
+        },
+        {
+          "name": "JWT_REFRESH_SECRET",
+          "valueFrom": "arn:aws:secretsmanager:ap-south-1:394920712303:secret:xaiote/production-aAx408:JWT_REFRESH_SECRET::"
+        },
+        {
+          "name": "SECRET_ENCRYPTION_KEY",
+          "valueFrom": "arn:aws:secretsmanager:ap-south-1:394920712303:secret:xaiote/production-aAx408:SECRET_ENCRYPTION_KEY::"
+        },
+        {
+          "name": "MINIO_ENDPOINT",
+          "valueFrom": "arn:aws:secretsmanager:ap-south-1:394920712303:secret:xaiote/production-aAx408:MINIO_ENDPOINT::"
+        },
+        {
+          "name": "MINIO_ACCESS_KEY",
+          "valueFrom": "arn:aws:secretsmanager:ap-south-1:394920712303:secret:xaiote/production-aAx408:MINIO_ACCESS_KEY::"
+        },
+        {
+          "name": "MINIO_SECRET_KEY",
+          "valueFrom": "arn:aws:secretsmanager:ap-south-1:394920712303:secret:xaiote/production-aAx408:MINIO_SECRET_KEY::"
+        },
+        {
+          "name": "MINIO_BUCKET",
+          "valueFrom": "arn:aws:secretsmanager:ap-south-1:394920712303:secret:xaiote/production-aAx408:MINIO_BUCKET::"
+        }
+      ],
+      "logConfiguration": {
+        "logDriver": "awslogs",
+        "options": {
+          "awslogs-group": "/ecs/xaiote-backend",
+          "awslogs-region": "ap-south-1",
+          "awslogs-stream-prefix": "ecs"
+        }
+      }
+    }
+  ]
+}
+

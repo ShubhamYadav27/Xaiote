@@ -1,0 +1,92 @@
+....................................................................     [100%]
+=============================== warnings summary ===============================
+../usr/local/lib/python3.12/site-packages/pydantic/_internal/_config.py:284
+../usr/local/lib/python3.12/site-packages/pydantic/_internal/_config.py:284
+  /usr/local/lib/python3.12/site-packages/pydantic/_internal/_config.py:284: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.7/migration/
+    warnings.warn(DEPRECATION_MESSAGE, DeprecationWarning)
+
+../usr/local/lib/python3.12/site-packages/_pytest/config/__init__.py:1448
+  /usr/local/lib/python3.12/site-packages/_pytest/config/__init__.py:1448: PytestConfigWarning: Unknown config option: asyncio_default_fixture_loop_scope
+  
+    self._warn_or_fail_if_strict(f"Unknown config option: {key}\n")
+
+../usr/local/lib/python3.12/site-packages/pydantic/_internal/_fields.py:160
+  /usr/local/lib/python3.12/site-packages/pydantic/_internal/_fields.py:160: UserWarning: Field "model_confidence" has conflict with protected namespace "model_".
+  
+  You may be able to resolve this warning by setting `model_config['protected_namespaces'] = ()`.
+    warnings.warn(
+
+../usr/local/lib/python3.12/site-packages/passlib/utils/__init__.py:854
+  /usr/local/lib/python3.12/site-packages/passlib/utils/__init__.py:854: DeprecationWarning: 'crypt' is deprecated and slated for removal in Python 3.13
+    from crypt import crypt as _crypt
+
+app/main.py:109
+  /app/app/main.py:109: DeprecationWarning: 
+          on_event is deprecated, use lifespan event handlers instead.
+  
+          Read more about it in the
+          [FastAPI docs for Lifespan Events](https://fastapi.tiangolo.com/advanced/events/).
+          
+    @app.on_event("startup")
+
+../usr/local/lib/python3.12/site-packages/fastapi/applications.py:4495
+../usr/local/lib/python3.12/site-packages/fastapi/applications.py:4495
+../usr/local/lib/python3.12/site-packages/fastapi/applications.py:4495
+  /usr/local/lib/python3.12/site-packages/fastapi/applications.py:4495: DeprecationWarning: 
+          on_event is deprecated, use lifespan event handlers instead.
+  
+          Read more about it in the
+          [FastAPI docs for Lifespan Events](https://fastapi.tiangolo.com/advanced/events/).
+          
+    return self.router.on_event(event_type)
+
+app/main.py:118
+  /app/app/main.py:118: DeprecationWarning: 
+          on_event is deprecated, use lifespan event handlers instead.
+  
+          Read more about it in the
+          [FastAPI docs for Lifespan Events](https://fastapi.tiangolo.com/advanced/events/).
+          
+    @app.on_event("startup")
+
+app/main.py:127
+  /app/app/main.py:127: DeprecationWarning: 
+          on_event is deprecated, use lifespan event handlers instead.
+  
+          Read more about it in the
+          [FastAPI docs for Lifespan Events](https://fastapi.tiangolo.com/advanced/events/).
+          
+    @app.on_event("startup")
+
+tests/test_phase_3f_validation.py:106
+  tests/test_phase_3f_validation.py:106: PytestDeprecationWarning: test_provenance_and_temporal is asynchronous and explicitly requests the "event_loop" fixture. Asynchronous fixtures and test functions should use "asyncio.get_running_loop()" instead.
+    async def test_provenance_and_temporal(event_loop):
+
+tests/test_phase_3f_validation.py:149
+  tests/test_phase_3f_validation.py:149: PytestDeprecationWarning: test_plant_conflict is asynchronous and explicitly requests the "event_loop" fixture. Asynchronous fixtures and test functions should use "asyncio.get_running_loop()" instead.
+    async def test_plant_conflict(event_loop):
+
+tests/test_phase_3f_validation.py:170
+  tests/test_phase_3f_validation.py:170: PytestDeprecationWarning: test_supersession_architectural_gap is asynchronous and explicitly requests the "event_loop" fixture. Asynchronous fixtures and test functions should use "asyncio.get_running_loop()" instead.
+    async def test_supersession_architectural_gap(event_loop):
+
+tests/test_phase_3f_validation.py:227
+  tests/test_phase_3f_validation.py:227: PytestDeprecationWarning: test_transactional_handoff is asynchronous and explicitly requests the "event_loop" fixture. Asynchronous fixtures and test functions should use "asyncio.get_running_loop()" instead.
+    async def test_transactional_handoff(event_loop):
+
+../usr/local/lib/python3.12/site-packages/pytest_asyncio/plugin.py:231
+  /usr/local/lib/python3.12/site-packages/pytest_asyncio/plugin.py:231: PytestDeprecationWarning: clear_transcripts is asynchronous and explicitly requests the "event_loop" fixture. Asynchronous fixtures and test functions should use "asyncio.get_running_loop()" instead.
+    warnings.warn(
+
+tests/test_auth.py::test_auth_lifecycle
+  /usr/local/lib/python3.12/site-packages/passlib/handlers/argon2.py:716: DeprecationWarning: Accessing argon2.__version__ is deprecated and will be removed in a future release. Use importlib.metadata directly to query for structlog's packaging metadata.
+    _argon2_cffi.__version__, max_version)
+
+tests/test_imports.py: 15 warnings
+tests/test_provenance.py: 9 warnings
+tests/test_stt_worker2.py: 9 warnings
+  /usr/local/lib/python3.12/site-packages/botocore/auth.py:419: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+    datetime_now = datetime.datetime.utcnow()
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+68 passed, 50 warnings in 35.77s

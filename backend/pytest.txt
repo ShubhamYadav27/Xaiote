@@ -1,0 +1,2292 @@
+============================= test session starts ==============================
+platform linux -- Python 3.12.14, pytest-8.2.2, pluggy-1.6.0 -- /usr/local/bin/python3.12
+cachedir: .pytest_cache
+rootdir: /app
+configfile: pytest.ini
+plugins: anyio-4.15.1, asyncio-0.23.7
+asyncio: mode=Mode.AUTO
+collecting ... collected 70 items
+
+test_pooler.py::test PASSED                                              [  1%]
+test_pw.py::test_conn PASSED                                             [  2%]
+tests/eval/test_llm_extraction.py::test_extraction_schema_valid_null PASSED [  4%]
+tests/eval/test_llm_extraction.py::test_extraction_schema_valid_provenance PASSED [  5%]
+tests/eval/test_llm_extraction.py::test_extraction_schema_invalid_empty_string PASSED [  7%]
+tests/eval/test_llm_extraction.py::test_extraction_schema_root_cause_explicitness PASSED [  8%]
+tests/eval/test_stt_evaluation.py::test_stt_smoke_evaluation PASSED      [ 10%]
+tests/integration/test_concurrency.py::test_concurrency_1_claims_and_skips PASSED [ 11%]
+tests/integration/test_concurrency.py::test_concurrency_2_lease_protection PASSED [ 12%]
+tests/integration/test_concurrency.py::test_concurrency_3_expired_lease_reclaim PASSED [ 14%]
+tests/integration/test_concurrency.py::test_concurrency_5_duplicate_insert_race PASSED [ 15%]
+tests/integration/test_concurrency.py::test_concurrency_4_stale_worker PASSED [ 17%]
+tests/integration/test_concurrency.py::test_rejected_semantics PASSED    [ 18%]
+tests/test_auth.py::test_auth_lifecycle PASSED                           [ 20%]
+tests/test_auth.py::test_tenant_isolation PASSED                         [ 21%]
+tests/test_canonicalization_worker.py::test_process_one_job_empty PASSED [ 22%]
+tests/test_communication.py::test_ingest_evidence_success PASSED         [ 24%]
+tests/test_communication.py::test_upload_attachment PASSED               [ 25%]
+tests/test_communication.py::test_upload_attachment_storage_failure PASSED [ 27%]
+tests/test_communication.py::test_tenant_isolation PASSED                [ 28%]
+tests/test_communication.py::test_list_messages PASSED                   [ 30%]
+tests/test_communication.py::test_concurrent_idempotency PASSED          [ 31%]
+tests/test_communication.py::test_attachment_security PASSED             [ 32%]
+tests/test_extraction_worker.py::test_extraction_worker_oversized_input PASSED [ 34%]
+tests/test_extraction_worker.py::test_extraction_worker_success PASSED   [ 35%]
+tests/test_extraction_worker.py::test_extraction_worker_retryable PASSED [ 37%]
+tests/test_extraction_worker.py::test_extraction_worker_requires_review PASSED [ 38%]
+tests/test_extraction_worker.py::test_extraction_worker_token_null_semantics PASSED [ 40%]
+tests/test_extraction_worker.py::test_human_review_preservation PASSED   [ 41%]
+tests/test_extraction_worker.py::test_tenant_isolation_override_blocked PASSED [ 42%]
+tests/test_extraction_worker.py::test_extraction_worker_prompt_injection_separation PASSED [ 44%]
+tests/test_imports.py::test_imports_comprehensive FAILED                 [ 45%]
+tests/test_manufacturing_events.py::test_get_events PASSED               [ 47%]
+tests/test_manufacturing_events.py::test_supersede_event_not_found PASSED [ 48%]
+tests/test_masters.py::test_masters_crud_and_isolation PASSED            [ 50%]
+tests/test_phase_3f_revisions.py::test_revision_schema_and_auth FAILED   [ 51%]
+tests/test_phase_3f_revisions.py::test_provenance_and_history FAILED     [ 52%]
+tests/test_phase_3f_revisions.py::test_concurrency_revisions FAILED      [ 54%]
+tests/test_phase_3f_validation.py::test_provenance_and_temporal PASSED   [ 55%]
+tests/test_phase_3f_validation.py::test_plant_conflict PASSED            [ 57%]
+tests/test_phase_3f_validation.py::test_supersession_architectural_gap FAILED [ 58%]
+tests/test_phase_3f_validation.py::test_transactional_handoff PASSED     [ 60%]
+tests/test_pilot.py::test_pilot_persistence PASSED                       [ 61%]
+tests/test_provenance.py::test_provenance_and_data_quality FAILED        [ 62%]
+tests/test_resolution_worker.py::test_tenant_isolation PASSED            [ 64%]
+tests/test_resolution_worker.py::test_exact_match PASSED                 [ 65%]
+tests/test_resolution_worker.py::test_fuzzy_acceptance PASSED            [ 67%]
+tests/test_resolution_worker.py::test_margin_logic PASSED                [ 68%]
+tests/test_resolution_worker.py::test_human_review_constraints PASSED    [ 70%]
+tests/test_resolution_worker.py::test_normalization_and_reference_states PASSED [ 71%]
+tests/test_resolution_worker.py::test_worker_concurrency PASSED          [ 72%]
+tests/test_stt_worker2.py::test_stt_worker_valid_audio FAILED            [ 74%]
+tests/test_stt_worker2.py::test_stt_worker_no_speech FAILED              [ 75%]
+tests/test_stt_worker2.py::test_stt_worker_unsupported_codec FAILED      [ 77%]
+tests/test_webhooks.py::test_hmac_raw_body_verification PASSED           [ 78%]
+tests/test_webhooks.py::test_invalid_signature PASSED                    [ 80%]
+tests/test_webhooks.py::test_missing_signature PASSED                    [ 81%]
+tests/test_webhooks.py::test_malformed_signature PASSED                  [ 82%]
+tests/test_webhooks.py::test_unknown_integration PASSED                  [ 84%]
+tests/test_webhooks.py::test_unauthorized_sender PASSED                  [ 85%]
+tests/test_webhooks.py::test_revoked_sender PASSED                       [ 87%]
+tests/test_webhooks.py::test_concurrent_duplicate_webhook PASSED         [ 88%]
+tests/test_webhooks.py::test_text_message_ingestion PASSED               [ 90%]
+tests/test_webhooks.py::test_media_message_ingestion PASSED              [ 91%]
+tests/test_webhooks.py::test_hub_challenge_verification PASSED           [ 92%]
+tests/test_work_orders.py::test_work_orders_crud_and_isolation PASSED    [ 94%]
+tests/test_worker.py::test_credential_encryption PASSED                  [ 95%]
+tests/test_worker.py::test_ssrf_protection_and_failure PASSED            [ 97%]
+tests/test_worker.py::test_worker_crash_recovery PASSED                  [ 98%]
+tests/test_worker.py::test_duplicate_media_processing_concurrency PASSED [100%]
+
+=================================== FAILURES ===================================
+__________________________ test_imports_comprehensive __________________________
+
+self = <AWSHTTPConnection(host='localhost', port=9000) at 0x76afa6e8cce0>
+
+    def _new_conn(self) -> socket.socket:
+        """Establish a socket connection and set nodelay settings on it.
+    
+        :return: New socket connection.
+        """
+        try:
+>           sock = connection.create_connection(
+                (self._dns_host, self.port),
+                self.timeout,
+                source_address=self.source_address,
+                socket_options=self.socket_options,
+            )
+
+/usr/local/lib/python3.12/site-packages/urllib3/connection.py:239: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/usr/local/lib/python3.12/site-packages/urllib3/util/connection.py:85: in create_connection
+    raise err
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+address = ('localhost', 9000), timeout = 60, source_address = None
+socket_options = [(6, 1, 1)]
+
+    def create_connection(
+        address: tuple[str, int],
+        timeout: _TYPE_TIMEOUT = _DEFAULT_TIMEOUT,
+        source_address: tuple[str, int] | None = None,
+        socket_options: _TYPE_SOCKET_OPTIONS | None = None,
+    ) -> socket.socket:
+        """Connect to *address* and return the socket object.
+    
+        Convenience function.  Connect to *address* (a 2-tuple ``(host,
+        port)``) and return the socket object.  Passing the optional
+        *timeout* parameter will set the timeout on the socket instance
+        before attempting to connect.  If no *timeout* is supplied, the
+        global default timeout setting returned by :func:`socket.getdefaulttimeout`
+        is used.  If *source_address* is set it must be a tuple of (host, port)
+        for the socket to bind as a source address before making the connection.
+        An host of '' or port 0 tells the OS to use the default.
+        """
+    
+        host, port = address
+        if host.startswith("["):
+            host = host.strip("[]")
+        err = None
+    
+        # Using the value from allowed_gai_family() in the context of getaddrinfo lets
+        # us select whether to work with IPv4 DNS records, IPv6 records, or both.
+        # The original create_connection function always returns all records.
+        family = allowed_gai_family()
+    
+        try:
+            host.encode("idna")
+        except UnicodeError:
+            raise LocationParseError(f"'{host}', label empty or too long") from None
+    
+        for res in socket.getaddrinfo(host, port, family, socket.SOCK_STREAM):
+            af, socktype, proto, canonname, sa = res
+            sock = None
+            try:
+                sock = socket.socket(af, socktype, proto)
+    
+                # If provided, set socket level options before connecting.
+                _set_socket_options(sock, socket_options)
+    
+                if timeout is not _DEFAULT_TIMEOUT:
+                    sock.settimeout(timeout)
+                if source_address:
+                    sock.bind(source_address)
+>               sock.connect(sa)
+E               ConnectionRefusedError: [Errno 111] Connection refused
+
+/usr/local/lib/python3.12/site-packages/urllib3/util/connection.py:73: ConnectionRefusedError
+
+The above exception was the direct cause of the following exception:
+
+self = <botocore.httpsession.URLLib3Session object at 0x76afa8bfdc10>
+request = <AWSPreparedRequest stream_output=False, method=HEAD, url=http://localhost:9000/imports, headers={'User-Agent': b'Boto...8c6b88007c', 'amz-sdk-invocation-id': b'd6d656e7-b7fa-4f0f-b95f-a43ad19c185b', 'amz-sdk-request': b'attempt=5; max=5'}>
+
+    def send(self, request):
+        try:
+            proxy_url = self._proxy_config.proxy_url_for(request.url)
+            manager = self._get_connection_manager(request.url, proxy_url)
+            conn = manager.connection_from_url(request.url)
+            self._setup_ssl_cert(conn, request.url, self._verify)
+            if ensure_boolean(
+                os.environ.get('BOTO_EXPERIMENTAL__ADD_PROXY_HOST_HEADER', '')
+            ):
+                # This is currently an "experimental" feature which provides
+                # no guarantees of backwards compatibility. It may be subject
+                # to change or removal in any patch version. Anyone opting in
+                # to this feature should strictly pin botocore.
+                host = urlparse(request.url).hostname
+                conn.proxy_headers['host'] = host
+    
+            request_target = self._get_request_target(request.url, proxy_url)
+>           urllib_response = conn.urlopen(
+                method=request.method,
+                url=request_target,
+                body=request.body,
+                headers=request.headers,
+                retries=Retry(False),
+                assert_same_host=False,
+                preload_content=False,
+                decode_content=False,
+                chunked=self._chunked(request.headers),
+            )
+
+/usr/local/lib/python3.12/site-packages/botocore/httpsession.py:464: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/usr/local/lib/python3.12/site-packages/urllib3/connectionpool.py:847: in urlopen
+    retries = retries.increment(
+/usr/local/lib/python3.12/site-packages/urllib3/util/retry.py:485: in increment
+    raise reraise(type(error), error, _stacktrace)
+/usr/local/lib/python3.12/site-packages/urllib3/util/util.py:39: in reraise
+    raise value
+/usr/local/lib/python3.12/site-packages/urllib3/connectionpool.py:793: in urlopen
+    response = self._make_request(
+/usr/local/lib/python3.12/site-packages/urllib3/connectionpool.py:499: in _make_request
+    conn.request(
+/usr/local/lib/python3.12/site-packages/botocore/awsrequest.py:96: in request
+    rval = super().request(method, url, body, headers, *args, **kwargs)
+/usr/local/lib/python3.12/site-packages/urllib3/connection.py:567: in request
+    self.endheaders()
+/usr/local/lib/python3.12/http/client.py:1381: in endheaders
+    self._send_output(message_body, encode_chunked=encode_chunked)
+/usr/local/lib/python3.12/site-packages/botocore/awsrequest.py:123: in _send_output
+    self.send(msg)
+/usr/local/lib/python3.12/site-packages/botocore/awsrequest.py:223: in send
+    return super().send(str)
+/usr/local/lib/python3.12/http/client.py:1085: in send
+    self.connect()
+/usr/local/lib/python3.12/site-packages/urllib3/connection.py:398: in connect
+    self.sock = self._new_conn()
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <AWSHTTPConnection(host='localhost', port=9000) at 0x76afa6e8cce0>
+
+    def _new_conn(self) -> socket.socket:
+        """Establish a socket connection and set nodelay settings on it.
+    
+        :return: New socket connection.
+        """
+        try:
+            sock = connection.create_connection(
+                (self._dns_host, self.port),
+                self.timeout,
+                source_address=self.source_address,
+                socket_options=self.socket_options,
+            )
+        except socket.gaierror as e:
+            raise NameResolutionError(self.host, self, e) from e
+        except SocketTimeout as e:
+            raise ConnectTimeoutError(
+                self,
+                f"Connection to {self.host} timed out. (connect timeout={self.timeout})",
+            ) from e
+    
+        except OSError as e:
+>           raise NewConnectionError(
+                self, f"Failed to establish a new connection: {e}"
+            ) from e
+E           urllib3.exceptions.NewConnectionError: AWSHTTPConnection(host='localhost', port=9000): Failed to establish a new connection: [Errno 111] Connection refused
+
+/usr/local/lib/python3.12/site-packages/urllib3/connection.py:254: NewConnectionError
+
+During handling of the above exception, another exception occurred:
+
+self = <app.infrastructure.storage.s3_storage.S3Storage object at 0x76afa951c710>
+bucket_name = 'imports'
+object_name = '3a33424f-b286-4ede-a3a4-c1913bb3a620/3b86062e79a740c8f9407a8d75238f992615f680f109c2d34b474b3013fffa56'
+data = b'name,external_id\nCust 1,EXT1\nCust 2,EXT2\n'
+
+    async def upload(self, bucket_name: str, object_name: str, data: bytes):
+        try:
+>           self.client.head_bucket(Bucket=bucket_name)
+
+app/infrastructure/storage/s3_storage.py:20: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/usr/local/lib/python3.12/site-packages/botocore/client.py:565: in _api_call
+    return self._make_api_call(operation_name, kwargs)
+/usr/local/lib/python3.12/site-packages/botocore/client.py:999: in _make_api_call
+    http, parsed_response = self._make_request(
+/usr/local/lib/python3.12/site-packages/botocore/client.py:1023: in _make_request
+    return self._endpoint.make_request(operation_model, request_dict)
+/usr/local/lib/python3.12/site-packages/botocore/endpoint.py:119: in make_request
+    return self._send_request(request_dict, operation_model)
+/usr/local/lib/python3.12/site-packages/botocore/endpoint.py:200: in _send_request
+    while self._needs_retry(
+/usr/local/lib/python3.12/site-packages/botocore/endpoint.py:352: in _needs_retry
+    responses = self._event_emitter.emit(
+/usr/local/lib/python3.12/site-packages/botocore/hooks.py:412: in emit
+    return self._emitter.emit(aliased_event_name, **kwargs)
+/usr/local/lib/python3.12/site-packages/botocore/hooks.py:256: in emit
+    return self._emit(event_name, kwargs)
+/usr/local/lib/python3.12/site-packages/botocore/hooks.py:239: in _emit
+    response = handler(**kwargs)
+/usr/local/lib/python3.12/site-packages/botocore/retryhandler.py:207: in __call__
+    if self._checker(**checker_kwargs):
+/usr/local/lib/python3.12/site-packages/botocore/retryhandler.py:284: in __call__
+    should_retry = self._should_retry(
+/usr/local/lib/python3.12/site-packages/botocore/retryhandler.py:320: in _should_retry
+    return self._checker(attempt_number, response, caught_exception)
+/usr/local/lib/python3.12/site-packages/botocore/retryhandler.py:363: in __call__
+    checker_response = checker(
+/usr/local/lib/python3.12/site-packages/botocore/retryhandler.py:247: in __call__
+    return self._check_caught_exception(
+/usr/local/lib/python3.12/site-packages/botocore/retryhandler.py:416: in _check_caught_exception
+    raise caught_exception
+/usr/local/lib/python3.12/site-packages/botocore/endpoint.py:279: in _do_get_response
+    http_response = self._send(request)
+/usr/local/lib/python3.12/site-packages/botocore/endpoint.py:375: in _send
+    return self.http_session.send(request)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <botocore.httpsession.URLLib3Session object at 0x76afa8bfdc10>
+request = <AWSPreparedRequest stream_output=False, method=HEAD, url=http://localhost:9000/imports, headers={'User-Agent': b'Boto...8c6b88007c', 'amz-sdk-invocation-id': b'd6d656e7-b7fa-4f0f-b95f-a43ad19c185b', 'amz-sdk-request': b'attempt=5; max=5'}>
+
+    def send(self, request):
+        try:
+            proxy_url = self._proxy_config.proxy_url_for(request.url)
+            manager = self._get_connection_manager(request.url, proxy_url)
+            conn = manager.connection_from_url(request.url)
+            self._setup_ssl_cert(conn, request.url, self._verify)
+            if ensure_boolean(
+                os.environ.get('BOTO_EXPERIMENTAL__ADD_PROXY_HOST_HEADER', '')
+            ):
+                # This is currently an "experimental" feature which provides
+                # no guarantees of backwards compatibility. It may be subject
+                # to change or removal in any patch version. Anyone opting in
+                # to this feature should strictly pin botocore.
+                host = urlparse(request.url).hostname
+                conn.proxy_headers['host'] = host
+    
+            request_target = self._get_request_target(request.url, proxy_url)
+            urllib_response = conn.urlopen(
+                method=request.method,
+                url=request_target,
+                body=request.body,
+                headers=request.headers,
+                retries=Retry(False),
+                assert_same_host=False,
+                preload_content=False,
+                decode_content=False,
+                chunked=self._chunked(request.headers),
+            )
+    
+            http_response = botocore.awsrequest.AWSResponse(
+                request.url,
+                urllib_response.status,
+                urllib_response.headers,
+                urllib_response,
+            )
+    
+            if not request.stream_output:
+                # Cause the raw stream to be exhausted immediately. We do it
+                # this way instead of using preload_content because
+                # preload_content will never buffer chunked responses
+                http_response.content
+    
+            return http_response
+        except URLLib3SSLError as e:
+            raise SSLError(endpoint_url=request.url, error=e)
+        except (NewConnectionError, socket.gaierror) as e:
+>           raise EndpointConnectionError(endpoint_url=request.url, error=e)
+E           botocore.exceptions.EndpointConnectionError: Could not connect to the endpoint URL: "http://localhost:9000/imports"
+
+/usr/local/lib/python3.12/site-packages/botocore/httpsession.py:493: EndpointConnectionError
+
+During handling of the above exception, another exception occurred:
+
+>   ???
+
+C:\Xaiote\backend\tests\test_imports.py:56: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/usr/local/lib/python3.12/site-packages/httpx/_client.py:1892: in post
+    return await self.request(
+/usr/local/lib/python3.12/site-packages/httpx/_client.py:1574: in request
+    return await self.send(request, auth=auth, follow_redirects=follow_redirects)
+/usr/local/lib/python3.12/site-packages/httpx/_client.py:1661: in send
+    response = await self._send_handling_auth(
+/usr/local/lib/python3.12/site-packages/httpx/_client.py:1689: in _send_handling_auth
+    response = await self._send_handling_redirects(
+/usr/local/lib/python3.12/site-packages/httpx/_client.py:1726: in _send_handling_redirects
+    response = await self._send_single_request(request)
+/usr/local/lib/python3.12/site-packages/httpx/_client.py:1763: in _send_single_request
+    response = await transport.handle_async_request(request)
+/usr/local/lib/python3.12/site-packages/httpx/_transports/asgi.py:164: in handle_async_request
+    await self.app(scope, receive, send)
+/usr/local/lib/python3.12/site-packages/fastapi/applications.py:1054: in __call__
+    await super().__call__(scope, receive, send)
+/usr/local/lib/python3.12/site-packages/starlette/applications.py:123: in __call__
+    await self.middleware_stack(scope, receive, send)
+/usr/local/lib/python3.12/site-packages/starlette/middleware/errors.py:186: in __call__
+    raise exc
+/usr/local/lib/python3.12/site-packages/starlette/middleware/errors.py:164: in __call__
+    await self.app(scope, receive, _send)
+/usr/local/lib/python3.12/site-packages/starlette/middleware/cors.py:85: in __call__
+    await self.app(scope, receive, send)
+/usr/local/lib/python3.12/site-packages/starlette/middleware/exceptions.py:65: in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+/usr/local/lib/python3.12/site-packages/starlette/_exception_handler.py:64: in wrapped_app
+    raise exc
+/usr/local/lib/python3.12/site-packages/starlette/_exception_handler.py:53: in wrapped_app
+    await app(scope, receive, sender)
+/usr/local/lib/python3.12/site-packages/starlette/routing.py:756: in __call__
+    await self.middleware_stack(scope, receive, send)
+/usr/local/lib/python3.12/site-packages/starlette/routing.py:776: in app
+    await route.handle(scope, receive, send)
+/usr/local/lib/python3.12/site-packages/starlette/routing.py:297: in handle
+    await self.app(scope, receive, send)
+/usr/local/lib/python3.12/site-packages/starlette/routing.py:77: in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+/usr/local/lib/python3.12/site-packages/starlette/_exception_handler.py:64: in wrapped_app
+    raise exc
+/usr/local/lib/python3.12/site-packages/starlette/_exception_handler.py:53: in wrapped_app
+    await app(scope, receive, sender)
+/usr/local/lib/python3.12/site-packages/starlette/routing.py:72: in app
+    response = await func(request)
+/usr/local/lib/python3.12/site-packages/fastapi/routing.py:278: in app
+    raw_response = await run_endpoint_function(
+/usr/local/lib/python3.12/site-packages/fastapi/routing.py:191: in run_endpoint_function
+    return await dependant.call(**values)
+app/api/routes/imports.py:51: in upload_import
+    await storage.upload("imports", object_name, contents)
+app/infrastructure/storage/s3_storage.py:22: in upload
+    self.client.create_bucket(Bucket=bucket_name)
+/usr/local/lib/python3.12/site-packages/botocore/client.py:565: in _api_call
+    return self._make_api_call(operation_name, kwargs)
+/usr/local/lib/python3.12/site-packages/botocore/client.py:999: in _make_api_call
+    http, parsed_response = self._make_request(
+/usr/local/lib/python3.12/site-packages/botocore/client.py:1023: in _make_request
+    return self._endpoint.make_request(operation_model, request_dict)
+/usr/local/lib/python3.12/site-packages/botocore/endpoint.py:119: in make_request
+    return self._send_request(request_dict, operation_model)
+/usr/local/lib/python3.12/site-packages/botocore/endpoint.py:200: in _send_request
+    while self._needs_retry(
+/usr/local/lib/python3.12/site-packages/botocore/endpoint.py:352: in _needs_retry
+    responses = self._event_emitter.emit(
+/usr/local/lib/python3.12/site-packages/botocore/hooks.py:412: in emit
+    return self._emitter.emit(aliased_event_name, **kwargs)
+/usr/local/lib/python3.12/site-packages/botocore/hooks.py:256: in emit
+    return self._emit(event_name, kwargs)
+/usr/local/lib/python3.12/site-packages/botocore/hooks.py:239: in _emit
+    response = handler(**kwargs)
+/usr/local/lib/python3.12/site-packages/botocore/retryhandler.py:207: in __call__
+    if self._checker(**checker_kwargs):
+/usr/local/lib/python3.12/site-packages/botocore/retryhandler.py:284: in __call__
+    should_retry = self._should_retry(
+/usr/local/lib/python3.12/site-packages/botocore/retryhandler.py:320: in _should_retry
+    return self._checker(attempt_number, response, caught_exception)
+/usr/local/lib/python3.12/site-packages/botocore/retryhandler.py:363: in __call__
+    checker_response = checker(
+/usr/local/lib/python3.12/site-packages/botocore/retryhandler.py:247: in __call__
+    return self._check_caught_exception(
+/usr/local/lib/python3.12/site-packages/botocore/retryhandler.py:416: in _check_caught_exception
+    raise caught_exception
+/usr/local/lib/python3.12/site-packages/botocore/endpoint.py:279: in _do_get_response
+    http_response = self._send(request)
+/usr/local/lib/python3.12/site-packages/botocore/endpoint.py:375: in _send
+    return self.http_session.send(request)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <botocore.httpsession.URLLib3Session object at 0x76afa8bfdc10>
+request = <AWSPreparedRequest stream_output=False, method=PUT, url=http://localhost:9000/imports, headers={'User-Agent': b'Boto3...nvocation-id': b'd319116b-7655-45fc-8cbf-4f0e42f8860c', 'amz-sdk-request': b'attempt=5; max=5', 'Content-Length': '0'}>
+
+    def send(self, request):
+        try:
+            proxy_url = self._proxy_config.proxy_url_for(request.url)
+            manager = self._get_connection_manager(request.url, proxy_url)
+            conn = manager.connection_from_url(request.url)
+            self._setup_ssl_cert(conn, request.url, self._verify)
+            if ensure_boolean(
+                os.environ.get('BOTO_EXPERIMENTAL__ADD_PROXY_HOST_HEADER', '')
+            ):
+                # This is currently an "experimental" feature which provides
+                # no guarantees of backwards compatibility. It may be subject
+                # to change or removal in any patch version. Anyone opting in
+                # to this feature should strictly pin botocore.
+                host = urlparse(request.url).hostname
+                conn.proxy_headers['host'] = host
+    
+            request_target = self._get_request_target(request.url, proxy_url)
+            urllib_response = conn.urlopen(
+                method=request.method,
+                url=request_target,
+                body=request.body,
+                headers=request.headers,
+                retries=Retry(False),
+                assert_same_host=False,
+                preload_content=False,
+                decode_content=False,
+                chunked=self._chunked(request.headers),
+            )
+    
+            http_response = botocore.awsrequest.AWSResponse(
+                request.url,
+                urllib_response.status,
+                urllib_response.headers,
+                urllib_response,
+            )
+    
+            if not request.stream_output:
+                # Cause the raw stream to be exhausted immediately. We do it
+                # this way instead of using preload_content because
+                # preload_content will never buffer chunked responses
+                http_response.content
+    
+            return http_response
+        except URLLib3SSLError as e:
+            raise SSLError(endpoint_url=request.url, error=e)
+        except (NewConnectionError, socket.gaierror) as e:
+>           raise EndpointConnectionError(endpoint_url=request.url, error=e)
+E           botocore.exceptions.EndpointConnectionError: Could not connect to the endpoint URL: "http://localhost:9000/imports"
+
+/usr/local/lib/python3.12/site-packages/botocore/httpsession.py:493: EndpointConnectionError
+________________________ test_revision_schema_and_auth _________________________
+
+    async def test_revision_schema_and_auth():
+>       ev_id, token_headers, client, actor_id, comp_id = await setup_event_and_token()
+
+tests/test_phase_3f_revisions.py:45: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    async def setup_event_and_token():
+        async with AsyncSessionLocal() as db:
+            comp, p1, p2, m1, wo1, cand = await setup_base_data(db, "DOWNTIME")
+    
+        while await process_one_candidate("w1"): pass
+        while await process_one_job("w2"): pass
+    
+        async with AsyncSessionLocal() as db:
+            ev = (await db.execute(select(ManufacturingEvent).where(ManufacturingEvent.candidate_id == cand.id))).scalars().first()
+            ev_id = ev.id
+            comp_id = ev.company_id
+    
+        async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
+            res = await client.post("/api/auth/register", json={"email": f"{uuid.uuid4()}@t.com", "password": "p", "full_name": "t", "company_name": "c", "industry": "a", "revenue_range": ""})
+>           res = await client.post("/api/auth/login", data={"username": res.json()["email"], "password": "p"})
+E           KeyError: 'email'
+
+tests/test_phase_3f_revisions.py:30: KeyError
+_________________________ test_provenance_and_history __________________________
+
+    async def test_provenance_and_history():
+>       ev_id, token_headers, client, actor_id, comp_id = await setup_event_and_token()
+
+tests/test_phase_3f_revisions.py:82: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    async def setup_event_and_token():
+        async with AsyncSessionLocal() as db:
+            comp, p1, p2, m1, wo1, cand = await setup_base_data(db, "DOWNTIME")
+    
+        while await process_one_candidate("w1"): pass
+        while await process_one_job("w2"): pass
+    
+        async with AsyncSessionLocal() as db:
+            ev = (await db.execute(select(ManufacturingEvent).where(ManufacturingEvent.candidate_id == cand.id))).scalars().first()
+            ev_id = ev.id
+            comp_id = ev.company_id
+    
+        async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
+            res = await client.post("/api/auth/register", json={"email": f"{uuid.uuid4()}@t.com", "password": "p", "full_name": "t", "company_name": "c", "industry": "a", "revenue_range": ""})
+>           res = await client.post("/api/auth/login", data={"username": res.json()["email"], "password": "p"})
+E           KeyError: 'email'
+
+tests/test_phase_3f_revisions.py:30: KeyError
+__________________________ test_concurrency_revisions __________________________
+
+    async def test_concurrency_revisions():
+        import asyncio
+>       ev_id, token_headers, client, actor_id, comp_id = await setup_event_and_token()
+
+tests/test_phase_3f_revisions.py:142: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    async def setup_event_and_token():
+        async with AsyncSessionLocal() as db:
+            comp, p1, p2, m1, wo1, cand = await setup_base_data(db, "DOWNTIME")
+    
+        while await process_one_candidate("w1"): pass
+        while await process_one_job("w2"): pass
+    
+        async with AsyncSessionLocal() as db:
+            ev = (await db.execute(select(ManufacturingEvent).where(ManufacturingEvent.candidate_id == cand.id))).scalars().first()
+            ev_id = ev.id
+            comp_id = ev.company_id
+    
+        async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
+            res = await client.post("/api/auth/register", json={"email": f"{uuid.uuid4()}@t.com", "password": "p", "full_name": "t", "company_name": "c", "industry": "a", "revenue_range": ""})
+>           res = await client.post("/api/auth/login", data={"username": res.json()["email"], "password": "p"})
+E           KeyError: 'email'
+
+tests/test_phase_3f_revisions.py:30: KeyError
+_____________________ test_supersession_architectural_gap ______________________
+
+event_loop = <_UnixSelectorEventLoop running=False closed=False debug=False>
+
+    async def test_supersession_architectural_gap(event_loop):
+        # S. Supersession
+        # We assert that supersession is impossible under current architectural rules.
+        async with AsyncSessionLocal() as db_session:
+            comp, p1, p2, m1, wo1, cand = await setup_base_data(db_session, "DOWNTIME")
+    
+        while await process_one_candidate("w1"): pass
+        while await process_one_job("w2"): pass
+    
+        async with AsyncSessionLocal() as db_session:
+            ev_q = await db_session.execute(select(ManufacturingEvent).where(ManufacturingEvent.candidate_id == cand.id))
+            ev = ev_q.scalars().first()
+            ev_id = ev.id
+    
+        async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
+            res = await client.post("/api/auth/register", json={"email": "s@t.com", "password": "p", "full_name": "t", "company_name": "c", "industry": "a", "revenue_range": ""})
+            res = await client.post("/api/auth/login", data={"username": "s@t.com", "password": "p"})
+            token = res.json().get("access_token", "")
+            token_headers = {"Authorization": f"Bearer {token}"}
+    
+            async with AsyncSessionLocal() as db_session:
+                user_comp = (await db_session.execute(select(Company).where(Company.name=="c"))).scalars().first()
+                ev.company_id = user_comp.id
+                db_session.add(ev)
+                await db_session.commit()
+    
+            sup_res = await client.post(
+                f"/api/v1/events/{ev_id}/supersede",
+                headers=token_headers,
+                json={"new_severity": "Critical"}
+            )
+>           assert sup_res.status_code == 501
+E           assert 404 == 501
+E            +  where 404 = <Response [404 Not Found]>.status_code
+
+tests/test_phase_3f_validation.py:155: AssertionError
+_______________________ test_provenance_and_data_quality _______________________
+
+self = <AWSHTTPConnection(host='localhost', port=9000) at 0x76afa46ff4a0>
+
+    def _new_conn(self) -> socket.socket:
+        """Establish a socket connection and set nodelay settings on it.
+    
+        :return: New socket connection.
+        """
+        try:
+>           sock = connection.create_connection(
+                (self._dns_host, self.port),
+                self.timeout,
+                source_address=self.source_address,
+                socket_options=self.socket_options,
+            )
+
+/usr/local/lib/python3.12/site-packages/urllib3/connection.py:239: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/usr/local/lib/python3.12/site-packages/urllib3/util/connection.py:85: in create_connection
+    raise err
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+address = ('localhost', 9000), timeout = 60, source_address = None
+socket_options = [(6, 1, 1)]
+
+    def create_connection(
+        address: tuple[str, int],
+        timeout: _TYPE_TIMEOUT = _DEFAULT_TIMEOUT,
+        source_address: tuple[str, int] | None = None,
+        socket_options: _TYPE_SOCKET_OPTIONS | None = None,
+    ) -> socket.socket:
+        """Connect to *address* and return the socket object.
+    
+        Convenience function.  Connect to *address* (a 2-tuple ``(host,
+        port)``) and return the socket object.  Passing the optional
+        *timeout* parameter will set the timeout on the socket instance
+        before attempting to connect.  If no *timeout* is supplied, the
+        global default timeout setting returned by :func:`socket.getdefaulttimeout`
+        is used.  If *source_address* is set it must be a tuple of (host, port)
+        for the socket to bind as a source address before making the connection.
+        An host of '' or port 0 tells the OS to use the default.
+        """
+    
+        host, port = address
+        if host.startswith("["):
+            host = host.strip("[]")
+        err = None
+    
+        # Using the value from allowed_gai_family() in the context of getaddrinfo lets
+        # us select whether to work with IPv4 DNS records, IPv6 records, or both.
+        # The original create_connection function always returns all records.
+        family = allowed_gai_family()
+    
+        try:
+            host.encode("idna")
+        except UnicodeError:
+            raise LocationParseError(f"'{host}', label empty or too long") from None
+    
+        for res in socket.getaddrinfo(host, port, family, socket.SOCK_STREAM):
+            af, socktype, proto, canonname, sa = res
+            sock = None
+            try:
+                sock = socket.socket(af, socktype, proto)
+    
+                # If provided, set socket level options before connecting.
+                _set_socket_options(sock, socket_options)
+    
+                if timeout is not _DEFAULT_TIMEOUT:
+                    sock.settimeout(timeout)
+                if source_address:
+                    sock.bind(source_address)
+>               sock.connect(sa)
+E               ConnectionRefusedError: [Errno 111] Connection refused
+
+/usr/local/lib/python3.12/site-packages/urllib3/util/connection.py:73: ConnectionRefusedError
+
+The above exception was the direct cause of the following exception:
+
+self = <botocore.httpsession.URLLib3Session object at 0x76afa8bfdc10>
+request = <AWSPreparedRequest stream_output=False, method=HEAD, url=http://localhost:9000/imports, headers={'User-Agent': b'Boto...3f545bb18a', 'amz-sdk-invocation-id': b'e996099e-f5b6-409b-90a5-1b34f499cad8', 'amz-sdk-request': b'attempt=5; max=5'}>
+
+    def send(self, request):
+        try:
+            proxy_url = self._proxy_config.proxy_url_for(request.url)
+            manager = self._get_connection_manager(request.url, proxy_url)
+            conn = manager.connection_from_url(request.url)
+            self._setup_ssl_cert(conn, request.url, self._verify)
+            if ensure_boolean(
+                os.environ.get('BOTO_EXPERIMENTAL__ADD_PROXY_HOST_HEADER', '')
+            ):
+                # This is currently an "experimental" feature which provides
+                # no guarantees of backwards compatibility. It may be subject
+                # to change or removal in any patch version. Anyone opting in
+                # to this feature should strictly pin botocore.
+                host = urlparse(request.url).hostname
+                conn.proxy_headers['host'] = host
+    
+            request_target = self._get_request_target(request.url, proxy_url)
+>           urllib_response = conn.urlopen(
+                method=request.method,
+                url=request_target,
+                body=request.body,
+                headers=request.headers,
+                retries=Retry(False),
+                assert_same_host=False,
+                preload_content=False,
+                decode_content=False,
+                chunked=self._chunked(request.headers),
+            )
+
+/usr/local/lib/python3.12/site-packages/botocore/httpsession.py:464: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/usr/local/lib/python3.12/site-packages/urllib3/connectionpool.py:847: in urlopen
+    retries = retries.increment(
+/usr/local/lib/python3.12/site-packages/urllib3/util/retry.py:485: in increment
+    raise reraise(type(error), error, _stacktrace)
+/usr/local/lib/python3.12/site-packages/urllib3/util/util.py:39: in reraise
+    raise value
+/usr/local/lib/python3.12/site-packages/urllib3/connectionpool.py:793: in urlopen
+    response = self._make_request(
+/usr/local/lib/python3.12/site-packages/urllib3/connectionpool.py:499: in _make_request
+    conn.request(
+/usr/local/lib/python3.12/site-packages/botocore/awsrequest.py:96: in request
+    rval = super().request(method, url, body, headers, *args, **kwargs)
+/usr/local/lib/python3.12/site-packages/urllib3/connection.py:567: in request
+    self.endheaders()
+/usr/local/lib/python3.12/http/client.py:1381: in endheaders
+    self._send_output(message_body, encode_chunked=encode_chunked)
+/usr/local/lib/python3.12/site-packages/botocore/awsrequest.py:123: in _send_output
+    self.send(msg)
+/usr/local/lib/python3.12/site-packages/botocore/awsrequest.py:223: in send
+    return super().send(str)
+/usr/local/lib/python3.12/http/client.py:1085: in send
+    self.connect()
+/usr/local/lib/python3.12/site-packages/urllib3/connection.py:398: in connect
+    self.sock = self._new_conn()
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <AWSHTTPConnection(host='localhost', port=9000) at 0x76afa46ff4a0>
+
+    def _new_conn(self) -> socket.socket:
+        """Establish a socket connection and set nodelay settings on it.
+    
+        :return: New socket connection.
+        """
+        try:
+            sock = connection.create_connection(
+                (self._dns_host, self.port),
+                self.timeout,
+                source_address=self.source_address,
+                socket_options=self.socket_options,
+            )
+        except socket.gaierror as e:
+            raise NameResolutionError(self.host, self, e) from e
+        except SocketTimeout as e:
+            raise ConnectTimeoutError(
+                self,
+                f"Connection to {self.host} timed out. (connect timeout={self.timeout})",
+            ) from e
+    
+        except OSError as e:
+>           raise NewConnectionError(
+                self, f"Failed to establish a new connection: {e}"
+            ) from e
+E           urllib3.exceptions.NewConnectionError: AWSHTTPConnection(host='localhost', port=9000): Failed to establish a new connection: [Errno 111] Connection refused
+
+/usr/local/lib/python3.12/site-packages/urllib3/connection.py:254: NewConnectionError
+
+During handling of the above exception, another exception occurred:
+
+self = <app.infrastructure.storage.s3_storage.S3Storage object at 0x76afa951c710>
+bucket_name = 'imports'
+object_name = 'd6264127-7f09-4efc-940e-cf8fca09a008/3b86062e79a740c8f9407a8d75238f992615f680f109c2d34b474b3013fffa56'
+data = b'name,external_id\nCust 1,EXT1\nCust 2,EXT2\n'
+
+    async def upload(self, bucket_name: str, object_name: str, data: bytes):
+        try:
+>           self.client.head_bucket(Bucket=bucket_name)
+
+app/infrastructure/storage/s3_storage.py:20: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/usr/local/lib/python3.12/site-packages/botocore/client.py:565: in _api_call
+    return self._make_api_call(operation_name, kwargs)
+/usr/local/lib/python3.12/site-packages/botocore/client.py:999: in _make_api_call
+    http, parsed_response = self._make_request(
+/usr/local/lib/python3.12/site-packages/botocore/client.py:1023: in _make_request
+    return self._endpoint.make_request(operation_model, request_dict)
+/usr/local/lib/python3.12/site-packages/botocore/endpoint.py:119: in make_request
+    return self._send_request(request_dict, operation_model)
+/usr/local/lib/python3.12/site-packages/botocore/endpoint.py:200: in _send_request
+    while self._needs_retry(
+/usr/local/lib/python3.12/site-packages/botocore/endpoint.py:352: in _needs_retry
+    responses = self._event_emitter.emit(
+/usr/local/lib/python3.12/site-packages/botocore/hooks.py:412: in emit
+    return self._emitter.emit(aliased_event_name, **kwargs)
+/usr/local/lib/python3.12/site-packages/botocore/hooks.py:256: in emit
+    return self._emit(event_name, kwargs)
+/usr/local/lib/python3.12/site-packages/botocore/hooks.py:239: in _emit
+    response = handler(**kwargs)
+/usr/local/lib/python3.12/site-packages/botocore/retryhandler.py:207: in __call__
+    if self._checker(**checker_kwargs):
+/usr/local/lib/python3.12/site-packages/botocore/retryhandler.py:284: in __call__
+    should_retry = self._should_retry(
+/usr/local/lib/python3.12/site-packages/botocore/retryhandler.py:320: in _should_retry
+    return self._checker(attempt_number, response, caught_exception)
+/usr/local/lib/python3.12/site-packages/botocore/retryhandler.py:363: in __call__
+    checker_response = checker(
+/usr/local/lib/python3.12/site-packages/botocore/retryhandler.py:247: in __call__
+    return self._check_caught_exception(
+/usr/local/lib/python3.12/site-packages/botocore/retryhandler.py:416: in _check_caught_exception
+    raise caught_exception
+/usr/local/lib/python3.12/site-packages/botocore/endpoint.py:279: in _do_get_response
+    http_response = self._send(request)
+/usr/local/lib/python3.12/site-packages/botocore/endpoint.py:375: in _send
+    return self.http_session.send(request)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <botocore.httpsession.URLLib3Session object at 0x76afa8bfdc10>
+request = <AWSPreparedRequest stream_output=False, method=HEAD, url=http://localhost:9000/imports, headers={'User-Agent': b'Boto...3f545bb18a', 'amz-sdk-invocation-id': b'e996099e-f5b6-409b-90a5-1b34f499cad8', 'amz-sdk-request': b'attempt=5; max=5'}>
+
+    def send(self, request):
+        try:
+            proxy_url = self._proxy_config.proxy_url_for(request.url)
+            manager = self._get_connection_manager(request.url, proxy_url)
+            conn = manager.connection_from_url(request.url)
+            self._setup_ssl_cert(conn, request.url, self._verify)
+            if ensure_boolean(
+                os.environ.get('BOTO_EXPERIMENTAL__ADD_PROXY_HOST_HEADER', '')
+            ):
+                # This is currently an "experimental" feature which provides
+                # no guarantees of backwards compatibility. It may be subject
+                # to change or removal in any patch version. Anyone opting in
+                # to this feature should strictly pin botocore.
+                host = urlparse(request.url).hostname
+                conn.proxy_headers['host'] = host
+    
+            request_target = self._get_request_target(request.url, proxy_url)
+            urllib_response = conn.urlopen(
+                method=request.method,
+                url=request_target,
+                body=request.body,
+                headers=request.headers,
+                retries=Retry(False),
+                assert_same_host=False,
+                preload_content=False,
+                decode_content=False,
+                chunked=self._chunked(request.headers),
+            )
+    
+            http_response = botocore.awsrequest.AWSResponse(
+                request.url,
+                urllib_response.status,
+                urllib_response.headers,
+                urllib_response,
+            )
+    
+            if not request.stream_output:
+                # Cause the raw stream to be exhausted immediately. We do it
+                # this way instead of using preload_content because
+                # preload_content will never buffer chunked responses
+                http_response.content
+    
+            return http_response
+        except URLLib3SSLError as e:
+            raise SSLError(endpoint_url=request.url, error=e)
+        except (NewConnectionError, socket.gaierror) as e:
+>           raise EndpointConnectionError(endpoint_url=request.url, error=e)
+E           botocore.exceptions.EndpointConnectionError: Could not connect to the endpoint URL: "http://localhost:9000/imports"
+
+/usr/local/lib/python3.12/site-packages/botocore/httpsession.py:493: EndpointConnectionError
+
+During handling of the above exception, another exception occurred:
+
+>   ???
+
+C:\Xaiote\backend\tests\test_provenance.py:36: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/usr/local/lib/python3.12/site-packages/httpx/_client.py:1892: in post
+    return await self.request(
+/usr/local/lib/python3.12/site-packages/httpx/_client.py:1574: in request
+    return await self.send(request, auth=auth, follow_redirects=follow_redirects)
+/usr/local/lib/python3.12/site-packages/httpx/_client.py:1661: in send
+    response = await self._send_handling_auth(
+/usr/local/lib/python3.12/site-packages/httpx/_client.py:1689: in _send_handling_auth
+    response = await self._send_handling_redirects(
+/usr/local/lib/python3.12/site-packages/httpx/_client.py:1726: in _send_handling_redirects
+    response = await self._send_single_request(request)
+/usr/local/lib/python3.12/site-packages/httpx/_client.py:1763: in _send_single_request
+    response = await transport.handle_async_request(request)
+/usr/local/lib/python3.12/site-packages/httpx/_transports/asgi.py:164: in handle_async_request
+    await self.app(scope, receive, send)
+/usr/local/lib/python3.12/site-packages/fastapi/applications.py:1054: in __call__
+    await super().__call__(scope, receive, send)
+/usr/local/lib/python3.12/site-packages/starlette/applications.py:123: in __call__
+    await self.middleware_stack(scope, receive, send)
+/usr/local/lib/python3.12/site-packages/starlette/middleware/errors.py:186: in __call__
+    raise exc
+/usr/local/lib/python3.12/site-packages/starlette/middleware/errors.py:164: in __call__
+    await self.app(scope, receive, _send)
+/usr/local/lib/python3.12/site-packages/starlette/middleware/cors.py:85: in __call__
+    await self.app(scope, receive, send)
+/usr/local/lib/python3.12/site-packages/starlette/middleware/exceptions.py:65: in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+/usr/local/lib/python3.12/site-packages/starlette/_exception_handler.py:64: in wrapped_app
+    raise exc
+/usr/local/lib/python3.12/site-packages/starlette/_exception_handler.py:53: in wrapped_app
+    await app(scope, receive, sender)
+/usr/local/lib/python3.12/site-packages/starlette/routing.py:756: in __call__
+    await self.middleware_stack(scope, receive, send)
+/usr/local/lib/python3.12/site-packages/starlette/routing.py:776: in app
+    await route.handle(scope, receive, send)
+/usr/local/lib/python3.12/site-packages/starlette/routing.py:297: in handle
+    await self.app(scope, receive, send)
+/usr/local/lib/python3.12/site-packages/starlette/routing.py:77: in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+/usr/local/lib/python3.12/site-packages/starlette/_exception_handler.py:64: in wrapped_app
+    raise exc
+/usr/local/lib/python3.12/site-packages/starlette/_exception_handler.py:53: in wrapped_app
+    await app(scope, receive, sender)
+/usr/local/lib/python3.12/site-packages/starlette/routing.py:72: in app
+    response = await func(request)
+/usr/local/lib/python3.12/site-packages/fastapi/routing.py:278: in app
+    raw_response = await run_endpoint_function(
+/usr/local/lib/python3.12/site-packages/fastapi/routing.py:191: in run_endpoint_function
+    return await dependant.call(**values)
+app/api/routes/imports.py:51: in upload_import
+    await storage.upload("imports", object_name, contents)
+app/infrastructure/storage/s3_storage.py:22: in upload
+    self.client.create_bucket(Bucket=bucket_name)
+/usr/local/lib/python3.12/site-packages/botocore/client.py:565: in _api_call
+    return self._make_api_call(operation_name, kwargs)
+/usr/local/lib/python3.12/site-packages/botocore/client.py:999: in _make_api_call
+    http, parsed_response = self._make_request(
+/usr/local/lib/python3.12/site-packages/botocore/client.py:1023: in _make_request
+    return self._endpoint.make_request(operation_model, request_dict)
+/usr/local/lib/python3.12/site-packages/botocore/endpoint.py:119: in make_request
+    return self._send_request(request_dict, operation_model)
+/usr/local/lib/python3.12/site-packages/botocore/endpoint.py:200: in _send_request
+    while self._needs_retry(
+/usr/local/lib/python3.12/site-packages/botocore/endpoint.py:352: in _needs_retry
+    responses = self._event_emitter.emit(
+/usr/local/lib/python3.12/site-packages/botocore/hooks.py:412: in emit
+    return self._emitter.emit(aliased_event_name, **kwargs)
+/usr/local/lib/python3.12/site-packages/botocore/hooks.py:256: in emit
+    return self._emit(event_name, kwargs)
+/usr/local/lib/python3.12/site-packages/botocore/hooks.py:239: in _emit
+    response = handler(**kwargs)
+/usr/local/lib/python3.12/site-packages/botocore/retryhandler.py:207: in __call__
+    if self._checker(**checker_kwargs):
+/usr/local/lib/python3.12/site-packages/botocore/retryhandler.py:284: in __call__
+    should_retry = self._should_retry(
+/usr/local/lib/python3.12/site-packages/botocore/retryhandler.py:320: in _should_retry
+    return self._checker(attempt_number, response, caught_exception)
+/usr/local/lib/python3.12/site-packages/botocore/retryhandler.py:363: in __call__
+    checker_response = checker(
+/usr/local/lib/python3.12/site-packages/botocore/retryhandler.py:247: in __call__
+    return self._check_caught_exception(
+/usr/local/lib/python3.12/site-packages/botocore/retryhandler.py:416: in _check_caught_exception
+    raise caught_exception
+/usr/local/lib/python3.12/site-packages/botocore/endpoint.py:279: in _do_get_response
+    http_response = self._send(request)
+/usr/local/lib/python3.12/site-packages/botocore/endpoint.py:375: in _send
+    return self.http_session.send(request)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <botocore.httpsession.URLLib3Session object at 0x76afa8bfdc10>
+request = <AWSPreparedRequest stream_output=False, method=PUT, url=http://localhost:9000/imports, headers={'User-Agent': b'Boto3...nvocation-id': b'93f19f68-029e-43ae-a402-0d215a847642', 'amz-sdk-request': b'attempt=5; max=5', 'Content-Length': '0'}>
+
+    def send(self, request):
+        try:
+            proxy_url = self._proxy_config.proxy_url_for(request.url)
+            manager = self._get_connection_manager(request.url, proxy_url)
+            conn = manager.connection_from_url(request.url)
+            self._setup_ssl_cert(conn, request.url, self._verify)
+            if ensure_boolean(
+                os.environ.get('BOTO_EXPERIMENTAL__ADD_PROXY_HOST_HEADER', '')
+            ):
+                # This is currently an "experimental" feature which provides
+                # no guarantees of backwards compatibility. It may be subject
+                # to change or removal in any patch version. Anyone opting in
+                # to this feature should strictly pin botocore.
+                host = urlparse(request.url).hostname
+                conn.proxy_headers['host'] = host
+    
+            request_target = self._get_request_target(request.url, proxy_url)
+            urllib_response = conn.urlopen(
+                method=request.method,
+                url=request_target,
+                body=request.body,
+                headers=request.headers,
+                retries=Retry(False),
+                assert_same_host=False,
+                preload_content=False,
+                decode_content=False,
+                chunked=self._chunked(request.headers),
+            )
+    
+            http_response = botocore.awsrequest.AWSResponse(
+                request.url,
+                urllib_response.status,
+                urllib_response.headers,
+                urllib_response,
+            )
+    
+            if not request.stream_output:
+                # Cause the raw stream to be exhausted immediately. We do it
+                # this way instead of using preload_content because
+                # preload_content will never buffer chunked responses
+                http_response.content
+    
+            return http_response
+        except URLLib3SSLError as e:
+            raise SSLError(endpoint_url=request.url, error=e)
+        except (NewConnectionError, socket.gaierror) as e:
+>           raise EndpointConnectionError(endpoint_url=request.url, error=e)
+E           botocore.exceptions.EndpointConnectionError: Could not connect to the endpoint URL: "http://localhost:9000/imports"
+
+/usr/local/lib/python3.12/site-packages/botocore/httpsession.py:493: EndpointConnectionError
+_________________________ test_stt_worker_valid_audio __________________________
+
+self = <AWSHTTPConnection(host='localhost', port=9000) at 0x76afa54a2ba0>
+
+    def _new_conn(self) -> socket.socket:
+        """Establish a socket connection and set nodelay settings on it.
+    
+        :return: New socket connection.
+        """
+        try:
+>           sock = connection.create_connection(
+                (self._dns_host, self.port),
+                self.timeout,
+                source_address=self.source_address,
+                socket_options=self.socket_options,
+            )
+
+/usr/local/lib/python3.12/site-packages/urllib3/connection.py:239: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/usr/local/lib/python3.12/site-packages/urllib3/util/connection.py:85: in create_connection
+    raise err
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+address = ('localhost', 9000), timeout = 60, source_address = None
+socket_options = [(6, 1, 1)]
+
+    def create_connection(
+        address: tuple[str, int],
+        timeout: _TYPE_TIMEOUT = _DEFAULT_TIMEOUT,
+        source_address: tuple[str, int] | None = None,
+        socket_options: _TYPE_SOCKET_OPTIONS | None = None,
+    ) -> socket.socket:
+        """Connect to *address* and return the socket object.
+    
+        Convenience function.  Connect to *address* (a 2-tuple ``(host,
+        port)``) and return the socket object.  Passing the optional
+        *timeout* parameter will set the timeout on the socket instance
+        before attempting to connect.  If no *timeout* is supplied, the
+        global default timeout setting returned by :func:`socket.getdefaulttimeout`
+        is used.  If *source_address* is set it must be a tuple of (host, port)
+        for the socket to bind as a source address before making the connection.
+        An host of '' or port 0 tells the OS to use the default.
+        """
+    
+        host, port = address
+        if host.startswith("["):
+            host = host.strip("[]")
+        err = None
+    
+        # Using the value from allowed_gai_family() in the context of getaddrinfo lets
+        # us select whether to work with IPv4 DNS records, IPv6 records, or both.
+        # The original create_connection function always returns all records.
+        family = allowed_gai_family()
+    
+        try:
+            host.encode("idna")
+        except UnicodeError:
+            raise LocationParseError(f"'{host}', label empty or too long") from None
+    
+        for res in socket.getaddrinfo(host, port, family, socket.SOCK_STREAM):
+            af, socktype, proto, canonname, sa = res
+            sock = None
+            try:
+                sock = socket.socket(af, socktype, proto)
+    
+                # If provided, set socket level options before connecting.
+                _set_socket_options(sock, socket_options)
+    
+                if timeout is not _DEFAULT_TIMEOUT:
+                    sock.settimeout(timeout)
+                if source_address:
+                    sock.bind(source_address)
+>               sock.connect(sa)
+E               ConnectionRefusedError: [Errno 111] Connection refused
+
+/usr/local/lib/python3.12/site-packages/urllib3/util/connection.py:73: ConnectionRefusedError
+
+The above exception was the direct cause of the following exception:
+
+self = <botocore.httpsession.URLLib3Session object at 0x76afa8bfdc10>
+request = <AWSPreparedRequest stream_output=False, method=HEAD, url=http://localhost:9000/xaiote-evidence, headers={'User-Agent'...aea24a36e5', 'amz-sdk-invocation-id': b'55c6171d-5083-43b3-b445-e96259e9ca05', 'amz-sdk-request': b'attempt=5; max=5'}>
+
+    def send(self, request):
+        try:
+            proxy_url = self._proxy_config.proxy_url_for(request.url)
+            manager = self._get_connection_manager(request.url, proxy_url)
+            conn = manager.connection_from_url(request.url)
+            self._setup_ssl_cert(conn, request.url, self._verify)
+            if ensure_boolean(
+                os.environ.get('BOTO_EXPERIMENTAL__ADD_PROXY_HOST_HEADER', '')
+            ):
+                # This is currently an "experimental" feature which provides
+                # no guarantees of backwards compatibility. It may be subject
+                # to change or removal in any patch version. Anyone opting in
+                # to this feature should strictly pin botocore.
+                host = urlparse(request.url).hostname
+                conn.proxy_headers['host'] = host
+    
+            request_target = self._get_request_target(request.url, proxy_url)
+>           urllib_response = conn.urlopen(
+                method=request.method,
+                url=request_target,
+                body=request.body,
+                headers=request.headers,
+                retries=Retry(False),
+                assert_same_host=False,
+                preload_content=False,
+                decode_content=False,
+                chunked=self._chunked(request.headers),
+            )
+
+/usr/local/lib/python3.12/site-packages/botocore/httpsession.py:464: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/usr/local/lib/python3.12/site-packages/urllib3/connectionpool.py:847: in urlopen
+    retries = retries.increment(
+/usr/local/lib/python3.12/site-packages/urllib3/util/retry.py:485: in increment
+    raise reraise(type(error), error, _stacktrace)
+/usr/local/lib/python3.12/site-packages/urllib3/util/util.py:39: in reraise
+    raise value
+/usr/local/lib/python3.12/site-packages/urllib3/connectionpool.py:793: in urlopen
+    response = self._make_request(
+/usr/local/lib/python3.12/site-packages/urllib3/connectionpool.py:499: in _make_request
+    conn.request(
+/usr/local/lib/python3.12/site-packages/botocore/awsrequest.py:96: in request
+    rval = super().request(method, url, body, headers, *args, **kwargs)
+/usr/local/lib/python3.12/site-packages/urllib3/connection.py:567: in request
+    self.endheaders()
+/usr/local/lib/python3.12/http/client.py:1381: in endheaders
+    self._send_output(message_body, encode_chunked=encode_chunked)
+/usr/local/lib/python3.12/site-packages/botocore/awsrequest.py:123: in _send_output
+    self.send(msg)
+/usr/local/lib/python3.12/site-packages/botocore/awsrequest.py:223: in send
+    return super().send(str)
+/usr/local/lib/python3.12/http/client.py:1085: in send
+    self.connect()
+/usr/local/lib/python3.12/site-packages/urllib3/connection.py:398: in connect
+    self.sock = self._new_conn()
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <AWSHTTPConnection(host='localhost', port=9000) at 0x76afa54a2ba0>
+
+    def _new_conn(self) -> socket.socket:
+        """Establish a socket connection and set nodelay settings on it.
+    
+        :return: New socket connection.
+        """
+        try:
+            sock = connection.create_connection(
+                (self._dns_host, self.port),
+                self.timeout,
+                source_address=self.source_address,
+                socket_options=self.socket_options,
+            )
+        except socket.gaierror as e:
+            raise NameResolutionError(self.host, self, e) from e
+        except SocketTimeout as e:
+            raise ConnectTimeoutError(
+                self,
+                f"Connection to {self.host} timed out. (connect timeout={self.timeout})",
+            ) from e
+    
+        except OSError as e:
+>           raise NewConnectionError(
+                self, f"Failed to establish a new connection: {e}"
+            ) from e
+E           urllib3.exceptions.NewConnectionError: AWSHTTPConnection(host='localhost', port=9000): Failed to establish a new connection: [Errno 111] Connection refused
+
+/usr/local/lib/python3.12/site-packages/urllib3/connection.py:254: NewConnectionError
+
+During handling of the above exception, another exception occurred:
+
+self = <app.infrastructure.storage.s3_storage.S3Storage object at 0x76afa951c710>
+bucket_name = 'xaiote-evidence'
+object_name = 'b2cbfac9-7c2f-478c-beae-67ae624a7a09/evidence/08407cad-77ad-4b17-998f-e4524e884341/test.wav'
+data = b'RIFF4\xb1\x02\x00WAVEfmt \x10\x00\x00\x00\x01\x00\x01\x00D\xac\x00\x00\x88X\x01\x00\x02\x00\x10\x00data\x10\xb1\x02\...00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00'
+
+    async def upload(self, bucket_name: str, object_name: str, data: bytes):
+        try:
+>           self.client.head_bucket(Bucket=bucket_name)
+
+app/infrastructure/storage/s3_storage.py:20: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/usr/local/lib/python3.12/site-packages/botocore/client.py:565: in _api_call
+    return self._make_api_call(operation_name, kwargs)
+/usr/local/lib/python3.12/site-packages/botocore/client.py:999: in _make_api_call
+    http, parsed_response = self._make_request(
+/usr/local/lib/python3.12/site-packages/botocore/client.py:1023: in _make_request
+    return self._endpoint.make_request(operation_model, request_dict)
+/usr/local/lib/python3.12/site-packages/botocore/endpoint.py:119: in make_request
+    return self._send_request(request_dict, operation_model)
+/usr/local/lib/python3.12/site-packages/botocore/endpoint.py:200: in _send_request
+    while self._needs_retry(
+/usr/local/lib/python3.12/site-packages/botocore/endpoint.py:352: in _needs_retry
+    responses = self._event_emitter.emit(
+/usr/local/lib/python3.12/site-packages/botocore/hooks.py:412: in emit
+    return self._emitter.emit(aliased_event_name, **kwargs)
+/usr/local/lib/python3.12/site-packages/botocore/hooks.py:256: in emit
+    return self._emit(event_name, kwargs)
+/usr/local/lib/python3.12/site-packages/botocore/hooks.py:239: in _emit
+    response = handler(**kwargs)
+/usr/local/lib/python3.12/site-packages/botocore/retryhandler.py:207: in __call__
+    if self._checker(**checker_kwargs):
+/usr/local/lib/python3.12/site-packages/botocore/retryhandler.py:284: in __call__
+    should_retry = self._should_retry(
+/usr/local/lib/python3.12/site-packages/botocore/retryhandler.py:320: in _should_retry
+    return self._checker(attempt_number, response, caught_exception)
+/usr/local/lib/python3.12/site-packages/botocore/retryhandler.py:363: in __call__
+    checker_response = checker(
+/usr/local/lib/python3.12/site-packages/botocore/retryhandler.py:247: in __call__
+    return self._check_caught_exception(
+/usr/local/lib/python3.12/site-packages/botocore/retryhandler.py:416: in _check_caught_exception
+    raise caught_exception
+/usr/local/lib/python3.12/site-packages/botocore/endpoint.py:279: in _do_get_response
+    http_response = self._send(request)
+/usr/local/lib/python3.12/site-packages/botocore/endpoint.py:375: in _send
+    return self.http_session.send(request)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <botocore.httpsession.URLLib3Session object at 0x76afa8bfdc10>
+request = <AWSPreparedRequest stream_output=False, method=HEAD, url=http://localhost:9000/xaiote-evidence, headers={'User-Agent'...aea24a36e5', 'amz-sdk-invocation-id': b'55c6171d-5083-43b3-b445-e96259e9ca05', 'amz-sdk-request': b'attempt=5; max=5'}>
+
+    def send(self, request):
+        try:
+            proxy_url = self._proxy_config.proxy_url_for(request.url)
+            manager = self._get_connection_manager(request.url, proxy_url)
+            conn = manager.connection_from_url(request.url)
+            self._setup_ssl_cert(conn, request.url, self._verify)
+            if ensure_boolean(
+                os.environ.get('BOTO_EXPERIMENTAL__ADD_PROXY_HOST_HEADER', '')
+            ):
+                # This is currently an "experimental" feature which provides
+                # no guarantees of backwards compatibility. It may be subject
+                # to change or removal in any patch version. Anyone opting in
+                # to this feature should strictly pin botocore.
+                host = urlparse(request.url).hostname
+                conn.proxy_headers['host'] = host
+    
+            request_target = self._get_request_target(request.url, proxy_url)
+            urllib_response = conn.urlopen(
+                method=request.method,
+                url=request_target,
+                body=request.body,
+                headers=request.headers,
+                retries=Retry(False),
+                assert_same_host=False,
+                preload_content=False,
+                decode_content=False,
+                chunked=self._chunked(request.headers),
+            )
+    
+            http_response = botocore.awsrequest.AWSResponse(
+                request.url,
+                urllib_response.status,
+                urllib_response.headers,
+                urllib_response,
+            )
+    
+            if not request.stream_output:
+                # Cause the raw stream to be exhausted immediately. We do it
+                # this way instead of using preload_content because
+                # preload_content will never buffer chunked responses
+                http_response.content
+    
+            return http_response
+        except URLLib3SSLError as e:
+            raise SSLError(endpoint_url=request.url, error=e)
+        except (NewConnectionError, socket.gaierror) as e:
+>           raise EndpointConnectionError(endpoint_url=request.url, error=e)
+E           botocore.exceptions.EndpointConnectionError: Could not connect to the endpoint URL: "http://localhost:9000/xaiote-evidence"
+
+/usr/local/lib/python3.12/site-packages/botocore/httpsession.py:493: EndpointConnectionError
+
+During handling of the above exception, another exception occurred:
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x76afa4db3d70>
+
+    @pytest.mark.asyncio
+    async def test_stt_worker_valid_audio(monkeypatch):
+        """Test standard end-to-end processing with successful STT."""
+        company_id = await setup_integration(
+            company_name=f"STT Test {uuid.uuid4()}", phone_number_id=f"stt_{uuid.uuid4()}"
+        )
+    
+        # 1. Create a dummy WAV file in MinIO
+        wav_path = "dummy.wav"
+        create_dummy_wav(wav_path, 2)
+        with open(wav_path, "rb") as f:  # noqa: ASYNC230
+            audio_bytes = f.read()
+        os.remove(wav_path)
+    
+        msg_id = str(uuid.uuid4())
+        object_key = f"{company_id}/evidence/{msg_id}/test.wav"
+>       await storage_client.upload(settings.MINIO_BUCKET, object_key, audio_bytes)
+
+tests/test_stt_worker2.py:62: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+app/infrastructure/storage/s3_storage.py:22: in upload
+    self.client.create_bucket(Bucket=bucket_name)
+/usr/local/lib/python3.12/site-packages/botocore/client.py:565: in _api_call
+    return self._make_api_call(operation_name, kwargs)
+/usr/local/lib/python3.12/site-packages/botocore/client.py:999: in _make_api_call
+    http, parsed_response = self._make_request(
+/usr/local/lib/python3.12/site-packages/botocore/client.py:1023: in _make_request
+    return self._endpoint.make_request(operation_model, request_dict)
+/usr/local/lib/python3.12/site-packages/botocore/endpoint.py:119: in make_request
+    return self._send_request(request_dict, operation_model)
+/usr/local/lib/python3.12/site-packages/botocore/endpoint.py:200: in _send_request
+    while self._needs_retry(
+/usr/local/lib/python3.12/site-packages/botocore/endpoint.py:352: in _needs_retry
+    responses = self._event_emitter.emit(
+/usr/local/lib/python3.12/site-packages/botocore/hooks.py:412: in emit
+    return self._emitter.emit(aliased_event_name, **kwargs)
+/usr/local/lib/python3.12/site-packages/botocore/hooks.py:256: in emit
+    return self._emit(event_name, kwargs)
+/usr/local/lib/python3.12/site-packages/botocore/hooks.py:239: in _emit
+    response = handler(**kwargs)
+/usr/local/lib/python3.12/site-packages/botocore/retryhandler.py:207: in __call__
+    if self._checker(**checker_kwargs):
+/usr/local/lib/python3.12/site-packages/botocore/retryhandler.py:284: in __call__
+    should_retry = self._should_retry(
+/usr/local/lib/python3.12/site-packages/botocore/retryhandler.py:320: in _should_retry
+    return self._checker(attempt_number, response, caught_exception)
+/usr/local/lib/python3.12/site-packages/botocore/retryhandler.py:363: in __call__
+    checker_response = checker(
+/usr/local/lib/python3.12/site-packages/botocore/retryhandler.py:247: in __call__
+    return self._check_caught_exception(
+/usr/local/lib/python3.12/site-packages/botocore/retryhandler.py:416: in _check_caught_exception
+    raise caught_exception
+/usr/local/lib/python3.12/site-packages/botocore/endpoint.py:279: in _do_get_response
+    http_response = self._send(request)
+/usr/local/lib/python3.12/site-packages/botocore/endpoint.py:375: in _send
+    return self.http_session.send(request)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <botocore.httpsession.URLLib3Session object at 0x76afa8bfdc10>
+request = <AWSPreparedRequest stream_output=False, method=PUT, url=http://localhost:9000/xaiote-evidence, headers={'User-Agent':...nvocation-id': b'8641191f-f58f-4ed8-ac04-9d7f6942bcb2', 'amz-sdk-request': b'attempt=5; max=5', 'Content-Length': '0'}>
+
+    def send(self, request):
+        try:
+            proxy_url = self._proxy_config.proxy_url_for(request.url)
+            manager = self._get_connection_manager(request.url, proxy_url)
+            conn = manager.connection_from_url(request.url)
+            self._setup_ssl_cert(conn, request.url, self._verify)
+            if ensure_boolean(
+                os.environ.get('BOTO_EXPERIMENTAL__ADD_PROXY_HOST_HEADER', '')
+            ):
+                # This is currently an "experimental" feature which provides
+                # no guarantees of backwards compatibility. It may be subject
+                # to change or removal in any patch version. Anyone opting in
+                # to this feature should strictly pin botocore.
+                host = urlparse(request.url).hostname
+                conn.proxy_headers['host'] = host
+    
+            request_target = self._get_request_target(request.url, proxy_url)
+            urllib_response = conn.urlopen(
+                method=request.method,
+                url=request_target,
+                body=request.body,
+                headers=request.headers,
+                retries=Retry(False),
+                assert_same_host=False,
+                preload_content=False,
+                decode_content=False,
+                chunked=self._chunked(request.headers),
+            )
+    
+            http_response = botocore.awsrequest.AWSResponse(
+                request.url,
+                urllib_response.status,
+                urllib_response.headers,
+                urllib_response,
+            )
+    
+            if not request.stream_output:
+                # Cause the raw stream to be exhausted immediately. We do it
+                # this way instead of using preload_content because
+                # preload_content will never buffer chunked responses
+                http_response.content
+    
+            return http_response
+        except URLLib3SSLError as e:
+            raise SSLError(endpoint_url=request.url, error=e)
+        except (NewConnectionError, socket.gaierror) as e:
+>           raise EndpointConnectionError(endpoint_url=request.url, error=e)
+E           botocore.exceptions.EndpointConnectionError: Could not connect to the endpoint URL: "http://localhost:9000/xaiote-evidence"
+
+/usr/local/lib/python3.12/site-packages/botocore/httpsession.py:493: EndpointConnectionError
+__________________________ test_stt_worker_no_speech ___________________________
+
+self = <AWSHTTPConnection(host='localhost', port=9000) at 0x76afa6e3e570>
+
+    def _new_conn(self) -> socket.socket:
+        """Establish a socket connection and set nodelay settings on it.
+    
+        :return: New socket connection.
+        """
+        try:
+>           sock = connection.create_connection(
+                (self._dns_host, self.port),
+                self.timeout,
+                source_address=self.source_address,
+                socket_options=self.socket_options,
+            )
+
+/usr/local/lib/python3.12/site-packages/urllib3/connection.py:239: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/usr/local/lib/python3.12/site-packages/urllib3/util/connection.py:85: in create_connection
+    raise err
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+address = ('localhost', 9000), timeout = 60, source_address = None
+socket_options = [(6, 1, 1)]
+
+    def create_connection(
+        address: tuple[str, int],
+        timeout: _TYPE_TIMEOUT = _DEFAULT_TIMEOUT,
+        source_address: tuple[str, int] | None = None,
+        socket_options: _TYPE_SOCKET_OPTIONS | None = None,
+    ) -> socket.socket:
+        """Connect to *address* and return the socket object.
+    
+        Convenience function.  Connect to *address* (a 2-tuple ``(host,
+        port)``) and return the socket object.  Passing the optional
+        *timeout* parameter will set the timeout on the socket instance
+        before attempting to connect.  If no *timeout* is supplied, the
+        global default timeout setting returned by :func:`socket.getdefaulttimeout`
+        is used.  If *source_address* is set it must be a tuple of (host, port)
+        for the socket to bind as a source address before making the connection.
+        An host of '' or port 0 tells the OS to use the default.
+        """
+    
+        host, port = address
+        if host.startswith("["):
+            host = host.strip("[]")
+        err = None
+    
+        # Using the value from allowed_gai_family() in the context of getaddrinfo lets
+        # us select whether to work with IPv4 DNS records, IPv6 records, or both.
+        # The original create_connection function always returns all records.
+        family = allowed_gai_family()
+    
+        try:
+            host.encode("idna")
+        except UnicodeError:
+            raise LocationParseError(f"'{host}', label empty or too long") from None
+    
+        for res in socket.getaddrinfo(host, port, family, socket.SOCK_STREAM):
+            af, socktype, proto, canonname, sa = res
+            sock = None
+            try:
+                sock = socket.socket(af, socktype, proto)
+    
+                # If provided, set socket level options before connecting.
+                _set_socket_options(sock, socket_options)
+    
+                if timeout is not _DEFAULT_TIMEOUT:
+                    sock.settimeout(timeout)
+                if source_address:
+                    sock.bind(source_address)
+>               sock.connect(sa)
+E               ConnectionRefusedError: [Errno 111] Connection refused
+
+/usr/local/lib/python3.12/site-packages/urllib3/util/connection.py:73: ConnectionRefusedError
+
+The above exception was the direct cause of the following exception:
+
+self = <botocore.httpsession.URLLib3Session object at 0x76afa8bfdc10>
+request = <AWSPreparedRequest stream_output=False, method=HEAD, url=http://localhost:9000/xaiote-evidence, headers={'User-Agent'...1a402d9e43', 'amz-sdk-invocation-id': b'be96cb8d-2644-4d50-bfb1-6f61b4fc6b50', 'amz-sdk-request': b'attempt=5; max=5'}>
+
+    def send(self, request):
+        try:
+            proxy_url = self._proxy_config.proxy_url_for(request.url)
+            manager = self._get_connection_manager(request.url, proxy_url)
+            conn = manager.connection_from_url(request.url)
+            self._setup_ssl_cert(conn, request.url, self._verify)
+            if ensure_boolean(
+                os.environ.get('BOTO_EXPERIMENTAL__ADD_PROXY_HOST_HEADER', '')
+            ):
+                # This is currently an "experimental" feature which provides
+                # no guarantees of backwards compatibility. It may be subject
+                # to change or removal in any patch version. Anyone opting in
+                # to this feature should strictly pin botocore.
+                host = urlparse(request.url).hostname
+                conn.proxy_headers['host'] = host
+    
+            request_target = self._get_request_target(request.url, proxy_url)
+>           urllib_response = conn.urlopen(
+                method=request.method,
+                url=request_target,
+                body=request.body,
+                headers=request.headers,
+                retries=Retry(False),
+                assert_same_host=False,
+                preload_content=False,
+                decode_content=False,
+                chunked=self._chunked(request.headers),
+            )
+
+/usr/local/lib/python3.12/site-packages/botocore/httpsession.py:464: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/usr/local/lib/python3.12/site-packages/urllib3/connectionpool.py:847: in urlopen
+    retries = retries.increment(
+/usr/local/lib/python3.12/site-packages/urllib3/util/retry.py:485: in increment
+    raise reraise(type(error), error, _stacktrace)
+/usr/local/lib/python3.12/site-packages/urllib3/util/util.py:39: in reraise
+    raise value
+/usr/local/lib/python3.12/site-packages/urllib3/connectionpool.py:793: in urlopen
+    response = self._make_request(
+/usr/local/lib/python3.12/site-packages/urllib3/connectionpool.py:499: in _make_request
+    conn.request(
+/usr/local/lib/python3.12/site-packages/botocore/awsrequest.py:96: in request
+    rval = super().request(method, url, body, headers, *args, **kwargs)
+/usr/local/lib/python3.12/site-packages/urllib3/connection.py:567: in request
+    self.endheaders()
+/usr/local/lib/python3.12/http/client.py:1381: in endheaders
+    self._send_output(message_body, encode_chunked=encode_chunked)
+/usr/local/lib/python3.12/site-packages/botocore/awsrequest.py:123: in _send_output
+    self.send(msg)
+/usr/local/lib/python3.12/site-packages/botocore/awsrequest.py:223: in send
+    return super().send(str)
+/usr/local/lib/python3.12/http/client.py:1085: in send
+    self.connect()
+/usr/local/lib/python3.12/site-packages/urllib3/connection.py:398: in connect
+    self.sock = self._new_conn()
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <AWSHTTPConnection(host='localhost', port=9000) at 0x76afa6e3e570>
+
+    def _new_conn(self) -> socket.socket:
+        """Establish a socket connection and set nodelay settings on it.
+    
+        :return: New socket connection.
+        """
+        try:
+            sock = connection.create_connection(
+                (self._dns_host, self.port),
+                self.timeout,
+                source_address=self.source_address,
+                socket_options=self.socket_options,
+            )
+        except socket.gaierror as e:
+            raise NameResolutionError(self.host, self, e) from e
+        except SocketTimeout as e:
+            raise ConnectTimeoutError(
+                self,
+                f"Connection to {self.host} timed out. (connect timeout={self.timeout})",
+            ) from e
+    
+        except OSError as e:
+>           raise NewConnectionError(
+                self, f"Failed to establish a new connection: {e}"
+            ) from e
+E           urllib3.exceptions.NewConnectionError: AWSHTTPConnection(host='localhost', port=9000): Failed to establish a new connection: [Errno 111] Connection refused
+
+/usr/local/lib/python3.12/site-packages/urllib3/connection.py:254: NewConnectionError
+
+During handling of the above exception, another exception occurred:
+
+self = <app.infrastructure.storage.s3_storage.S3Storage object at 0x76afa951c710>
+bucket_name = 'xaiote-evidence'
+object_name = 'fa1a4844-ea64-465f-9831-0f464e6368fb/evidence/c83f0d68-90bc-4f97-a698-89383e6b7736/test.wav'
+data = b'RIFF\xacX\x01\x00WAVEfmt \x10\x00\x00\x00\x01\x00\x01\x00D\xac\x00\x00\x88X\x01\x00\x02\x00\x10\x00data\x88X\x01\x00...00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00'
+
+    async def upload(self, bucket_name: str, object_name: str, data: bytes):
+        try:
+>           self.client.head_bucket(Bucket=bucket_name)
+
+app/infrastructure/storage/s3_storage.py:20: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/usr/local/lib/python3.12/site-packages/botocore/client.py:565: in _api_call
+    return self._make_api_call(operation_name, kwargs)
+/usr/local/lib/python3.12/site-packages/botocore/client.py:999: in _make_api_call
+    http, parsed_response = self._make_request(
+/usr/local/lib/python3.12/site-packages/botocore/client.py:1023: in _make_request
+    return self._endpoint.make_request(operation_model, request_dict)
+/usr/local/lib/python3.12/site-packages/botocore/endpoint.py:119: in make_request
+    return self._send_request(request_dict, operation_model)
+/usr/local/lib/python3.12/site-packages/botocore/endpoint.py:200: in _send_request
+    while self._needs_retry(
+/usr/local/lib/python3.12/site-packages/botocore/endpoint.py:352: in _needs_retry
+    responses = self._event_emitter.emit(
+/usr/local/lib/python3.12/site-packages/botocore/hooks.py:412: in emit
+    return self._emitter.emit(aliased_event_name, **kwargs)
+/usr/local/lib/python3.12/site-packages/botocore/hooks.py:256: in emit
+    return self._emit(event_name, kwargs)
+/usr/local/lib/python3.12/site-packages/botocore/hooks.py:239: in _emit
+    response = handler(**kwargs)
+/usr/local/lib/python3.12/site-packages/botocore/retryhandler.py:207: in __call__
+    if self._checker(**checker_kwargs):
+/usr/local/lib/python3.12/site-packages/botocore/retryhandler.py:284: in __call__
+    should_retry = self._should_retry(
+/usr/local/lib/python3.12/site-packages/botocore/retryhandler.py:320: in _should_retry
+    return self._checker(attempt_number, response, caught_exception)
+/usr/local/lib/python3.12/site-packages/botocore/retryhandler.py:363: in __call__
+    checker_response = checker(
+/usr/local/lib/python3.12/site-packages/botocore/retryhandler.py:247: in __call__
+    return self._check_caught_exception(
+/usr/local/lib/python3.12/site-packages/botocore/retryhandler.py:416: in _check_caught_exception
+    raise caught_exception
+/usr/local/lib/python3.12/site-packages/botocore/endpoint.py:279: in _do_get_response
+    http_response = self._send(request)
+/usr/local/lib/python3.12/site-packages/botocore/endpoint.py:375: in _send
+    return self.http_session.send(request)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <botocore.httpsession.URLLib3Session object at 0x76afa8bfdc10>
+request = <AWSPreparedRequest stream_output=False, method=HEAD, url=http://localhost:9000/xaiote-evidence, headers={'User-Agent'...1a402d9e43', 'amz-sdk-invocation-id': b'be96cb8d-2644-4d50-bfb1-6f61b4fc6b50', 'amz-sdk-request': b'attempt=5; max=5'}>
+
+    def send(self, request):
+        try:
+            proxy_url = self._proxy_config.proxy_url_for(request.url)
+            manager = self._get_connection_manager(request.url, proxy_url)
+            conn = manager.connection_from_url(request.url)
+            self._setup_ssl_cert(conn, request.url, self._verify)
+            if ensure_boolean(
+                os.environ.get('BOTO_EXPERIMENTAL__ADD_PROXY_HOST_HEADER', '')
+            ):
+                # This is currently an "experimental" feature which provides
+                # no guarantees of backwards compatibility. It may be subject
+                # to change or removal in any patch version. Anyone opting in
+                # to this feature should strictly pin botocore.
+                host = urlparse(request.url).hostname
+                conn.proxy_headers['host'] = host
+    
+            request_target = self._get_request_target(request.url, proxy_url)
+            urllib_response = conn.urlopen(
+                method=request.method,
+                url=request_target,
+                body=request.body,
+                headers=request.headers,
+                retries=Retry(False),
+                assert_same_host=False,
+                preload_content=False,
+                decode_content=False,
+                chunked=self._chunked(request.headers),
+            )
+    
+            http_response = botocore.awsrequest.AWSResponse(
+                request.url,
+                urllib_response.status,
+                urllib_response.headers,
+                urllib_response,
+            )
+    
+            if not request.stream_output:
+                # Cause the raw stream to be exhausted immediately. We do it
+                # this way instead of using preload_content because
+                # preload_content will never buffer chunked responses
+                http_response.content
+    
+            return http_response
+        except URLLib3SSLError as e:
+            raise SSLError(endpoint_url=request.url, error=e)
+        except (NewConnectionError, socket.gaierror) as e:
+>           raise EndpointConnectionError(endpoint_url=request.url, error=e)
+E           botocore.exceptions.EndpointConnectionError: Could not connect to the endpoint URL: "http://localhost:9000/xaiote-evidence"
+
+/usr/local/lib/python3.12/site-packages/botocore/httpsession.py:493: EndpointConnectionError
+
+During handling of the above exception, another exception occurred:
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x76afa6d31e80>
+
+    @pytest.mark.asyncio
+    async def test_stt_worker_no_speech(monkeypatch):
+        """Test NO_SPEECH deterministic behavior when provider returns empty text."""
+        company_id = await setup_integration(
+            company_name=f"STT Test 2 {uuid.uuid4()}",
+            phone_number_id=f"stt2_{uuid.uuid4()}",
+        )
+    
+        wav_path = "dummy2.wav"
+        create_dummy_wav(wav_path, 1)
+        with open(wav_path, "rb") as f:  # noqa: ASYNC230
+            audio_bytes = f.read()
+        os.remove(wav_path)
+    
+        msg_id = str(uuid.uuid4())
+        object_key = f"{company_id}/evidence/{msg_id}/test.wav"
+>       await storage_client.upload(settings.MINIO_BUCKET, object_key, audio_bytes)
+
+tests/test_stt_worker2.py:144: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+app/infrastructure/storage/s3_storage.py:22: in upload
+    self.client.create_bucket(Bucket=bucket_name)
+/usr/local/lib/python3.12/site-packages/botocore/client.py:565: in _api_call
+    return self._make_api_call(operation_name, kwargs)
+/usr/local/lib/python3.12/site-packages/botocore/client.py:999: in _make_api_call
+    http, parsed_response = self._make_request(
+/usr/local/lib/python3.12/site-packages/botocore/client.py:1023: in _make_request
+    return self._endpoint.make_request(operation_model, request_dict)
+/usr/local/lib/python3.12/site-packages/botocore/endpoint.py:119: in make_request
+    return self._send_request(request_dict, operation_model)
+/usr/local/lib/python3.12/site-packages/botocore/endpoint.py:200: in _send_request
+    while self._needs_retry(
+/usr/local/lib/python3.12/site-packages/botocore/endpoint.py:352: in _needs_retry
+    responses = self._event_emitter.emit(
+/usr/local/lib/python3.12/site-packages/botocore/hooks.py:412: in emit
+    return self._emitter.emit(aliased_event_name, **kwargs)
+/usr/local/lib/python3.12/site-packages/botocore/hooks.py:256: in emit
+    return self._emit(event_name, kwargs)
+/usr/local/lib/python3.12/site-packages/botocore/hooks.py:239: in _emit
+    response = handler(**kwargs)
+/usr/local/lib/python3.12/site-packages/botocore/retryhandler.py:207: in __call__
+    if self._checker(**checker_kwargs):
+/usr/local/lib/python3.12/site-packages/botocore/retryhandler.py:284: in __call__
+    should_retry = self._should_retry(
+/usr/local/lib/python3.12/site-packages/botocore/retryhandler.py:320: in _should_retry
+    return self._checker(attempt_number, response, caught_exception)
+/usr/local/lib/python3.12/site-packages/botocore/retryhandler.py:363: in __call__
+    checker_response = checker(
+/usr/local/lib/python3.12/site-packages/botocore/retryhandler.py:247: in __call__
+    return self._check_caught_exception(
+/usr/local/lib/python3.12/site-packages/botocore/retryhandler.py:416: in _check_caught_exception
+    raise caught_exception
+/usr/local/lib/python3.12/site-packages/botocore/endpoint.py:279: in _do_get_response
+    http_response = self._send(request)
+/usr/local/lib/python3.12/site-packages/botocore/endpoint.py:375: in _send
+    return self.http_session.send(request)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <botocore.httpsession.URLLib3Session object at 0x76afa8bfdc10>
+request = <AWSPreparedRequest stream_output=False, method=PUT, url=http://localhost:9000/xaiote-evidence, headers={'User-Agent':...nvocation-id': b'8ab1f675-b36e-4f5d-a1b1-6232f333b5b8', 'amz-sdk-request': b'attempt=5; max=5', 'Content-Length': '0'}>
+
+    def send(self, request):
+        try:
+            proxy_url = self._proxy_config.proxy_url_for(request.url)
+            manager = self._get_connection_manager(request.url, proxy_url)
+            conn = manager.connection_from_url(request.url)
+            self._setup_ssl_cert(conn, request.url, self._verify)
+            if ensure_boolean(
+                os.environ.get('BOTO_EXPERIMENTAL__ADD_PROXY_HOST_HEADER', '')
+            ):
+                # This is currently an "experimental" feature which provides
+                # no guarantees of backwards compatibility. It may be subject
+                # to change or removal in any patch version. Anyone opting in
+                # to this feature should strictly pin botocore.
+                host = urlparse(request.url).hostname
+                conn.proxy_headers['host'] = host
+    
+            request_target = self._get_request_target(request.url, proxy_url)
+            urllib_response = conn.urlopen(
+                method=request.method,
+                url=request_target,
+                body=request.body,
+                headers=request.headers,
+                retries=Retry(False),
+                assert_same_host=False,
+                preload_content=False,
+                decode_content=False,
+                chunked=self._chunked(request.headers),
+            )
+    
+            http_response = botocore.awsrequest.AWSResponse(
+                request.url,
+                urllib_response.status,
+                urllib_response.headers,
+                urllib_response,
+            )
+    
+            if not request.stream_output:
+                # Cause the raw stream to be exhausted immediately. We do it
+                # this way instead of using preload_content because
+                # preload_content will never buffer chunked responses
+                http_response.content
+    
+            return http_response
+        except URLLib3SSLError as e:
+            raise SSLError(endpoint_url=request.url, error=e)
+        except (NewConnectionError, socket.gaierror) as e:
+>           raise EndpointConnectionError(endpoint_url=request.url, error=e)
+E           botocore.exceptions.EndpointConnectionError: Could not connect to the endpoint URL: "http://localhost:9000/xaiote-evidence"
+
+/usr/local/lib/python3.12/site-packages/botocore/httpsession.py:493: EndpointConnectionError
+______________________ test_stt_worker_unsupported_codec _______________________
+
+self = <AWSHTTPConnection(host='localhost', port=9000) at 0x76afa4d84b60>
+
+    def _new_conn(self) -> socket.socket:
+        """Establish a socket connection and set nodelay settings on it.
+    
+        :return: New socket connection.
+        """
+        try:
+>           sock = connection.create_connection(
+                (self._dns_host, self.port),
+                self.timeout,
+                source_address=self.source_address,
+                socket_options=self.socket_options,
+            )
+
+/usr/local/lib/python3.12/site-packages/urllib3/connection.py:239: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/usr/local/lib/python3.12/site-packages/urllib3/util/connection.py:85: in create_connection
+    raise err
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+address = ('localhost', 9000), timeout = 60, source_address = None
+socket_options = [(6, 1, 1)]
+
+    def create_connection(
+        address: tuple[str, int],
+        timeout: _TYPE_TIMEOUT = _DEFAULT_TIMEOUT,
+        source_address: tuple[str, int] | None = None,
+        socket_options: _TYPE_SOCKET_OPTIONS | None = None,
+    ) -> socket.socket:
+        """Connect to *address* and return the socket object.
+    
+        Convenience function.  Connect to *address* (a 2-tuple ``(host,
+        port)``) and return the socket object.  Passing the optional
+        *timeout* parameter will set the timeout on the socket instance
+        before attempting to connect.  If no *timeout* is supplied, the
+        global default timeout setting returned by :func:`socket.getdefaulttimeout`
+        is used.  If *source_address* is set it must be a tuple of (host, port)
+        for the socket to bind as a source address before making the connection.
+        An host of '' or port 0 tells the OS to use the default.
+        """
+    
+        host, port = address
+        if host.startswith("["):
+            host = host.strip("[]")
+        err = None
+    
+        # Using the value from allowed_gai_family() in the context of getaddrinfo lets
+        # us select whether to work with IPv4 DNS records, IPv6 records, or both.
+        # The original create_connection function always returns all records.
+        family = allowed_gai_family()
+    
+        try:
+            host.encode("idna")
+        except UnicodeError:
+            raise LocationParseError(f"'{host}', label empty or too long") from None
+    
+        for res in socket.getaddrinfo(host, port, family, socket.SOCK_STREAM):
+            af, socktype, proto, canonname, sa = res
+            sock = None
+            try:
+                sock = socket.socket(af, socktype, proto)
+    
+                # If provided, set socket level options before connecting.
+                _set_socket_options(sock, socket_options)
+    
+                if timeout is not _DEFAULT_TIMEOUT:
+                    sock.settimeout(timeout)
+                if source_address:
+                    sock.bind(source_address)
+>               sock.connect(sa)
+E               ConnectionRefusedError: [Errno 111] Connection refused
+
+/usr/local/lib/python3.12/site-packages/urllib3/util/connection.py:73: ConnectionRefusedError
+
+The above exception was the direct cause of the following exception:
+
+self = <botocore.httpsession.URLLib3Session object at 0x76afa8bfdc10>
+request = <AWSPreparedRequest stream_output=False, method=HEAD, url=http://localhost:9000/xaiote-evidence, headers={'User-Agent'...f939d9e1f2', 'amz-sdk-invocation-id': b'bf7dc255-dab1-4452-87cf-2d3bddc8e96c', 'amz-sdk-request': b'attempt=5; max=5'}>
+
+    def send(self, request):
+        try:
+            proxy_url = self._proxy_config.proxy_url_for(request.url)
+            manager = self._get_connection_manager(request.url, proxy_url)
+            conn = manager.connection_from_url(request.url)
+            self._setup_ssl_cert(conn, request.url, self._verify)
+            if ensure_boolean(
+                os.environ.get('BOTO_EXPERIMENTAL__ADD_PROXY_HOST_HEADER', '')
+            ):
+                # This is currently an "experimental" feature which provides
+                # no guarantees of backwards compatibility. It may be subject
+                # to change or removal in any patch version. Anyone opting in
+                # to this feature should strictly pin botocore.
+                host = urlparse(request.url).hostname
+                conn.proxy_headers['host'] = host
+    
+            request_target = self._get_request_target(request.url, proxy_url)
+>           urllib_response = conn.urlopen(
+                method=request.method,
+                url=request_target,
+                body=request.body,
+                headers=request.headers,
+                retries=Retry(False),
+                assert_same_host=False,
+                preload_content=False,
+                decode_content=False,
+                chunked=self._chunked(request.headers),
+            )
+
+/usr/local/lib/python3.12/site-packages/botocore/httpsession.py:464: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/usr/local/lib/python3.12/site-packages/urllib3/connectionpool.py:847: in urlopen
+    retries = retries.increment(
+/usr/local/lib/python3.12/site-packages/urllib3/util/retry.py:485: in increment
+    raise reraise(type(error), error, _stacktrace)
+/usr/local/lib/python3.12/site-packages/urllib3/util/util.py:39: in reraise
+    raise value
+/usr/local/lib/python3.12/site-packages/urllib3/connectionpool.py:793: in urlopen
+    response = self._make_request(
+/usr/local/lib/python3.12/site-packages/urllib3/connectionpool.py:499: in _make_request
+    conn.request(
+/usr/local/lib/python3.12/site-packages/botocore/awsrequest.py:96: in request
+    rval = super().request(method, url, body, headers, *args, **kwargs)
+/usr/local/lib/python3.12/site-packages/urllib3/connection.py:567: in request
+    self.endheaders()
+/usr/local/lib/python3.12/http/client.py:1381: in endheaders
+    self._send_output(message_body, encode_chunked=encode_chunked)
+/usr/local/lib/python3.12/site-packages/botocore/awsrequest.py:123: in _send_output
+    self.send(msg)
+/usr/local/lib/python3.12/site-packages/botocore/awsrequest.py:223: in send
+    return super().send(str)
+/usr/local/lib/python3.12/http/client.py:1085: in send
+    self.connect()
+/usr/local/lib/python3.12/site-packages/urllib3/connection.py:398: in connect
+    self.sock = self._new_conn()
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <AWSHTTPConnection(host='localhost', port=9000) at 0x76afa4d84b60>
+
+    def _new_conn(self) -> socket.socket:
+        """Establish a socket connection and set nodelay settings on it.
+    
+        :return: New socket connection.
+        """
+        try:
+            sock = connection.create_connection(
+                (self._dns_host, self.port),
+                self.timeout,
+                source_address=self.source_address,
+                socket_options=self.socket_options,
+            )
+        except socket.gaierror as e:
+            raise NameResolutionError(self.host, self, e) from e
+        except SocketTimeout as e:
+            raise ConnectTimeoutError(
+                self,
+                f"Connection to {self.host} timed out. (connect timeout={self.timeout})",
+            ) from e
+    
+        except OSError as e:
+>           raise NewConnectionError(
+                self, f"Failed to establish a new connection: {e}"
+            ) from e
+E           urllib3.exceptions.NewConnectionError: AWSHTTPConnection(host='localhost', port=9000): Failed to establish a new connection: [Errno 111] Connection refused
+
+/usr/local/lib/python3.12/site-packages/urllib3/connection.py:254: NewConnectionError
+
+During handling of the above exception, another exception occurred:
+
+self = <app.infrastructure.storage.s3_storage.S3Storage object at 0x76afa951c710>
+bucket_name = 'xaiote-evidence'
+object_name = '9f5d06fd-bc14-42e4-a24a-31bd89fd1cee/evidence/6459af83-da33-4487-a5a7-cc5dd203ffba/test.jpg'
+data = b'fake image bytes'
+
+    async def upload(self, bucket_name: str, object_name: str, data: bytes):
+        try:
+>           self.client.head_bucket(Bucket=bucket_name)
+
+app/infrastructure/storage/s3_storage.py:20: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/usr/local/lib/python3.12/site-packages/botocore/client.py:565: in _api_call
+    return self._make_api_call(operation_name, kwargs)
+/usr/local/lib/python3.12/site-packages/botocore/client.py:999: in _make_api_call
+    http, parsed_response = self._make_request(
+/usr/local/lib/python3.12/site-packages/botocore/client.py:1023: in _make_request
+    return self._endpoint.make_request(operation_model, request_dict)
+/usr/local/lib/python3.12/site-packages/botocore/endpoint.py:119: in make_request
+    return self._send_request(request_dict, operation_model)
+/usr/local/lib/python3.12/site-packages/botocore/endpoint.py:200: in _send_request
+    while self._needs_retry(
+/usr/local/lib/python3.12/site-packages/botocore/endpoint.py:352: in _needs_retry
+    responses = self._event_emitter.emit(
+/usr/local/lib/python3.12/site-packages/botocore/hooks.py:412: in emit
+    return self._emitter.emit(aliased_event_name, **kwargs)
+/usr/local/lib/python3.12/site-packages/botocore/hooks.py:256: in emit
+    return self._emit(event_name, kwargs)
+/usr/local/lib/python3.12/site-packages/botocore/hooks.py:239: in _emit
+    response = handler(**kwargs)
+/usr/local/lib/python3.12/site-packages/botocore/retryhandler.py:207: in __call__
+    if self._checker(**checker_kwargs):
+/usr/local/lib/python3.12/site-packages/botocore/retryhandler.py:284: in __call__
+    should_retry = self._should_retry(
+/usr/local/lib/python3.12/site-packages/botocore/retryhandler.py:320: in _should_retry
+    return self._checker(attempt_number, response, caught_exception)
+/usr/local/lib/python3.12/site-packages/botocore/retryhandler.py:363: in __call__
+    checker_response = checker(
+/usr/local/lib/python3.12/site-packages/botocore/retryhandler.py:247: in __call__
+    return self._check_caught_exception(
+/usr/local/lib/python3.12/site-packages/botocore/retryhandler.py:416: in _check_caught_exception
+    raise caught_exception
+/usr/local/lib/python3.12/site-packages/botocore/endpoint.py:279: in _do_get_response
+    http_response = self._send(request)
+/usr/local/lib/python3.12/site-packages/botocore/endpoint.py:375: in _send
+    return self.http_session.send(request)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <botocore.httpsession.URLLib3Session object at 0x76afa8bfdc10>
+request = <AWSPreparedRequest stream_output=False, method=HEAD, url=http://localhost:9000/xaiote-evidence, headers={'User-Agent'...f939d9e1f2', 'amz-sdk-invocation-id': b'bf7dc255-dab1-4452-87cf-2d3bddc8e96c', 'amz-sdk-request': b'attempt=5; max=5'}>
+
+    def send(self, request):
+        try:
+            proxy_url = self._proxy_config.proxy_url_for(request.url)
+            manager = self._get_connection_manager(request.url, proxy_url)
+            conn = manager.connection_from_url(request.url)
+            self._setup_ssl_cert(conn, request.url, self._verify)
+            if ensure_boolean(
+                os.environ.get('BOTO_EXPERIMENTAL__ADD_PROXY_HOST_HEADER', '')
+            ):
+                # This is currently an "experimental" feature which provides
+                # no guarantees of backwards compatibility. It may be subject
+                # to change or removal in any patch version. Anyone opting in
+                # to this feature should strictly pin botocore.
+                host = urlparse(request.url).hostname
+                conn.proxy_headers['host'] = host
+    
+            request_target = self._get_request_target(request.url, proxy_url)
+            urllib_response = conn.urlopen(
+                method=request.method,
+                url=request_target,
+                body=request.body,
+                headers=request.headers,
+                retries=Retry(False),
+                assert_same_host=False,
+                preload_content=False,
+                decode_content=False,
+                chunked=self._chunked(request.headers),
+            )
+    
+            http_response = botocore.awsrequest.AWSResponse(
+                request.url,
+                urllib_response.status,
+                urllib_response.headers,
+                urllib_response,
+            )
+    
+            if not request.stream_output:
+                # Cause the raw stream to be exhausted immediately. We do it
+                # this way instead of using preload_content because
+                # preload_content will never buffer chunked responses
+                http_response.content
+    
+            return http_response
+        except URLLib3SSLError as e:
+            raise SSLError(endpoint_url=request.url, error=e)
+        except (NewConnectionError, socket.gaierror) as e:
+>           raise EndpointConnectionError(endpoint_url=request.url, error=e)
+E           botocore.exceptions.EndpointConnectionError: Could not connect to the endpoint URL: "http://localhost:9000/xaiote-evidence"
+
+/usr/local/lib/python3.12/site-packages/botocore/httpsession.py:493: EndpointConnectionError
+
+During handling of the above exception, another exception occurred:
+
+    @pytest.mark.asyncio
+    async def test_stt_worker_unsupported_codec():
+        """Test validation rejection for unsupported container."""
+        company_id = await setup_integration(
+            company_name=f"STT Test 3 {uuid.uuid4()}",
+            phone_number_id=f"stt3_{uuid.uuid4()}",
+        )
+    
+        msg_id = str(uuid.uuid4())
+        object_key = f"{company_id}/evidence/{msg_id}/test.jpg"
+>       await storage_client.upload(settings.MINIO_BUCKET, object_key, b"fake image bytes")
+
+tests/test_stt_worker2.py:213: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+app/infrastructure/storage/s3_storage.py:22: in upload
+    self.client.create_bucket(Bucket=bucket_name)
+/usr/local/lib/python3.12/site-packages/botocore/client.py:565: in _api_call
+    return self._make_api_call(operation_name, kwargs)
+/usr/local/lib/python3.12/site-packages/botocore/client.py:999: in _make_api_call
+    http, parsed_response = self._make_request(
+/usr/local/lib/python3.12/site-packages/botocore/client.py:1023: in _make_request
+    return self._endpoint.make_request(operation_model, request_dict)
+/usr/local/lib/python3.12/site-packages/botocore/endpoint.py:119: in make_request
+    return self._send_request(request_dict, operation_model)
+/usr/local/lib/python3.12/site-packages/botocore/endpoint.py:200: in _send_request
+    while self._needs_retry(
+/usr/local/lib/python3.12/site-packages/botocore/endpoint.py:352: in _needs_retry
+    responses = self._event_emitter.emit(
+/usr/local/lib/python3.12/site-packages/botocore/hooks.py:412: in emit
+    return self._emitter.emit(aliased_event_name, **kwargs)
+/usr/local/lib/python3.12/site-packages/botocore/hooks.py:256: in emit
+    return self._emit(event_name, kwargs)
+/usr/local/lib/python3.12/site-packages/botocore/hooks.py:239: in _emit
+    response = handler(**kwargs)
+/usr/local/lib/python3.12/site-packages/botocore/retryhandler.py:207: in __call__
+    if self._checker(**checker_kwargs):
+/usr/local/lib/python3.12/site-packages/botocore/retryhandler.py:284: in __call__
+    should_retry = self._should_retry(
+/usr/local/lib/python3.12/site-packages/botocore/retryhandler.py:320: in _should_retry
+    return self._checker(attempt_number, response, caught_exception)
+/usr/local/lib/python3.12/site-packages/botocore/retryhandler.py:363: in __call__
+    checker_response = checker(
+/usr/local/lib/python3.12/site-packages/botocore/retryhandler.py:247: in __call__
+    return self._check_caught_exception(
+/usr/local/lib/python3.12/site-packages/botocore/retryhandler.py:416: in _check_caught_exception
+    raise caught_exception
+/usr/local/lib/python3.12/site-packages/botocore/endpoint.py:279: in _do_get_response
+    http_response = self._send(request)
+/usr/local/lib/python3.12/site-packages/botocore/endpoint.py:375: in _send
+    return self.http_session.send(request)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <botocore.httpsession.URLLib3Session object at 0x76afa8bfdc10>
+request = <AWSPreparedRequest stream_output=False, method=PUT, url=http://localhost:9000/xaiote-evidence, headers={'User-Agent':...nvocation-id': b'0e92b030-021f-4b2d-bcfe-68bed7a1b64b', 'amz-sdk-request': b'attempt=5; max=5', 'Content-Length': '0'}>
+
+    def send(self, request):
+        try:
+            proxy_url = self._proxy_config.proxy_url_for(request.url)
+            manager = self._get_connection_manager(request.url, proxy_url)
+            conn = manager.connection_from_url(request.url)
+            self._setup_ssl_cert(conn, request.url, self._verify)
+            if ensure_boolean(
+                os.environ.get('BOTO_EXPERIMENTAL__ADD_PROXY_HOST_HEADER', '')
+            ):
+                # This is currently an "experimental" feature which provides
+                # no guarantees of backwards compatibility. It may be subject
+                # to change or removal in any patch version. Anyone opting in
+                # to this feature should strictly pin botocore.
+                host = urlparse(request.url).hostname
+                conn.proxy_headers['host'] = host
+    
+            request_target = self._get_request_target(request.url, proxy_url)
+            urllib_response = conn.urlopen(
+                method=request.method,
+                url=request_target,
+                body=request.body,
+                headers=request.headers,
+                retries=Retry(False),
+                assert_same_host=False,
+                preload_content=False,
+                decode_content=False,
+                chunked=self._chunked(request.headers),
+            )
+    
+            http_response = botocore.awsrequest.AWSResponse(
+                request.url,
+                urllib_response.status,
+                urllib_response.headers,
+                urllib_response,
+            )
+    
+            if not request.stream_output:
+                # Cause the raw stream to be exhausted immediately. We do it
+                # this way instead of using preload_content because
+                # preload_content will never buffer chunked responses
+                http_response.content
+    
+            return http_response
+        except URLLib3SSLError as e:
+            raise SSLError(endpoint_url=request.url, error=e)
+        except (NewConnectionError, socket.gaierror) as e:
+>           raise EndpointConnectionError(endpoint_url=request.url, error=e)
+E           botocore.exceptions.EndpointConnectionError: Could not connect to the endpoint URL: "http://localhost:9000/xaiote-evidence"
+
+/usr/local/lib/python3.12/site-packages/botocore/httpsession.py:493: EndpointConnectionError
+=============================== warnings summary ===============================
+../usr/local/lib/python3.12/site-packages/pydantic/_internal/_config.py:284
+../usr/local/lib/python3.12/site-packages/pydantic/_internal/_config.py:284
+  /usr/local/lib/python3.12/site-packages/pydantic/_internal/_config.py:284: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.7/migration/
+    warnings.warn(DEPRECATION_MESSAGE, DeprecationWarning)
+
+../usr/local/lib/python3.12/site-packages/passlib/utils/__init__.py:854
+  /usr/local/lib/python3.12/site-packages/passlib/utils/__init__.py:854: DeprecationWarning: 'crypt' is deprecated and slated for removal in Python 3.13
+    from crypt import crypt as _crypt
+
+app/main.py:104
+  /app/app/main.py:104: DeprecationWarning: 
+          on_event is deprecated, use lifespan event handlers instead.
+  
+          Read more about it in the
+          [FastAPI docs for Lifespan Events](https://fastapi.tiangolo.com/advanced/events/).
+          
+    @app.on_event("startup")
+
+../usr/local/lib/python3.12/site-packages/fastapi/applications.py:4495
+../usr/local/lib/python3.12/site-packages/fastapi/applications.py:4495
+../usr/local/lib/python3.12/site-packages/fastapi/applications.py:4495
+  /usr/local/lib/python3.12/site-packages/fastapi/applications.py:4495: DeprecationWarning: 
+          on_event is deprecated, use lifespan event handlers instead.
+  
+          Read more about it in the
+          [FastAPI docs for Lifespan Events](https://fastapi.tiangolo.com/advanced/events/).
+          
+    return self.router.on_event(event_type)
+
+app/main.py:113
+  /app/app/main.py:113: DeprecationWarning: 
+          on_event is deprecated, use lifespan event handlers instead.
+  
+          Read more about it in the
+          [FastAPI docs for Lifespan Events](https://fastapi.tiangolo.com/advanced/events/).
+          
+    @app.on_event("startup")
+
+app/main.py:122
+  /app/app/main.py:122: DeprecationWarning: 
+          on_event is deprecated, use lifespan event handlers instead.
+  
+          Read more about it in the
+          [FastAPI docs for Lifespan Events](https://fastapi.tiangolo.com/advanced/events/).
+          
+    @app.on_event("startup")
+
+../usr/local/lib/python3.12/site-packages/_pytest/config/__init__.py:1448
+  /usr/local/lib/python3.12/site-packages/_pytest/config/__init__.py:1448: PytestConfigWarning: Unknown config option: asyncio_default_fixture_loop_scope
+  
+    self._warn_or_fail_if_strict(f"Unknown config option: {key}\n")
+
+../usr/local/lib/python3.12/site-packages/pydantic/_internal/_fields.py:160
+  /usr/local/lib/python3.12/site-packages/pydantic/_internal/_fields.py:160: UserWarning: Field "model_confidence" has conflict with protected namespace "model_".
+  
+  You may be able to resolve this warning by setting `model_config['protected_namespaces'] = ()`.
+    warnings.warn(
+
+tests/test_phase_3f_validation.py:71
+  tests/test_phase_3f_validation.py:71: PytestDeprecationWarning: test_provenance_and_temporal is asynchronous and explicitly requests the "event_loop" fixture. Asynchronous fixtures and test functions should use "asyncio.get_running_loop()" instead.
+    async def test_provenance_and_temporal(event_loop):
+
+tests/test_phase_3f_validation.py:111
+  tests/test_phase_3f_validation.py:111: PytestDeprecationWarning: test_plant_conflict is asynchronous and explicitly requests the "event_loop" fixture. Asynchronous fixtures and test functions should use "asyncio.get_running_loop()" instead.
+    async def test_plant_conflict(event_loop):
+
+tests/test_phase_3f_validation.py:124
+  tests/test_phase_3f_validation.py:124: PytestDeprecationWarning: test_supersession_architectural_gap is asynchronous and explicitly requests the "event_loop" fixture. Asynchronous fixtures and test functions should use "asyncio.get_running_loop()" instead.
+    async def test_supersession_architectural_gap(event_loop):
+
+tests/test_phase_3f_validation.py:158
+  tests/test_phase_3f_validation.py:158: PytestDeprecationWarning: test_transactional_handoff is asynchronous and explicitly requests the "event_loop" fixture. Asynchronous fixtures and test functions should use "asyncio.get_running_loop()" instead.
+    async def test_transactional_handoff(event_loop):
+
+../usr/local/lib/python3.12/site-packages/pytest_asyncio/plugin.py:231
+  /usr/local/lib/python3.12/site-packages/pytest_asyncio/plugin.py:231: PytestDeprecationWarning: clear_transcripts is asynchronous and explicitly requests the "event_loop" fixture. Asynchronous fixtures and test functions should use "asyncio.get_running_loop()" instead.
+    warnings.warn(
+
+tests/test_auth.py::test_auth_lifecycle
+  /usr/local/lib/python3.12/site-packages/passlib/handlers/argon2.py:716: DeprecationWarning: Accessing argon2.__version__ is deprecated and will be removed in a future release. Use importlib.metadata directly to query for structlog's packaging metadata.
+    _argon2_cffi.__version__, max_version)
+
+tests/test_imports.py: 10 warnings
+tests/test_provenance.py: 10 warnings
+tests/test_stt_worker2.py: 30 warnings
+  /usr/local/lib/python3.12/site-packages/botocore/auth.py:419: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+    datetime_now = datetime.datetime.utcnow()
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/test_imports.py::test_imports_comprehensive - botocore.exception...
+FAILED tests/test_phase_3f_revisions.py::test_revision_schema_and_auth - KeyE...
+FAILED tests/test_phase_3f_revisions.py::test_provenance_and_history - KeyErr...
+FAILED tests/test_phase_3f_revisions.py::test_concurrency_revisions - KeyErro...
+FAILED tests/test_phase_3f_validation.py::test_supersession_architectural_gap
+FAILED tests/test_provenance.py::test_provenance_and_data_quality - botocore....
+FAILED tests/test_stt_worker2.py::test_stt_worker_valid_audio - botocore.exce...
+FAILED tests/test_stt_worker2.py::test_stt_worker_no_speech - botocore.except...
+FAILED tests/test_stt_worker2.py::test_stt_worker_unsupported_codec - botocor...
+============ 9 failed, 61 passed, 67 warnings in 105.93s (0:01:45) =============

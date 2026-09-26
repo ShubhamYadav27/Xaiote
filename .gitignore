@@ -1,0 +1,75 @@
+# Environment and secrets
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+*secret*
+*secrets*
+*credential*
+credentials/
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+env/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Node / Next.js
+node_modules/
+.next/
+out/
+dist/
+.turbo/
+npm-debug.log*
+yarn-debug.log*
+pnpm-debug.log*
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Temporary / local files
+scratch/
+*.log
+*.tmp
+*.temp
+
+# Deployment secrets/config
+service.json
+svc.json
+task-def.json
+td.json
+new-task-def.json
+new-task-def-env.json
+new-task-def-min.json
+new-def-correct.json
+def-correct.json
+production-secrets*.json
+
+# Generated test / regression files
+reg-out.json
+registered.json
+cto_black.txt
+cto_mypy.txt
+cto_ruff.txt
+final_regression.txt
+regression_results*.txt
+report.txt
+pw_lines.txt
+t14_table.md
+
+# Internal prompt dump / local docs
+all_user_prompts.txt
+Local Deploy.pdf
+null

@@ -1,0 +1,450 @@
+<USER_REQUEST>
+You are working on the Xaiote backend before Phase 3F implementation begins.
+
+IMPORTANT CONTEXT:
+
+Xaiote Phase 1–3E architecture is already accepted and frozen.
+
+Phase 3F architecture has now been approved and frozen, but Phase 3F IMPLEMENTATION has NOT started yet.
+
+Before implementing Phase 3F, I need the existing Xaiote PostgreSQL configuration to be correctly prepared for connection to our Supabase PostgreSQL database.
+
+The Supabase project is healthy.
+
+DO NOT implement Phase 3F.
+DO NOT create ManufacturingEvent.
+DO NOT create CanonicalizationJob.
+DO NOT modify Phase 3E logic.
+DO NOT modify existing Phase 1–3E schemas or migrations.
+DO NOT redesign the database architecture.
+
+This task is ONLY a database connectivity/configuration/readiness task.
+
+---
+
+1. FIRST: AUDIT THE EXISTING DATABASE ARCHITECTURE
+
+---
+
+Inspect the repository and identify exactly how Xaiote currently connects to PostgreSQL.
+
+Inspect at minimum:
+
+* backend/app/core/config.py
+* backend/app/db/* or equivalent database/session module
+* backend/app/main.py
+* backend/alembic.ini
+* backend/alembic/env.py
+* backend/alembic/versions/*
+* docker-compose.yml / compose files
+* backend/.env
+* backend/.env.example
+* any database initialization/configuration files
+* relevant backend tests
+
+Do NOT assume filenames if the repository uses different paths.
+
+Before changing anything, report:
+
+1. Current DATABASE_URL configuration.
+2. Current SQLAlchemy engine configuration.
+3. Current Alembic database configuration.
+4. Current Docker PostgreSQL configuration.
+5. Whether DATABASE_URL is read from environment variables.
+6. Whether Alembic uses the same database URL/configuration source.
+7. Whether tests use a separate database.
+8. Whether MinIO/Redis/etc. are coupled to PostgreSQL startup.
+9. Whether the application currently assumes PostgreSQL is always local Docker PostgreSQL.
+
+---
+
+2. TARGET DATABASE
+
+---
+
+The target managed PostgreSQL database is Supabase PostgreSQL.
+
+The backend should continue using PostgreSQL + SQLAlchemy.
+
+DO NOT introduce the Supabase JavaScript client.
+
+DO NOT replace SQLAlchemy with the Supabase SDK.
+
+DO NOT introduce a new ORM.
+
+DO NOT change the existing repository/domain architecture.
+
+Supabase is being used as the managed PostgreSQL provider.
+
+The application should remain provider-neutral at the application/database abstraction level.
+
+---
+
+3. SECRET HANDLING — CRITICAL
+
+---
+
+NEVER hardcode the database password into:
+
+* Python source code
+* TypeScript/JavaScript source code
+* Dockerfile
+* docker-compose.yml
+* Alembic source code
+* migration files
+* tests
+* documentation
+* git-tracked configuration
+* logs
+* error messages
+
+The database password will be manually inserted by me into the appropriate local/private environment configuration.
+
+Use a placeholder such as:
+
+<SUPABASE_DB_PASSWORD>
+
+Do NOT ask me to paste the password into source code.
+
+Do NOT expose the password in your final report.
+
+Verify that .gitignore protects the local .env file.
+
+If .env.example exists, use only placeholders in it.
+
+---
+
+4. DATABASE URL CONFIGURATION
+
+---
+
+Configure the application so the PostgreSQL connection is controlled through:
+
+DATABASE_URL
+
+The resulting configuration should support a Supabase PostgreSQL connection string such as:
+
+postgresql://postgres:<SUPABASE_DB_PASSWORD>@<SUPABASE_HOST>:<PORT>/postgres
+
+Use the actual Supabase connection details already available in the project configuration/environment if they exist.
+
+Do NOT invent hostnames, ports, credentials, or connection strings.
+
+If the repository already has a DATABASE_URL convention, preserve it.
+
+If SQLAlchemy requires an explicit driver such as:
+
+postgresql+psycopg://...
+
+use the driver already supported by the existing project dependencies.
+
+Do not unnecessarily change database drivers.
+
+---
+
+5. LOCAL DEVELOPMENT MUST NOT BE BROKEN
+
+---
+
+Do not blindly delete the existing local PostgreSQL Docker setup.
+
+Determine whether the project currently supports:
+
+A. local PostgreSQL
+B. managed PostgreSQL
+
+If possible, preserve both through environment configuration.
+
+For example:
+
+DATABASE_URL=<local-or-managed-postgres-url>
+
+The application should not contain hardcoded environment-specific database hosts.
+
+Do not force every developer/test environment to use Supabase.
+
+Tests must remain isolated from the real Supabase production database.
+
+---
+
+6. ALEMBIC MUST USE THE SAME CONFIGURATION
+
+---
+
+Verify that Alembic resolves DATABASE_URL consistently with the application.
+
+There must not be a situation where:
+
+Application → Supabase
+
+but
+
+Alembic → old local Docker PostgreSQL
+
+or vice versa.
+
+Inspect:
+
+* alembic.ini
+* alembic/env.py
+* migration configuration
+
+Make the smallest configuration correction necessary so Alembic and the application use the intended DATABASE_URL source.
+
+Do NOT create a new migration for this configuration-only task.
+
+Do NOT modify existing migration contents.
+
+Do NOT change the migration history.
+
+---
+
+7. SUPABASE CONNECTION VALIDATION
+
+---
+
+After configuration changes, perform a safe connectivity test.
+
+The test must verify:
+
+1. PostgreSQL connection succeeds.
+2. Authentication succeeds.
+3. Database is reachable.
+4. SQLAlchemy can establish a connection.
+5. A simple read-only query succeeds.
+6. Alembic can connect to the same database.
+7. The application health/readiness path can establish the database connection.
+
+Do NOT perform destructive SQL.
+
+Do NOT drop tables.
+
+Do NOT truncate tables.
+
+Do NOT reset the database.
+
+Do NOT run destructive migrations.
+
+---
+
+8. MIGRATION SAFETY
+
+---
+
+Before running Alembic against Supabase:
+
+Inspect the current migration head.
+
+Report:
+
+* current Alembic head
+* number of migrations
+* whether Supabase is empty or already contains Xaiote tables
+* whether the database schema matches the current migration history
+
+DO NOT automatically run `alembic upgrade head` against Supabase if there is any possibility that the database already contains an unknown schema.
+
+If Supabase is empty and it is safe to initialize it, clearly state that.
+
+If manual approval is required before migration execution, STOP and report the exact command that should be manually executed.
+
+Do not guess.
+
+---
+
+9. SECURITY CHECK
+
+---
+
+Verify:
+
+* .env is gitignored.
+* Database password is not committed.
+* Database password does not appear in logs.
+* Database password does not appear in frontend code.
+* DATABASE_URL is server-side only.
+* No database credentials are exposed through Next.js public environment variables.
+* No `NEXT_PUBLIC_DATABASE_URL`.
+* No client-side Supabase database credential is introduced.
+* Production secrets remain environment/secret-manager based.
+
+Also scan the repository for accidental plaintext database credentials.
+
+If found, report exact files and redact the secret in your report.
+
+---
+
+10. DO NOT CHANGE THESE
+
+---
+
+Do NOT modify:
+
+* Phase 1 authentication logic
+* Phase 1 tenant isolation
+* Phase 2 master-data logic
+* Phase 2 ingestion logic
+* Phase 2 audit logic
+* Phase 3A communication evidence
+* Phase 3B WhatsApp integration
+* Phase 3C STT
+* Phase 3D LLM extraction
+* Phase 3E entity resolution
+* existing domain models
+* existing migrations
+* existing API contracts
+* Phase 3F architecture document
+
+No ManufacturingEvent implementation.
+
+No CanonicalizationJob implementation.
+
+No risk engine.
+
+No impact engine.
+
+No prediction.
+
+No Incident entity.
+
+---
+
+11. EXPECTED FILES TO REVIEW / POSSIBLY MODIFY
+
+---
+
+Only modify files that are actually necessary.
+
+Likely candidates include:
+
+* backend/.env
+  Local/private only if required.
+  NEVER expose its contents in the report.
+
+* backend/.env.example
+  Only if the documented environment variable configuration is missing or incorrect.
+
+* backend/app/core/config.py
+  Only if DATABASE_URL configuration needs correction.
+
+* backend database/session module
+  Only if the current engine configuration does not correctly consume DATABASE_URL.
+
+* backend/alembic/env.py
+  Only if Alembic is not using the same DATABASE_URL configuration.
+
+* backend/alembic.ini
+  Only if genuinely required.
+
+* docker-compose.yml
+  Only if necessary to preserve clean local-vs-managed database configuration.
+
+* .gitignore
+  Only if .env protection is missing.
+
+Do NOT modify migration files unless there is an independently verified existing migration defect.
+This task is NOT a schema migration task.
+
+---
+
+12. TESTING
+
+---
+
+Run the relevant existing tests after configuration changes.
+
+At minimum verify:
+
+* backend test suite
+* database connectivity
+* Alembic connectivity
+* application startup
+* health endpoint
+* readiness endpoint
+* existing Phase 1–3E tests
+
+Do not modify tests simply to make failures disappear.
+
+If a test fails because it expects local PostgreSQL while the application is intentionally configured for managed PostgreSQL, explain the environment separation instead of weakening the test.
+
+---
+
+13. REQUIRED FINAL REPORT
+
+---
+
+At the end, provide a precise report containing:
+
+A. DATABASE ARCHITECTURE BEFORE
+
+* current database provider
+* current connection mechanism
+* current DATABASE_URL handling
+* current Alembic handling
+
+B. CHANGES MADE
+For every changed file:
+
+* exact path
+* exact reason
+* exact type of change
+* whether behavior changed or only configuration changed
+
+C. FILES NOT CHANGED
+Explicitly confirm that Phase 1–3E implementation and migrations were untouched.
+
+D. SUPABASE CONNECTION STATUS
+
+* connection successful/failed
+* SQLAlchemy connection successful/failed
+* read-only query successful/failed
+* Alembic connection successful/failed
+* application readiness successful/failed
+
+E. MIGRATION STATUS
+
+* current local migration head
+* Supabase migration/schema state
+* whether any migration was executed
+* exact reason if migrations were intentionally not executed
+
+F. SECURITY STATUS
+
+* .env protection
+* credential scan
+* frontend exposure check
+* logging exposure check
+
+G. MANUAL VERIFICATION STEPS
+Give me exact commands/UI checks I can personally run to independently verify everything.
+
+H. PHASE 3F GATE
+End with exactly one of:
+
+READY FOR PHASE 3F IMPLEMENTATION
+
+or
+
+BLOCKED — DO NOT START PHASE 3F
+
+Do NOT claim READY unless all database connectivity and safety checks actually pass.
+
+FINAL RULE:
+
+This task is strictly preparation and verification of the PostgreSQL/Supabase database connection.
+
+Do not implement Phase 3F.
+Do not modify Phase 3E behavior.
+Do not modify the architecture.
+Do not create new business functionality.
+Do not expose secrets.
+Do not guess missing Supabase values.
+
+</USER_REQUEST>
+<ADDITIONAL_METADATA>
+The current local time is: 2026-09-21T14:48:28+05:30.
+
+The user has uploaded 1 image(s):
+- C:/Users/Shubham Yadav/.gemini/antigravity/brain/0da3836f-79b4-4d21-b474-6e1d98277a9c/.user_uploaded/media_1789982304341.png
+You can embed this image in an artifact if you need the USER to review it.
+</ADDITIONAL_METADATA>

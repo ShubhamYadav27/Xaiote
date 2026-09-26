@@ -1,0 +1,3207 @@
+...............................F...F....F..F.......EEE.............FFF   [100%]
+==================================== ERRORS ====================================
+________________ ERROR at setup of test_stt_worker_valid_audio _________________
+
+self = <sqlalchemy.dialects.postgresql.asyncpg.AsyncAdapt_asyncpg_cursor object at 0x7548fc967820>
+operation = 'DELETE FROM manufacturing_events', parameters = ()
+
+    async def _prepare_and_execute(self, operation, parameters):
+        adapt_connection = self._adapt_connection
+    
+        async with adapt_connection._execute_mutex:
+            if not adapt_connection._started:
+                await adapt_connection._start_transaction()
+    
+            if parameters is None:
+                parameters = ()
+    
+            try:
+                prepared_stmt, attributes = await adapt_connection._prepare(
+                    operation, self._invalidate_schema_cache_asof
+                )
+    
+                if attributes:
+                    self.description = [
+                        (
+                            attr.name,
+                            attr.type.oid,
+                            None,
+                            None,
+                            None,
+                            None,
+                            None,
+                        )
+                        for attr in attributes
+                    ]
+                else:
+                    self.description = None
+    
+                if self.server_side:
+                    self._cursor = await prepared_stmt.cursor(*parameters)
+                    self.rowcount = -1
+                else:
+>                   self._rows = await prepared_stmt.fetch(*parameters)
+
+/usr/local/lib/python3.12/site-packages/sqlalchemy/dialects/postgresql/asyncpg.py:538: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/usr/local/lib/python3.12/site-packages/asyncpg/prepared_stmt.py:176: in fetch
+    data = await self.__bind_execute(args, 0, timeout)
+/usr/local/lib/python3.12/site-packages/asyncpg/prepared_stmt.py:241: in __bind_execute
+    data, status, _ = await self.__do_execute(
+/usr/local/lib/python3.12/site-packages/asyncpg/prepared_stmt.py:230: in __do_execute
+    return await executor(protocol)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+>   ???
+E   asyncpg.exceptions.ForeignKeyViolationError: update or delete on table "manufacturing_events" violates foreign key constraint "manufacturing_event_revisions_event_id_fkey" on table "manufacturing_event_revisions"
+E   DETAIL:  Key (id)=(af689cb8-b3b7-4fef-a853-cbaf4fba9baf) is still referenced from table "manufacturing_event_revisions".
+
+asyncpg/protocol/protocol.pyx:207: ForeignKeyViolationError
+
+The above exception was the direct cause of the following exception:
+
+self = <sqlalchemy.engine.base.Connection object at 0x7548fc9ad0d0>
+dialect = <sqlalchemy.dialects.postgresql.asyncpg.PGDialect_asyncpg object at 0x75490245f8f0>
+context = <sqlalchemy.dialects.postgresql.asyncpg.PGExecutionContext_asyncpg object at 0x7548fc9ae2a0>
+statement = <sqlalchemy.dialects.postgresql.asyncpg.PGCompiler_asyncpg object at 0x7548fc9acf20>
+parameters = [()]
+
+    def _exec_single_context(
+        self,
+        dialect: Dialect,
+        context: ExecutionContext,
+        statement: Union[str, Compiled],
+        parameters: Optional[_AnyMultiExecuteParams],
+    ) -> CursorResult[Any]:
+        """continue the _execute_context() method for a single DBAPI
+        cursor.execute() or cursor.executemany() call.
+    
+        """
+        if dialect.bind_typing is BindTyping.SETINPUTSIZES:
+            generic_setinputsizes = context._prepare_set_input_sizes()
+    
+            if generic_setinputsizes:
+                try:
+                    dialect.do_set_input_sizes(
+                        context.cursor, generic_setinputsizes, context
+                    )
+                except BaseException as e:
+                    self._handle_dbapi_exception(
+                        e, str(statement), parameters, None, context
+                    )
+    
+        cursor, str_statement, parameters = (
+            context.cursor,
+            context.statement,
+            context.parameters,
+        )
+    
+        effective_parameters: Optional[_AnyExecuteParams]
+    
+        if not context.executemany:
+            effective_parameters = parameters[0]
+        else:
+            effective_parameters = parameters
+    
+        if self._has_events or self.engine._has_events:
+            for fn in self.dispatch.before_cursor_execute:
+                str_statement, effective_parameters = fn(
+                    self,
+                    cursor,
+                    str_statement,
+                    effective_parameters,
+                    context,
+                    context.executemany,
+                )
+    
+        if self._echo:
+            self._log_info(str_statement)
+    
+            stats = context._get_cache_stats()
+    
+            if not self.engine.hide_parameters:
+                self._log_info(
+                    "[%s] %r",
+                    stats,
+                    sql_util._repr_params(
+                        effective_parameters,
+                        batches=10,
+                        ismulti=context.executemany,
+                    ),
+                )
+            else:
+                self._log_info(
+                    "[%s] [SQL parameters hidden due to hide_parameters=True]",
+                    stats,
+                )
+    
+        evt_handled: bool = False
+        try:
+            if context.execute_style is ExecuteStyle.EXECUTEMANY:
+                effective_parameters = cast(
+                    "_CoreMultiExecuteParams", effective_parameters
+                )
+                if self.dialect._has_events:
+                    for fn in self.dialect.dispatch.do_executemany:
+                        if fn(
+                            cursor,
+                            str_statement,
+                            effective_parameters,
+                            context,
+                        ):
+                            evt_handled = True
+                            break
+                if not evt_handled:
+                    self.dialect.do_executemany(
+                        cursor,
+                        str_statement,
+                        effective_parameters,
+                        context,
+                    )
+            elif not effective_parameters and context.no_parameters:
+                if self.dialect._has_events:
+                    for fn in self.dialect.dispatch.do_execute_no_params:
+                        if fn(cursor, str_statement, context):
+                            evt_handled = True
+                            break
+                if not evt_handled:
+                    self.dialect.do_execute_no_params(
+                        cursor, str_statement, context
+                    )
+            else:
+                effective_parameters = cast(
+                    "_CoreSingleExecuteParams", effective_parameters
+                )
+                if self.dialect._has_events:
+                    for fn in self.dialect.dispatch.do_execute:
+                        if fn(
+                            cursor,
+                            str_statement,
+                            effective_parameters,
+                            context,
+                        ):
+                            evt_handled = True
+                            break
+                if not evt_handled:
+>                   self.dialect.do_execute(
+                        cursor, str_statement, effective_parameters, context
+                    )
+
+/usr/local/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1967: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/usr/local/lib/python3.12/site-packages/sqlalchemy/engine/default.py:924: in do_execute
+    cursor.execute(statement, parameters)
+/usr/local/lib/python3.12/site-packages/sqlalchemy/dialects/postgresql/asyncpg.py:572: in execute
+    self._adapt_connection.await_(
+/usr/local/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py:131: in await_only
+    return current.driver.switch(awaitable)  # type: ignore[no-any-return]
+/usr/local/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py:196: in greenlet_spawn
+    value = await result
+/usr/local/lib/python3.12/site-packages/sqlalchemy/dialects/postgresql/asyncpg.py:550: in _prepare_and_execute
+    self._handle_exception(error)
+/usr/local/lib/python3.12/site-packages/sqlalchemy/dialects/postgresql/asyncpg.py:501: in _handle_exception
+    self._adapt_connection._handle_exception(error)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <AdaptedConnection <asyncpg.connection.Connection object at 0x7548fc1e2210>>
+error = ForeignKeyViolationError('update or delete on table "manufacturing_events" violates foreign key constraint "manufacturing_event_revisions_event_id_fkey" on table "manufacturing_event_revisions"')
+
+    def _handle_exception(self, error):
+        if self._connection.is_closed():
+            self._transaction = None
+            self._started = False
+    
+        if not isinstance(error, AsyncAdapt_asyncpg_dbapi.Error):
+            exception_mapping = self.dbapi._asyncpg_error_translate
+    
+            for super_ in type(error).__mro__:
+                if super_ in exception_mapping:
+                    translated_error = exception_mapping[super_](
+                        "%s: %s" % (type(error), error)
+                    )
+                    translated_error.pgcode = translated_error.sqlstate = (
+                        getattr(error, "sqlstate", None)
+                    )
+>                   raise translated_error from error
+E                   sqlalchemy.dialects.postgresql.asyncpg.AsyncAdapt_asyncpg_dbapi.IntegrityError: <class 'asyncpg.exceptions.ForeignKeyViolationError'>: update or delete on table "manufacturing_events" violates foreign key constraint "manufacturing_event_revisions_event_id_fkey" on table "manufacturing_event_revisions"
+E                   DETAIL:  Key (id)=(af689cb8-b3b7-4fef-a853-cbaf4fba9baf) is still referenced from table "manufacturing_event_revisions".
+
+/usr/local/lib/python3.12/site-packages/sqlalchemy/dialects/postgresql/asyncpg.py:789: IntegrityError
+
+The above exception was the direct cause of the following exception:
+
+event_loop = <_UnixSelectorEventLoop running=False closed=False debug=False>
+
+    @pytest_asyncio.fixture(autouse=True)
+    async def clear_transcripts(event_loop):
+        async with AsyncSessionLocal() as db:
+            from app.models.resolution import EntityResolutionResult
+    
+            from app.models.manufacturing_event import CanonicalizationJob, ManufacturingEvent
+>           await db.execute(delete(ManufacturingEvent))
+
+tests/test_stt_worker2.py:37: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/usr/local/lib/python3.12/site-packages/sqlalchemy/ext/asyncio/session.py:461: in execute
+    result = await greenlet_spawn(
+/usr/local/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py:201: in greenlet_spawn
+    result = context.throw(*sys.exc_info())
+/usr/local/lib/python3.12/site-packages/sqlalchemy/orm/session.py:2351: in execute
+    return self._execute_internal(
+/usr/local/lib/python3.12/site-packages/sqlalchemy/orm/session.py:2236: in _execute_internal
+    result: Result[Any] = compile_state_cls.orm_execute_statement(
+/usr/local/lib/python3.12/site-packages/sqlalchemy/orm/bulk_persistence.py:1953: in orm_execute_statement
+    return super().orm_execute_statement(
+/usr/local/lib/python3.12/site-packages/sqlalchemy/orm/context.py:293: in orm_execute_statement
+    result = conn.execute(
+/usr/local/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1418: in execute
+    return meth(
+/usr/local/lib/python3.12/site-packages/sqlalchemy/sql/elements.py:515: in _execute_on_connection
+    return connection._execute_clauseelement(
+/usr/local/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1640: in _execute_clauseelement
+    ret = self._execute_context(
+/usr/local/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1846: in _execute_context
+    return self._exec_single_context(
+/usr/local/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1986: in _exec_single_context
+    self._handle_dbapi_exception(
+/usr/local/lib/python3.12/site-packages/sqlalchemy/engine/base.py:2353: in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+/usr/local/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1967: in _exec_single_context
+    self.dialect.do_execute(
+/usr/local/lib/python3.12/site-packages/sqlalchemy/engine/default.py:924: in do_execute
+    cursor.execute(statement, parameters)
+/usr/local/lib/python3.12/site-packages/sqlalchemy/dialects/postgresql/asyncpg.py:572: in execute
+    self._adapt_connection.await_(
+/usr/local/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py:131: in await_only
+    return current.driver.switch(awaitable)  # type: ignore[no-any-return]
+/usr/local/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py:196: in greenlet_spawn
+    value = await result
+/usr/local/lib/python3.12/site-packages/sqlalchemy/dialects/postgresql/asyncpg.py:550: in _prepare_and_execute
+    self._handle_exception(error)
+/usr/local/lib/python3.12/site-packages/sqlalchemy/dialects/postgresql/asyncpg.py:501: in _handle_exception
+    self._adapt_connection._handle_exception(error)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <AdaptedConnection <asyncpg.connection.Connection object at 0x7548fc1e2210>>
+error = ForeignKeyViolationError('update or delete on table "manufacturing_events" violates foreign key constraint "manufacturing_event_revisions_event_id_fkey" on table "manufacturing_event_revisions"')
+
+    def _handle_exception(self, error):
+        if self._connection.is_closed():
+            self._transaction = None
+            self._started = False
+    
+        if not isinstance(error, AsyncAdapt_asyncpg_dbapi.Error):
+            exception_mapping = self.dbapi._asyncpg_error_translate
+    
+            for super_ in type(error).__mro__:
+                if super_ in exception_mapping:
+                    translated_error = exception_mapping[super_](
+                        "%s: %s" % (type(error), error)
+                    )
+                    translated_error.pgcode = translated_error.sqlstate = (
+                        getattr(error, "sqlstate", None)
+                    )
+>                   raise translated_error from error
+E                   sqlalchemy.exc.IntegrityError: (sqlalchemy.dialects.postgresql.asyncpg.IntegrityError) <class 'asyncpg.exceptions.ForeignKeyViolationError'>: update or delete on table "manufacturing_events" violates foreign key constraint "manufacturing_event_revisions_event_id_fkey" on table "manufacturing_event_revisions"
+E                   DETAIL:  Key (id)=(af689cb8-b3b7-4fef-a853-cbaf4fba9baf) is still referenced from table "manufacturing_event_revisions".
+E                   [SQL: DELETE FROM manufacturing_events]
+E                   (Background on this error at: https://sqlalche.me/e/20/gkpj)
+
+/usr/local/lib/python3.12/site-packages/sqlalchemy/dialects/postgresql/asyncpg.py:789: IntegrityError
+_________________ ERROR at setup of test_stt_worker_no_speech __________________
+
+self = <sqlalchemy.dialects.postgresql.asyncpg.AsyncAdapt_asyncpg_cursor object at 0x7548fc2d7b80>
+operation = 'DELETE FROM manufacturing_events', parameters = ()
+
+    async def _prepare_and_execute(self, operation, parameters):
+        adapt_connection = self._adapt_connection
+    
+        async with adapt_connection._execute_mutex:
+            if not adapt_connection._started:
+                await adapt_connection._start_transaction()
+    
+            if parameters is None:
+                parameters = ()
+    
+            try:
+                prepared_stmt, attributes = await adapt_connection._prepare(
+                    operation, self._invalidate_schema_cache_asof
+                )
+    
+                if attributes:
+                    self.description = [
+                        (
+                            attr.name,
+                            attr.type.oid,
+                            None,
+                            None,
+                            None,
+                            None,
+                            None,
+                        )
+                        for attr in attributes
+                    ]
+                else:
+                    self.description = None
+    
+                if self.server_side:
+                    self._cursor = await prepared_stmt.cursor(*parameters)
+                    self.rowcount = -1
+                else:
+>                   self._rows = await prepared_stmt.fetch(*parameters)
+
+/usr/local/lib/python3.12/site-packages/sqlalchemy/dialects/postgresql/asyncpg.py:538: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/usr/local/lib/python3.12/site-packages/asyncpg/prepared_stmt.py:176: in fetch
+    data = await self.__bind_execute(args, 0, timeout)
+/usr/local/lib/python3.12/site-packages/asyncpg/prepared_stmt.py:241: in __bind_execute
+    data, status, _ = await self.__do_execute(
+/usr/local/lib/python3.12/site-packages/asyncpg/prepared_stmt.py:230: in __do_execute
+    return await executor(protocol)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+>   ???
+E   asyncpg.exceptions.ForeignKeyViolationError: update or delete on table "manufacturing_events" violates foreign key constraint "manufacturing_event_revisions_event_id_fkey" on table "manufacturing_event_revisions"
+E   DETAIL:  Key (id)=(af689cb8-b3b7-4fef-a853-cbaf4fba9baf) is still referenced from table "manufacturing_event_revisions".
+
+asyncpg/protocol/protocol.pyx:207: ForeignKeyViolationError
+
+The above exception was the direct cause of the following exception:
+
+self = <sqlalchemy.engine.base.Connection object at 0x7548fc1cdee0>
+dialect = <sqlalchemy.dialects.postgresql.asyncpg.PGDialect_asyncpg object at 0x75490245f8f0>
+context = <sqlalchemy.dialects.postgresql.asyncpg.PGExecutionContext_asyncpg object at 0x7548fc1cea80>
+statement = <sqlalchemy.dialects.postgresql.asyncpg.PGCompiler_asyncpg object at 0x7548fc9acf20>
+parameters = [()]
+
+    def _exec_single_context(
+        self,
+        dialect: Dialect,
+        context: ExecutionContext,
+        statement: Union[str, Compiled],
+        parameters: Optional[_AnyMultiExecuteParams],
+    ) -> CursorResult[Any]:
+        """continue the _execute_context() method for a single DBAPI
+        cursor.execute() or cursor.executemany() call.
+    
+        """
+        if dialect.bind_typing is BindTyping.SETINPUTSIZES:
+            generic_setinputsizes = context._prepare_set_input_sizes()
+    
+            if generic_setinputsizes:
+                try:
+                    dialect.do_set_input_sizes(
+                        context.cursor, generic_setinputsizes, context
+                    )
+                except BaseException as e:
+                    self._handle_dbapi_exception(
+                        e, str(statement), parameters, None, context
+                    )
+    
+        cursor, str_statement, parameters = (
+            context.cursor,
+            context.statement,
+            context.parameters,
+        )
+    
+        effective_parameters: Optional[_AnyExecuteParams]
+    
+        if not context.executemany:
+            effective_parameters = parameters[0]
+        else:
+            effective_parameters = parameters
+    
+        if self._has_events or self.engine._has_events:
+            for fn in self.dispatch.before_cursor_execute:
+                str_statement, effective_parameters = fn(
+                    self,
+                    cursor,
+                    str_statement,
+                    effective_parameters,
+                    context,
+                    context.executemany,
+                )
+    
+        if self._echo:
+            self._log_info(str_statement)
+    
+            stats = context._get_cache_stats()
+    
+            if not self.engine.hide_parameters:
+                self._log_info(
+                    "[%s] %r",
+                    stats,
+                    sql_util._repr_params(
+                        effective_parameters,
+                        batches=10,
+                        ismulti=context.executemany,
+                    ),
+                )
+            else:
+                self._log_info(
+                    "[%s] [SQL parameters hidden due to hide_parameters=True]",
+                    stats,
+                )
+    
+        evt_handled: bool = False
+        try:
+            if context.execute_style is ExecuteStyle.EXECUTEMANY:
+                effective_parameters = cast(
+                    "_CoreMultiExecuteParams", effective_parameters
+                )
+                if self.dialect._has_events:
+                    for fn in self.dialect.dispatch.do_executemany:
+                        if fn(
+                            cursor,
+                            str_statement,
+                            effective_parameters,
+                            context,
+                        ):
+                            evt_handled = True
+                            break
+                if not evt_handled:
+                    self.dialect.do_executemany(
+                        cursor,
+                        str_statement,
+                        effective_parameters,
+                        context,
+                    )
+            elif not effective_parameters and context.no_parameters:
+                if self.dialect._has_events:
+                    for fn in self.dialect.dispatch.do_execute_no_params:
+                        if fn(cursor, str_statement, context):
+                            evt_handled = True
+                            break
+                if not evt_handled:
+                    self.dialect.do_execute_no_params(
+                        cursor, str_statement, context
+                    )
+            else:
+                effective_parameters = cast(
+                    "_CoreSingleExecuteParams", effective_parameters
+                )
+                if self.dialect._has_events:
+                    for fn in self.dialect.dispatch.do_execute:
+                        if fn(
+                            cursor,
+                            str_statement,
+                            effective_parameters,
+                            context,
+                        ):
+                            evt_handled = True
+                            break
+                if not evt_handled:
+>                   self.dialect.do_execute(
+                        cursor, str_statement, effective_parameters, context
+                    )
+
+/usr/local/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1967: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/usr/local/lib/python3.12/site-packages/sqlalchemy/engine/default.py:924: in do_execute
+    cursor.execute(statement, parameters)
+/usr/local/lib/python3.12/site-packages/sqlalchemy/dialects/postgresql/asyncpg.py:572: in execute
+    self._adapt_connection.await_(
+/usr/local/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py:131: in await_only
+    return current.driver.switch(awaitable)  # type: ignore[no-any-return]
+/usr/local/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py:196: in greenlet_spawn
+    value = await result
+/usr/local/lib/python3.12/site-packages/sqlalchemy/dialects/postgresql/asyncpg.py:550: in _prepare_and_execute
+    self._handle_exception(error)
+/usr/local/lib/python3.12/site-packages/sqlalchemy/dialects/postgresql/asyncpg.py:501: in _handle_exception
+    self._adapt_connection._handle_exception(error)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <AdaptedConnection <asyncpg.connection.Connection object at 0x7548fc1e0500>>
+error = ForeignKeyViolationError('update or delete on table "manufacturing_events" violates foreign key constraint "manufacturing_event_revisions_event_id_fkey" on table "manufacturing_event_revisions"')
+
+    def _handle_exception(self, error):
+        if self._connection.is_closed():
+            self._transaction = None
+            self._started = False
+    
+        if not isinstance(error, AsyncAdapt_asyncpg_dbapi.Error):
+            exception_mapping = self.dbapi._asyncpg_error_translate
+    
+            for super_ in type(error).__mro__:
+                if super_ in exception_mapping:
+                    translated_error = exception_mapping[super_](
+                        "%s: %s" % (type(error), error)
+                    )
+                    translated_error.pgcode = translated_error.sqlstate = (
+                        getattr(error, "sqlstate", None)
+                    )
+>                   raise translated_error from error
+E                   sqlalchemy.dialects.postgresql.asyncpg.AsyncAdapt_asyncpg_dbapi.IntegrityError: <class 'asyncpg.exceptions.ForeignKeyViolationError'>: update or delete on table "manufacturing_events" violates foreign key constraint "manufacturing_event_revisions_event_id_fkey" on table "manufacturing_event_revisions"
+E                   DETAIL:  Key (id)=(af689cb8-b3b7-4fef-a853-cbaf4fba9baf) is still referenced from table "manufacturing_event_revisions".
+
+/usr/local/lib/python3.12/site-packages/sqlalchemy/dialects/postgresql/asyncpg.py:789: IntegrityError
+
+The above exception was the direct cause of the following exception:
+
+event_loop = <_UnixSelectorEventLoop running=False closed=False debug=False>
+
+    @pytest_asyncio.fixture(autouse=True)
+    async def clear_transcripts(event_loop):
+        async with AsyncSessionLocal() as db:
+            from app.models.resolution import EntityResolutionResult
+    
+            from app.models.manufacturing_event import CanonicalizationJob, ManufacturingEvent
+>           await db.execute(delete(ManufacturingEvent))
+
+tests/test_stt_worker2.py:37: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/usr/local/lib/python3.12/site-packages/sqlalchemy/ext/asyncio/session.py:461: in execute
+    result = await greenlet_spawn(
+/usr/local/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py:201: in greenlet_spawn
+    result = context.throw(*sys.exc_info())
+/usr/local/lib/python3.12/site-packages/sqlalchemy/orm/session.py:2351: in execute
+    return self._execute_internal(
+/usr/local/lib/python3.12/site-packages/sqlalchemy/orm/session.py:2236: in _execute_internal
+    result: Result[Any] = compile_state_cls.orm_execute_statement(
+/usr/local/lib/python3.12/site-packages/sqlalchemy/orm/bulk_persistence.py:1953: in orm_execute_statement
+    return super().orm_execute_statement(
+/usr/local/lib/python3.12/site-packages/sqlalchemy/orm/context.py:293: in orm_execute_statement
+    result = conn.execute(
+/usr/local/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1418: in execute
+    return meth(
+/usr/local/lib/python3.12/site-packages/sqlalchemy/sql/elements.py:515: in _execute_on_connection
+    return connection._execute_clauseelement(
+/usr/local/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1640: in _execute_clauseelement
+    ret = self._execute_context(
+/usr/local/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1846: in _execute_context
+    return self._exec_single_context(
+/usr/local/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1986: in _exec_single_context
+    self._handle_dbapi_exception(
+/usr/local/lib/python3.12/site-packages/sqlalchemy/engine/base.py:2353: in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+/usr/local/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1967: in _exec_single_context
+    self.dialect.do_execute(
+/usr/local/lib/python3.12/site-packages/sqlalchemy/engine/default.py:924: in do_execute
+    cursor.execute(statement, parameters)
+/usr/local/lib/python3.12/site-packages/sqlalchemy/dialects/postgresql/asyncpg.py:572: in execute
+    self._adapt_connection.await_(
+/usr/local/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py:131: in await_only
+    return current.driver.switch(awaitable)  # type: ignore[no-any-return]
+/usr/local/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py:196: in greenlet_spawn
+    value = await result
+/usr/local/lib/python3.12/site-packages/sqlalchemy/dialects/postgresql/asyncpg.py:550: in _prepare_and_execute
+    self._handle_exception(error)
+/usr/local/lib/python3.12/site-packages/sqlalchemy/dialects/postgresql/asyncpg.py:501: in _handle_exception
+    self._adapt_connection._handle_exception(error)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <AdaptedConnection <asyncpg.connection.Connection object at 0x7548fc1e0500>>
+error = ForeignKeyViolationError('update or delete on table "manufacturing_events" violates foreign key constraint "manufacturing_event_revisions_event_id_fkey" on table "manufacturing_event_revisions"')
+
+    def _handle_exception(self, error):
+        if self._connection.is_closed():
+            self._transaction = None
+            self._started = False
+    
+        if not isinstance(error, AsyncAdapt_asyncpg_dbapi.Error):
+            exception_mapping = self.dbapi._asyncpg_error_translate
+    
+            for super_ in type(error).__mro__:
+                if super_ in exception_mapping:
+                    translated_error = exception_mapping[super_](
+                        "%s: %s" % (type(error), error)
+                    )
+                    translated_error.pgcode = translated_error.sqlstate = (
+                        getattr(error, "sqlstate", None)
+                    )
+>                   raise translated_error from error
+E                   sqlalchemy.exc.IntegrityError: (sqlalchemy.dialects.postgresql.asyncpg.IntegrityError) <class 'asyncpg.exceptions.ForeignKeyViolationError'>: update or delete on table "manufacturing_events" violates foreign key constraint "manufacturing_event_revisions_event_id_fkey" on table "manufacturing_event_revisions"
+E                   DETAIL:  Key (id)=(af689cb8-b3b7-4fef-a853-cbaf4fba9baf) is still referenced from table "manufacturing_event_revisions".
+E                   [SQL: DELETE FROM manufacturing_events]
+E                   (Background on this error at: https://sqlalche.me/e/20/gkpj)
+
+/usr/local/lib/python3.12/site-packages/sqlalchemy/dialects/postgresql/asyncpg.py:789: IntegrityError
+_____________ ERROR at setup of test_stt_worker_unsupported_codec ______________
+
+self = <sqlalchemy.dialects.postgresql.asyncpg.AsyncAdapt_asyncpg_cursor object at 0x7548eeea52a0>
+operation = 'DELETE FROM manufacturing_events', parameters = ()
+
+    async def _prepare_and_execute(self, operation, parameters):
+        adapt_connection = self._adapt_connection
+    
+        async with adapt_connection._execute_mutex:
+            if not adapt_connection._started:
+                await adapt_connection._start_transaction()
+    
+            if parameters is None:
+                parameters = ()
+    
+            try:
+                prepared_stmt, attributes = await adapt_connection._prepare(
+                    operation, self._invalidate_schema_cache_asof
+                )
+    
+                if attributes:
+                    self.description = [
+                        (
+                            attr.name,
+                            attr.type.oid,
+                            None,
+                            None,
+                            None,
+                            None,
+                            None,
+                        )
+                        for attr in attributes
+                    ]
+                else:
+                    self.description = None
+    
+                if self.server_side:
+                    self._cursor = await prepared_stmt.cursor(*parameters)
+                    self.rowcount = -1
+                else:
+>                   self._rows = await prepared_stmt.fetch(*parameters)
+
+/usr/local/lib/python3.12/site-packages/sqlalchemy/dialects/postgresql/asyncpg.py:538: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/usr/local/lib/python3.12/site-packages/asyncpg/prepared_stmt.py:176: in fetch
+    data = await self.__bind_execute(args, 0, timeout)
+/usr/local/lib/python3.12/site-packages/asyncpg/prepared_stmt.py:241: in __bind_execute
+    data, status, _ = await self.__do_execute(
+/usr/local/lib/python3.12/site-packages/asyncpg/prepared_stmt.py:230: in __do_execute
+    return await executor(protocol)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+>   ???
+E   asyncpg.exceptions.ForeignKeyViolationError: update or delete on table "manufacturing_events" violates foreign key constraint "manufacturing_event_revisions_event_id_fkey" on table "manufacturing_event_revisions"
+E   DETAIL:  Key (id)=(af689cb8-b3b7-4fef-a853-cbaf4fba9baf) is still referenced from table "manufacturing_event_revisions".
+
+asyncpg/protocol/protocol.pyx:207: ForeignKeyViolationError
+
+The above exception was the direct cause of the following exception:
+
+self = <sqlalchemy.engine.base.Connection object at 0x7548fc1abcb0>
+dialect = <sqlalchemy.dialects.postgresql.asyncpg.PGDialect_asyncpg object at 0x75490245f8f0>
+context = <sqlalchemy.dialects.postgresql.asyncpg.PGExecutionContext_asyncpg object at 0x7548fc1a9130>
+statement = <sqlalchemy.dialects.postgresql.asyncpg.PGCompiler_asyncpg object at 0x7548fc9acf20>
+parameters = [()]
+
+    def _exec_single_context(
+        self,
+        dialect: Dialect,
+        context: ExecutionContext,
+        statement: Union[str, Compiled],
+        parameters: Optional[_AnyMultiExecuteParams],
+    ) -> CursorResult[Any]:
+        """continue the _execute_context() method for a single DBAPI
+        cursor.execute() or cursor.executemany() call.
+    
+        """
+        if dialect.bind_typing is BindTyping.SETINPUTSIZES:
+            generic_setinputsizes = context._prepare_set_input_sizes()
+    
+            if generic_setinputsizes:
+                try:
+                    dialect.do_set_input_sizes(
+                        context.cursor, generic_setinputsizes, context
+                    )
+                except BaseException as e:
+                    self._handle_dbapi_exception(
+                        e, str(statement), parameters, None, context
+                    )
+    
+        cursor, str_statement, parameters = (
+            context.cursor,
+            context.statement,
+            context.parameters,
+        )
+    
+        effective_parameters: Optional[_AnyExecuteParams]
+    
+        if not context.executemany:
+            effective_parameters = parameters[0]
+        else:
+            effective_parameters = parameters
+    
+        if self._has_events or self.engine._has_events:
+            for fn in self.dispatch.before_cursor_execute:
+                str_statement, effective_parameters = fn(
+                    self,
+                    cursor,
+                    str_statement,
+                    effective_parameters,
+                    context,
+                    context.executemany,
+                )
+    
+        if self._echo:
+            self._log_info(str_statement)
+    
+            stats = context._get_cache_stats()
+    
+            if not self.engine.hide_parameters:
+                self._log_info(
+                    "[%s] %r",
+                    stats,
+                    sql_util._repr_params(
+                        effective_parameters,
+                        batches=10,
+                        ismulti=context.executemany,
+                    ),
+                )
+            else:
+                self._log_info(
+                    "[%s] [SQL parameters hidden due to hide_parameters=True]",
+                    stats,
+                )
+    
+        evt_handled: bool = False
+        try:
+            if context.execute_style is ExecuteStyle.EXECUTEMANY:
+                effective_parameters = cast(
+                    "_CoreMultiExecuteParams", effective_parameters
+                )
+                if self.dialect._has_events:
+                    for fn in self.dialect.dispatch.do_executemany:
+                        if fn(
+                            cursor,
+                            str_statement,
+                            effective_parameters,
+                            context,
+                        ):
+                            evt_handled = True
+                            break
+                if not evt_handled:
+                    self.dialect.do_executemany(
+                        cursor,
+                        str_statement,
+                        effective_parameters,
+                        context,
+                    )
+            elif not effective_parameters and context.no_parameters:
+                if self.dialect._has_events:
+                    for fn in self.dialect.dispatch.do_execute_no_params:
+                        if fn(cursor, str_statement, context):
+                            evt_handled = True
+                            break
+                if not evt_handled:
+                    self.dialect.do_execute_no_params(
+                        cursor, str_statement, context
+                    )
+            else:
+                effective_parameters = cast(
+                    "_CoreSingleExecuteParams", effective_parameters
+                )
+                if self.dialect._has_events:
+                    for fn in self.dialect.dispatch.do_execute:
+                        if fn(
+                            cursor,
+                            str_statement,
+                            effective_parameters,
+                            context,
+                        ):
+                            evt_handled = True
+                            break
+                if not evt_handled:
+>                   self.dialect.do_execute(
+                        cursor, str_statement, effective_parameters, context
+                    )
+
+/usr/local/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1967: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/usr/local/lib/python3.12/site-packages/sqlalchemy/engine/default.py:924: in do_execute
+    cursor.execute(statement, parameters)
+/usr/local/lib/python3.12/site-packages/sqlalchemy/dialects/postgresql/asyncpg.py:572: in execute
+    self._adapt_connection.await_(
+/usr/local/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py:131: in await_only
+    return current.driver.switch(awaitable)  # type: ignore[no-any-return]
+/usr/local/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py:196: in greenlet_spawn
+    value = await result
+/usr/local/lib/python3.12/site-packages/sqlalchemy/dialects/postgresql/asyncpg.py:550: in _prepare_and_execute
+    self._handle_exception(error)
+/usr/local/lib/python3.12/site-packages/sqlalchemy/dialects/postgresql/asyncpg.py:501: in _handle_exception
+    self._adapt_connection._handle_exception(error)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <AdaptedConnection <asyncpg.connection.Connection object at 0x7548fc1e18b0>>
+error = ForeignKeyViolationError('update or delete on table "manufacturing_events" violates foreign key constraint "manufacturing_event_revisions_event_id_fkey" on table "manufacturing_event_revisions"')
+
+    def _handle_exception(self, error):
+        if self._connection.is_closed():
+            self._transaction = None
+            self._started = False
+    
+        if not isinstance(error, AsyncAdapt_asyncpg_dbapi.Error):
+            exception_mapping = self.dbapi._asyncpg_error_translate
+    
+            for super_ in type(error).__mro__:
+                if super_ in exception_mapping:
+                    translated_error = exception_mapping[super_](
+                        "%s: %s" % (type(error), error)
+                    )
+                    translated_error.pgcode = translated_error.sqlstate = (
+                        getattr(error, "sqlstate", None)
+                    )
+>                   raise translated_error from error
+E                   sqlalchemy.dialects.postgresql.asyncpg.AsyncAdapt_asyncpg_dbapi.IntegrityError: <class 'asyncpg.exceptions.ForeignKeyViolationError'>: update or delete on table "manufacturing_events" violates foreign key constraint "manufacturing_event_revisions_event_id_fkey" on table "manufacturing_event_revisions"
+E                   DETAIL:  Key (id)=(af689cb8-b3b7-4fef-a853-cbaf4fba9baf) is still referenced from table "manufacturing_event_revisions".
+
+/usr/local/lib/python3.12/site-packages/sqlalchemy/dialects/postgresql/asyncpg.py:789: IntegrityError
+
+The above exception was the direct cause of the following exception:
+
+event_loop = <_UnixSelectorEventLoop running=False closed=False debug=False>
+
+    @pytest_asyncio.fixture(autouse=True)
+    async def clear_transcripts(event_loop):
+        async with AsyncSessionLocal() as db:
+            from app.models.resolution import EntityResolutionResult
+    
+            from app.models.manufacturing_event import CanonicalizationJob, ManufacturingEvent
+>           await db.execute(delete(ManufacturingEvent))
+
+tests/test_stt_worker2.py:37: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/usr/local/lib/python3.12/site-packages/sqlalchemy/ext/asyncio/session.py:461: in execute
+    result = await greenlet_spawn(
+/usr/local/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py:201: in greenlet_spawn
+    result = context.throw(*sys.exc_info())
+/usr/local/lib/python3.12/site-packages/sqlalchemy/orm/session.py:2351: in execute
+    return self._execute_internal(
+/usr/local/lib/python3.12/site-packages/sqlalchemy/orm/session.py:2236: in _execute_internal
+    result: Result[Any] = compile_state_cls.orm_execute_statement(
+/usr/local/lib/python3.12/site-packages/sqlalchemy/orm/bulk_persistence.py:1953: in orm_execute_statement
+    return super().orm_execute_statement(
+/usr/local/lib/python3.12/site-packages/sqlalchemy/orm/context.py:293: in orm_execute_statement
+    result = conn.execute(
+/usr/local/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1418: in execute
+    return meth(
+/usr/local/lib/python3.12/site-packages/sqlalchemy/sql/elements.py:515: in _execute_on_connection
+    return connection._execute_clauseelement(
+/usr/local/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1640: in _execute_clauseelement
+    ret = self._execute_context(
+/usr/local/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1846: in _execute_context
+    return self._exec_single_context(
+/usr/local/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1986: in _exec_single_context
+    self._handle_dbapi_exception(
+/usr/local/lib/python3.12/site-packages/sqlalchemy/engine/base.py:2353: in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+/usr/local/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1967: in _exec_single_context
+    self.dialect.do_execute(
+/usr/local/lib/python3.12/site-packages/sqlalchemy/engine/default.py:924: in do_execute
+    cursor.execute(statement, parameters)
+/usr/local/lib/python3.12/site-packages/sqlalchemy/dialects/postgresql/asyncpg.py:572: in execute
+    self._adapt_connection.await_(
+/usr/local/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py:131: in await_only
+    return current.driver.switch(awaitable)  # type: ignore[no-any-return]
+/usr/local/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py:196: in greenlet_spawn
+    value = await result
+/usr/local/lib/python3.12/site-packages/sqlalchemy/dialects/postgresql/asyncpg.py:550: in _prepare_and_execute
+    self._handle_exception(error)
+/usr/local/lib/python3.12/site-packages/sqlalchemy/dialects/postgresql/asyncpg.py:501: in _handle_exception
+    self._adapt_connection._handle_exception(error)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <AdaptedConnection <asyncpg.connection.Connection object at 0x7548fc1e18b0>>
+error = ForeignKeyViolationError('update or delete on table "manufacturing_events" violates foreign key constraint "manufacturing_event_revisions_event_id_fkey" on table "manufacturing_event_revisions"')
+
+    def _handle_exception(self, error):
+        if self._connection.is_closed():
+            self._transaction = None
+            self._started = False
+    
+        if not isinstance(error, AsyncAdapt_asyncpg_dbapi.Error):
+            exception_mapping = self.dbapi._asyncpg_error_translate
+    
+            for super_ in type(error).__mro__:
+                if super_ in exception_mapping:
+                    translated_error = exception_mapping[super_](
+                        "%s: %s" % (type(error), error)
+                    )
+                    translated_error.pgcode = translated_error.sqlstate = (
+                        getattr(error, "sqlstate", None)
+                    )
+>                   raise translated_error from error
+E                   sqlalchemy.exc.IntegrityError: (sqlalchemy.dialects.postgresql.asyncpg.IntegrityError) <class 'asyncpg.exceptions.ForeignKeyViolationError'>: update or delete on table "manufacturing_events" violates foreign key constraint "manufacturing_event_revisions_event_id_fkey" on table "manufacturing_event_revisions"
+E                   DETAIL:  Key (id)=(af689cb8-b3b7-4fef-a853-cbaf4fba9baf) is still referenced from table "manufacturing_event_revisions".
+E                   [SQL: DELETE FROM manufacturing_events]
+E                   (Background on this error at: https://sqlalche.me/e/20/gkpj)
+
+/usr/local/lib/python3.12/site-packages/sqlalchemy/dialects/postgresql/asyncpg.py:789: IntegrityError
+=================================== FAILURES ===================================
+__________________________ test_imports_comprehensive __________________________
+
+self = <AWSHTTPConnection(host='localhost', port=9000) at 0x7548fc975370>
+
+    def _new_conn(self) -> socket.socket:
+        """Establish a socket connection and set nodelay settings on it.
+    
+        :return: New socket connection.
+        """
+        try:
+>           sock = connection.create_connection(
+                (self._dns_host, self.port),
+                self.timeout,
+                source_address=self.source_address,
+                socket_options=self.socket_options,
+            )
+
+/usr/local/lib/python3.12/site-packages/urllib3/connection.py:239: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/usr/local/lib/python3.12/site-packages/urllib3/util/connection.py:85: in create_connection
+    raise err
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+address = ('localhost', 9000), timeout = 60, source_address = None
+socket_options = [(6, 1, 1)]
+
+    def create_connection(
+        address: tuple[str, int],
+        timeout: _TYPE_TIMEOUT = _DEFAULT_TIMEOUT,
+        source_address: tuple[str, int] | None = None,
+        socket_options: _TYPE_SOCKET_OPTIONS | None = None,
+    ) -> socket.socket:
+        """Connect to *address* and return the socket object.
+    
+        Convenience function.  Connect to *address* (a 2-tuple ``(host,
+        port)``) and return the socket object.  Passing the optional
+        *timeout* parameter will set the timeout on the socket instance
+        before attempting to connect.  If no *timeout* is supplied, the
+        global default timeout setting returned by :func:`socket.getdefaulttimeout`
+        is used.  If *source_address* is set it must be a tuple of (host, port)
+        for the socket to bind as a source address before making the connection.
+        An host of '' or port 0 tells the OS to use the default.
+        """
+    
+        host, port = address
+        if host.startswith("["):
+            host = host.strip("[]")
+        err = None
+    
+        # Using the value from allowed_gai_family() in the context of getaddrinfo lets
+        # us select whether to work with IPv4 DNS records, IPv6 records, or both.
+        # The original create_connection function always returns all records.
+        family = allowed_gai_family()
+    
+        try:
+            host.encode("idna")
+        except UnicodeError:
+            raise LocationParseError(f"'{host}', label empty or too long") from None
+    
+        for res in socket.getaddrinfo(host, port, family, socket.SOCK_STREAM):
+            af, socktype, proto, canonname, sa = res
+            sock = None
+            try:
+                sock = socket.socket(af, socktype, proto)
+    
+                # If provided, set socket level options before connecting.
+                _set_socket_options(sock, socket_options)
+    
+                if timeout is not _DEFAULT_TIMEOUT:
+                    sock.settimeout(timeout)
+                if source_address:
+                    sock.bind(source_address)
+>               sock.connect(sa)
+E               ConnectionRefusedError: [Errno 111] Connection refused
+
+/usr/local/lib/python3.12/site-packages/urllib3/util/connection.py:73: ConnectionRefusedError
+
+The above exception was the direct cause of the following exception:
+
+self = <botocore.httpsession.URLLib3Session object at 0x7548ff8b6000>
+request = <AWSPreparedRequest stream_output=False, method=HEAD, url=http://localhost:9000/imports, headers={'User-Agent': b'Boto...406f9776d2', 'amz-sdk-invocation-id': b'40489671-b9dc-4a62-a95b-f24dcd55fca2', 'amz-sdk-request': b'attempt=5; max=5'}>
+
+    def send(self, request):
+        try:
+            proxy_url = self._proxy_config.proxy_url_for(request.url)
+            manager = self._get_connection_manager(request.url, proxy_url)
+            conn = manager.connection_from_url(request.url)
+            self._setup_ssl_cert(conn, request.url, self._verify)
+            if ensure_boolean(
+                os.environ.get('BOTO_EXPERIMENTAL__ADD_PROXY_HOST_HEADER', '')
+            ):
+                # This is currently an "experimental" feature which provides
+                # no guarantees of backwards compatibility. It may be subject
+                # to change or removal in any patch version. Anyone opting in
+                # to this feature should strictly pin botocore.
+                host = urlparse(request.url).hostname
+                conn.proxy_headers['host'] = host
+    
+            request_target = self._get_request_target(request.url, proxy_url)
+>           urllib_response = conn.urlopen(
+                method=request.method,
+                url=request_target,
+                body=request.body,
+                headers=request.headers,
+                retries=Retry(False),
+                assert_same_host=False,
+                preload_content=False,
+                decode_content=False,
+                chunked=self._chunked(request.headers),
+            )
+
+/usr/local/lib/python3.12/site-packages/botocore/httpsession.py:464: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/usr/local/lib/python3.12/site-packages/urllib3/connectionpool.py:847: in urlopen
+    retries = retries.increment(
+/usr/local/lib/python3.12/site-packages/urllib3/util/retry.py:485: in increment
+    raise reraise(type(error), error, _stacktrace)
+/usr/local/lib/python3.12/site-packages/urllib3/util/util.py:39: in reraise
+    raise value
+/usr/local/lib/python3.12/site-packages/urllib3/connectionpool.py:793: in urlopen
+    response = self._make_request(
+/usr/local/lib/python3.12/site-packages/urllib3/connectionpool.py:499: in _make_request
+    conn.request(
+/usr/local/lib/python3.12/site-packages/botocore/awsrequest.py:96: in request
+    rval = super().request(method, url, body, headers, *args, **kwargs)
+/usr/local/lib/python3.12/site-packages/urllib3/connection.py:567: in request
+    self.endheaders()
+/usr/local/lib/python3.12/http/client.py:1381: in endheaders
+    self._send_output(message_body, encode_chunked=encode_chunked)
+/usr/local/lib/python3.12/site-packages/botocore/awsrequest.py:123: in _send_output
+    self.send(msg)
+/usr/local/lib/python3.12/site-packages/botocore/awsrequest.py:223: in send
+    return super().send(str)
+/usr/local/lib/python3.12/http/client.py:1085: in send
+    self.connect()
+/usr/local/lib/python3.12/site-packages/urllib3/connection.py:398: in connect
+    self.sock = self._new_conn()
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <AWSHTTPConnection(host='localhost', port=9000) at 0x7548fc975370>
+
+    def _new_conn(self) -> socket.socket:
+        """Establish a socket connection and set nodelay settings on it.
+    
+        :return: New socket connection.
+        """
+        try:
+            sock = connection.create_connection(
+                (self._dns_host, self.port),
+                self.timeout,
+                source_address=self.source_address,
+                socket_options=self.socket_options,
+            )
+        except socket.gaierror as e:
+            raise NameResolutionError(self.host, self, e) from e
+        except SocketTimeout as e:
+            raise ConnectTimeoutError(
+                self,
+                f"Connection to {self.host} timed out. (connect timeout={self.timeout})",
+            ) from e
+    
+        except OSError as e:
+>           raise NewConnectionError(
+                self, f"Failed to establish a new connection: {e}"
+            ) from e
+E           urllib3.exceptions.NewConnectionError: AWSHTTPConnection(host='localhost', port=9000): Failed to establish a new connection: [Errno 111] Connection refused
+
+/usr/local/lib/python3.12/site-packages/urllib3/connection.py:254: NewConnectionError
+
+During handling of the above exception, another exception occurred:
+
+self = <app.infrastructure.storage.s3_storage.S3Storage object at 0x75490044bcb0>
+bucket_name = 'imports'
+object_name = 'd2b1b05c-a9a4-4209-9dae-3576dbcdc484/3b86062e79a740c8f9407a8d75238f992615f680f109c2d34b474b3013fffa56'
+data = b'name,external_id\nCust 1,EXT1\nCust 2,EXT2\n'
+
+    async def upload(self, bucket_name: str, object_name: str, data: bytes):
+        try:
+>           self.client.head_bucket(Bucket=bucket_name)
+
+app/infrastructure/storage/s3_storage.py:20: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/usr/local/lib/python3.12/site-packages/botocore/client.py:565: in _api_call
+    return self._make_api_call(operation_name, kwargs)
+/usr/local/lib/python3.12/site-packages/botocore/client.py:999: in _make_api_call
+    http, parsed_response = self._make_request(
+/usr/local/lib/python3.12/site-packages/botocore/client.py:1023: in _make_request
+    return self._endpoint.make_request(operation_model, request_dict)
+/usr/local/lib/python3.12/site-packages/botocore/endpoint.py:119: in make_request
+    return self._send_request(request_dict, operation_model)
+/usr/local/lib/python3.12/site-packages/botocore/endpoint.py:200: in _send_request
+    while self._needs_retry(
+/usr/local/lib/python3.12/site-packages/botocore/endpoint.py:352: in _needs_retry
+    responses = self._event_emitter.emit(
+/usr/local/lib/python3.12/site-packages/botocore/hooks.py:412: in emit
+    return self._emitter.emit(aliased_event_name, **kwargs)
+/usr/local/lib/python3.12/site-packages/botocore/hooks.py:256: in emit
+    return self._emit(event_name, kwargs)
+/usr/local/lib/python3.12/site-packages/botocore/hooks.py:239: in _emit
+    response = handler(**kwargs)
+/usr/local/lib/python3.12/site-packages/botocore/retryhandler.py:207: in __call__
+    if self._checker(**checker_kwargs):
+/usr/local/lib/python3.12/site-packages/botocore/retryhandler.py:284: in __call__
+    should_retry = self._should_retry(
+/usr/local/lib/python3.12/site-packages/botocore/retryhandler.py:320: in _should_retry
+    return self._checker(attempt_number, response, caught_exception)
+/usr/local/lib/python3.12/site-packages/botocore/retryhandler.py:363: in __call__
+    checker_response = checker(
+/usr/local/lib/python3.12/site-packages/botocore/retryhandler.py:247: in __call__
+    return self._check_caught_exception(
+/usr/local/lib/python3.12/site-packages/botocore/retryhandler.py:416: in _check_caught_exception
+    raise caught_exception
+/usr/local/lib/python3.12/site-packages/botocore/endpoint.py:279: in _do_get_response
+    http_response = self._send(request)
+/usr/local/lib/python3.12/site-packages/botocore/endpoint.py:375: in _send
+    return self.http_session.send(request)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <botocore.httpsession.URLLib3Session object at 0x7548ff8b6000>
+request = <AWSPreparedRequest stream_output=False, method=HEAD, url=http://localhost:9000/imports, headers={'User-Agent': b'Boto...406f9776d2', 'amz-sdk-invocation-id': b'40489671-b9dc-4a62-a95b-f24dcd55fca2', 'amz-sdk-request': b'attempt=5; max=5'}>
+
+    def send(self, request):
+        try:
+            proxy_url = self._proxy_config.proxy_url_for(request.url)
+            manager = self._get_connection_manager(request.url, proxy_url)
+            conn = manager.connection_from_url(request.url)
+            self._setup_ssl_cert(conn, request.url, self._verify)
+            if ensure_boolean(
+                os.environ.get('BOTO_EXPERIMENTAL__ADD_PROXY_HOST_HEADER', '')
+            ):
+                # This is currently an "experimental" feature which provides
+                # no guarantees of backwards compatibility. It may be subject
+                # to change or removal in any patch version. Anyone opting in
+                # to this feature should strictly pin botocore.
+                host = urlparse(request.url).hostname
+                conn.proxy_headers['host'] = host
+    
+            request_target = self._get_request_target(request.url, proxy_url)
+            urllib_response = conn.urlopen(
+                method=request.method,
+                url=request_target,
+                body=request.body,
+                headers=request.headers,
+                retries=Retry(False),
+                assert_same_host=False,
+                preload_content=False,
+                decode_content=False,
+                chunked=self._chunked(request.headers),
+            )
+    
+            http_response = botocore.awsrequest.AWSResponse(
+                request.url,
+                urllib_response.status,
+                urllib_response.headers,
+                urllib_response,
+            )
+    
+            if not request.stream_output:
+                # Cause the raw stream to be exhausted immediately. We do it
+                # this way instead of using preload_content because
+                # preload_content will never buffer chunked responses
+                http_response.content
+    
+            return http_response
+        except URLLib3SSLError as e:
+            raise SSLError(endpoint_url=request.url, error=e)
+        except (NewConnectionError, socket.gaierror) as e:
+>           raise EndpointConnectionError(endpoint_url=request.url, error=e)
+E           botocore.exceptions.EndpointConnectionError: Could not connect to the endpoint URL: "http://localhost:9000/imports"
+
+/usr/local/lib/python3.12/site-packages/botocore/httpsession.py:493: EndpointConnectionError
+
+During handling of the above exception, another exception occurred:
+
+>   ???
+
+C:\Xaiote\backend\tests\test_imports.py:56: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/usr/local/lib/python3.12/site-packages/httpx/_client.py:1892: in post
+    return await self.request(
+/usr/local/lib/python3.12/site-packages/httpx/_client.py:1574: in request
+    return await self.send(request, auth=auth, follow_redirects=follow_redirects)
+/usr/local/lib/python3.12/site-packages/httpx/_client.py:1661: in send
+    response = await self._send_handling_auth(
+/usr/local/lib/python3.12/site-packages/httpx/_client.py:1689: in _send_handling_auth
+    response = await self._send_handling_redirects(
+/usr/local/lib/python3.12/site-packages/httpx/_client.py:1726: in _send_handling_redirects
+    response = await self._send_single_request(request)
+/usr/local/lib/python3.12/site-packages/httpx/_client.py:1763: in _send_single_request
+    response = await transport.handle_async_request(request)
+/usr/local/lib/python3.12/site-packages/httpx/_transports/asgi.py:164: in handle_async_request
+    await self.app(scope, receive, send)
+/usr/local/lib/python3.12/site-packages/fastapi/applications.py:1054: in __call__
+    await super().__call__(scope, receive, send)
+/usr/local/lib/python3.12/site-packages/starlette/applications.py:123: in __call__
+    await self.middleware_stack(scope, receive, send)
+/usr/local/lib/python3.12/site-packages/starlette/middleware/errors.py:186: in __call__
+    raise exc
+/usr/local/lib/python3.12/site-packages/starlette/middleware/errors.py:164: in __call__
+    await self.app(scope, receive, _send)
+/usr/local/lib/python3.12/site-packages/starlette/middleware/cors.py:85: in __call__
+    await self.app(scope, receive, send)
+/usr/local/lib/python3.12/site-packages/starlette/middleware/exceptions.py:65: in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+/usr/local/lib/python3.12/site-packages/starlette/_exception_handler.py:64: in wrapped_app
+    raise exc
+/usr/local/lib/python3.12/site-packages/starlette/_exception_handler.py:53: in wrapped_app
+    await app(scope, receive, sender)
+/usr/local/lib/python3.12/site-packages/starlette/routing.py:756: in __call__
+    await self.middleware_stack(scope, receive, send)
+/usr/local/lib/python3.12/site-packages/starlette/routing.py:776: in app
+    await route.handle(scope, receive, send)
+/usr/local/lib/python3.12/site-packages/starlette/routing.py:297: in handle
+    await self.app(scope, receive, send)
+/usr/local/lib/python3.12/site-packages/starlette/routing.py:77: in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+/usr/local/lib/python3.12/site-packages/starlette/_exception_handler.py:64: in wrapped_app
+    raise exc
+/usr/local/lib/python3.12/site-packages/starlette/_exception_handler.py:53: in wrapped_app
+    await app(scope, receive, sender)
+/usr/local/lib/python3.12/site-packages/starlette/routing.py:72: in app
+    response = await func(request)
+/usr/local/lib/python3.12/site-packages/fastapi/routing.py:278: in app
+    raw_response = await run_endpoint_function(
+/usr/local/lib/python3.12/site-packages/fastapi/routing.py:191: in run_endpoint_function
+    return await dependant.call(**values)
+app/api/routes/imports.py:51: in upload_import
+    await storage.upload("imports", object_name, contents)
+app/infrastructure/storage/s3_storage.py:22: in upload
+    self.client.create_bucket(Bucket=bucket_name)
+/usr/local/lib/python3.12/site-packages/botocore/client.py:565: in _api_call
+    return self._make_api_call(operation_name, kwargs)
+/usr/local/lib/python3.12/site-packages/botocore/client.py:999: in _make_api_call
+    http, parsed_response = self._make_request(
+/usr/local/lib/python3.12/site-packages/botocore/client.py:1023: in _make_request
+    return self._endpoint.make_request(operation_model, request_dict)
+/usr/local/lib/python3.12/site-packages/botocore/endpoint.py:119: in make_request
+    return self._send_request(request_dict, operation_model)
+/usr/local/lib/python3.12/site-packages/botocore/endpoint.py:200: in _send_request
+    while self._needs_retry(
+/usr/local/lib/python3.12/site-packages/botocore/endpoint.py:352: in _needs_retry
+    responses = self._event_emitter.emit(
+/usr/local/lib/python3.12/site-packages/botocore/hooks.py:412: in emit
+    return self._emitter.emit(aliased_event_name, **kwargs)
+/usr/local/lib/python3.12/site-packages/botocore/hooks.py:256: in emit
+    return self._emit(event_name, kwargs)
+/usr/local/lib/python3.12/site-packages/botocore/hooks.py:239: in _emit
+    response = handler(**kwargs)
+/usr/local/lib/python3.12/site-packages/botocore/retryhandler.py:207: in __call__
+    if self._checker(**checker_kwargs):
+/usr/local/lib/python3.12/site-packages/botocore/retryhandler.py:284: in __call__
+    should_retry = self._should_retry(
+/usr/local/lib/python3.12/site-packages/botocore/retryhandler.py:320: in _should_retry
+    return self._checker(attempt_number, response, caught_exception)
+/usr/local/lib/python3.12/site-packages/botocore/retryhandler.py:363: in __call__
+    checker_response = checker(
+/usr/local/lib/python3.12/site-packages/botocore/retryhandler.py:247: in __call__
+    return self._check_caught_exception(
+/usr/local/lib/python3.12/site-packages/botocore/retryhandler.py:416: in _check_caught_exception
+    raise caught_exception
+/usr/local/lib/python3.12/site-packages/botocore/endpoint.py:279: in _do_get_response
+    http_response = self._send(request)
+/usr/local/lib/python3.12/site-packages/botocore/endpoint.py:375: in _send
+    return self.http_session.send(request)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <botocore.httpsession.URLLib3Session object at 0x7548ff8b6000>
+request = <AWSPreparedRequest stream_output=False, method=PUT, url=http://localhost:9000/imports, headers={'User-Agent': b'Boto3...nvocation-id': b'ea0ca58c-1e43-4f1a-ad6e-f6ff72473468', 'amz-sdk-request': b'attempt=5; max=5', 'Content-Length': '0'}>
+
+    def send(self, request):
+        try:
+            proxy_url = self._proxy_config.proxy_url_for(request.url)
+            manager = self._get_connection_manager(request.url, proxy_url)
+            conn = manager.connection_from_url(request.url)
+            self._setup_ssl_cert(conn, request.url, self._verify)
+            if ensure_boolean(
+                os.environ.get('BOTO_EXPERIMENTAL__ADD_PROXY_HOST_HEADER', '')
+            ):
+                # This is currently an "experimental" feature which provides
+                # no guarantees of backwards compatibility. It may be subject
+                # to change or removal in any patch version. Anyone opting in
+                # to this feature should strictly pin botocore.
+                host = urlparse(request.url).hostname
+                conn.proxy_headers['host'] = host
+    
+            request_target = self._get_request_target(request.url, proxy_url)
+            urllib_response = conn.urlopen(
+                method=request.method,
+                url=request_target,
+                body=request.body,
+                headers=request.headers,
+                retries=Retry(False),
+                assert_same_host=False,
+                preload_content=False,
+                decode_content=False,
+                chunked=self._chunked(request.headers),
+            )
+    
+            http_response = botocore.awsrequest.AWSResponse(
+                request.url,
+                urllib_response.status,
+                urllib_response.headers,
+                urllib_response,
+            )
+    
+            if not request.stream_output:
+                # Cause the raw stream to be exhausted immediately. We do it
+                # this way instead of using preload_content because
+                # preload_content will never buffer chunked responses
+                http_response.content
+    
+            return http_response
+        except URLLib3SSLError as e:
+            raise SSLError(endpoint_url=request.url, error=e)
+        except (NewConnectionError, socket.gaierror) as e:
+>           raise EndpointConnectionError(endpoint_url=request.url, error=e)
+E           botocore.exceptions.EndpointConnectionError: Could not connect to the endpoint URL: "http://localhost:9000/imports"
+
+/usr/local/lib/python3.12/site-packages/botocore/httpsession.py:493: EndpointConnectionError
+________________________ test_revision_schema_and_auth _________________________
+
+self = <sqlalchemy.dialects.postgresql.asyncpg.AsyncAdapt_asyncpg_cursor object at 0x7548fca27880>
+operation = 'UPDATE manufacturing_events SET company_id=$1::VARCHAR, updated_at=$2::TIMESTAMP WITH TIME ZONE WHERE manufacturing_events.id = $3::VARCHAR'
+parameters = ('a986232f-e679-434e-9095-7470905b3d95', datetime.datetime(2026, 9, 22, 11, 17, 42, 114326, tzinfo=datetime.timezone.utc), '7b0b27fe-e49f-4f82-94d5-ffc3502d90df')
+
+    async def _prepare_and_execute(self, operation, parameters):
+        adapt_connection = self._adapt_connection
+    
+        async with adapt_connection._execute_mutex:
+            if not adapt_connection._started:
+                await adapt_connection._start_transaction()
+    
+            if parameters is None:
+                parameters = ()
+    
+            try:
+                prepared_stmt, attributes = await adapt_connection._prepare(
+                    operation, self._invalidate_schema_cache_asof
+                )
+    
+                if attributes:
+                    self.description = [
+                        (
+                            attr.name,
+                            attr.type.oid,
+                            None,
+                            None,
+                            None,
+                            None,
+                            None,
+                        )
+                        for attr in attributes
+                    ]
+                else:
+                    self.description = None
+    
+                if self.server_side:
+                    self._cursor = await prepared_stmt.cursor(*parameters)
+                    self.rowcount = -1
+                else:
+>                   self._rows = await prepared_stmt.fetch(*parameters)
+
+/usr/local/lib/python3.12/site-packages/sqlalchemy/dialects/postgresql/asyncpg.py:538: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/usr/local/lib/python3.12/site-packages/asyncpg/prepared_stmt.py:176: in fetch
+    data = await self.__bind_execute(args, 0, timeout)
+/usr/local/lib/python3.12/site-packages/asyncpg/prepared_stmt.py:241: in __bind_execute
+    data, status, _ = await self.__do_execute(
+/usr/local/lib/python3.12/site-packages/asyncpg/prepared_stmt.py:230: in __do_execute
+    return await executor(protocol)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+>   ???
+E   asyncpg.exceptions.ForeignKeyViolationError: insert or update on table "manufacturing_events" violates foreign key constraint "manufacturing_events_company_id_fkey"
+E   DETAIL:  Key (company_id)=(a986232f-e679-434e-9095-7470905b3d95) is not present in table "companies".
+
+asyncpg/protocol/protocol.pyx:207: ForeignKeyViolationError
+
+The above exception was the direct cause of the following exception:
+
+self = <sqlalchemy.engine.base.Connection object at 0x7548efaff830>
+dialect = <sqlalchemy.dialects.postgresql.asyncpg.PGDialect_asyncpg object at 0x75490245f8f0>
+context = <sqlalchemy.dialects.postgresql.asyncpg.PGExecutionContext_asyncpg object at 0x7548efa8b770>
+statement = <sqlalchemy.dialects.postgresql.asyncpg.PGCompiler_asyncpg object at 0x7548efaed460>
+parameters = [('a986232f-e679-434e-9095-7470905b3d95', datetime.datetime(2026, 9, 22, 11, 17, 42, 114326, tzinfo=datetime.timezone.utc), '7b0b27fe-e49f-4f82-94d5-ffc3502d90df')]
+
+    def _exec_single_context(
+        self,
+        dialect: Dialect,
+        context: ExecutionContext,
+        statement: Union[str, Compiled],
+        parameters: Optional[_AnyMultiExecuteParams],
+    ) -> CursorResult[Any]:
+        """continue the _execute_context() method for a single DBAPI
+        cursor.execute() or cursor.executemany() call.
+    
+        """
+        if dialect.bind_typing is BindTyping.SETINPUTSIZES:
+            generic_setinputsizes = context._prepare_set_input_sizes()
+    
+            if generic_setinputsizes:
+                try:
+                    dialect.do_set_input_sizes(
+                        context.cursor, generic_setinputsizes, context
+                    )
+                except BaseException as e:
+                    self._handle_dbapi_exception(
+                        e, str(statement), parameters, None, context
+                    )
+    
+        cursor, str_statement, parameters = (
+            context.cursor,
+            context.statement,
+            context.parameters,
+        )
+    
+        effective_parameters: Optional[_AnyExecuteParams]
+    
+        if not context.executemany:
+            effective_parameters = parameters[0]
+        else:
+            effective_parameters = parameters
+    
+        if self._has_events or self.engine._has_events:
+            for fn in self.dispatch.before_cursor_execute:
+                str_statement, effective_parameters = fn(
+                    self,
+                    cursor,
+                    str_statement,
+                    effective_parameters,
+                    context,
+                    context.executemany,
+                )
+    
+        if self._echo:
+            self._log_info(str_statement)
+    
+            stats = context._get_cache_stats()
+    
+            if not self.engine.hide_parameters:
+                self._log_info(
+                    "[%s] %r",
+                    stats,
+                    sql_util._repr_params(
+                        effective_parameters,
+                        batches=10,
+                        ismulti=context.executemany,
+                    ),
+                )
+            else:
+                self._log_info(
+                    "[%s] [SQL parameters hidden due to hide_parameters=True]",
+                    stats,
+                )
+    
+        evt_handled: bool = False
+        try:
+            if context.execute_style is ExecuteStyle.EXECUTEMANY:
+                effective_parameters = cast(
+                    "_CoreMultiExecuteParams", effective_parameters
+                )
+                if self.dialect._has_events:
+                    for fn in self.dialect.dispatch.do_executemany:
+                        if fn(
+                            cursor,
+                            str_statement,
+                            effective_parameters,
+                            context,
+                        ):
+                            evt_handled = True
+                            break
+                if not evt_handled:
+                    self.dialect.do_executemany(
+                        cursor,
+                        str_statement,
+                        effective_parameters,
+                        context,
+                    )
+            elif not effective_parameters and context.no_parameters:
+                if self.dialect._has_events:
+                    for fn in self.dialect.dispatch.do_execute_no_params:
+                        if fn(cursor, str_statement, context):
+                            evt_handled = True
+                            break
+                if not evt_handled:
+                    self.dialect.do_execute_no_params(
+                        cursor, str_statement, context
+                    )
+            else:
+                effective_parameters = cast(
+                    "_CoreSingleExecuteParams", effective_parameters
+                )
+                if self.dialect._has_events:
+                    for fn in self.dialect.dispatch.do_execute:
+                        if fn(
+                            cursor,
+                            str_statement,
+                            effective_parameters,
+                            context,
+                        ):
+                            evt_handled = True
+                            break
+                if not evt_handled:
+>                   self.dialect.do_execute(
+                        cursor, str_statement, effective_parameters, context
+                    )
+
+/usr/local/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1967: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/usr/local/lib/python3.12/site-packages/sqlalchemy/engine/default.py:924: in do_execute
+    cursor.execute(statement, parameters)
+/usr/local/lib/python3.12/site-packages/sqlalchemy/dialects/postgresql/asyncpg.py:572: in execute
+    self._adapt_connection.await_(
+/usr/local/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py:131: in await_only
+    return current.driver.switch(awaitable)  # type: ignore[no-any-return]
+/usr/local/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py:196: in greenlet_spawn
+    value = await result
+/usr/local/lib/python3.12/site-packages/sqlalchemy/dialects/postgresql/asyncpg.py:550: in _prepare_and_execute
+    self._handle_exception(error)
+/usr/local/lib/python3.12/site-packages/sqlalchemy/dialects/postgresql/asyncpg.py:501: in _handle_exception
+    self._adapt_connection._handle_exception(error)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <AdaptedConnection <asyncpg.connection.Connection object at 0x7548fc9c8320>>
+error = ForeignKeyViolationError('insert or update on table "manufacturing_events" violates foreign key constraint "manufacturing_events_company_id_fkey"')
+
+    def _handle_exception(self, error):
+        if self._connection.is_closed():
+            self._transaction = None
+            self._started = False
+    
+        if not isinstance(error, AsyncAdapt_asyncpg_dbapi.Error):
+            exception_mapping = self.dbapi._asyncpg_error_translate
+    
+            for super_ in type(error).__mro__:
+                if super_ in exception_mapping:
+                    translated_error = exception_mapping[super_](
+                        "%s: %s" % (type(error), error)
+                    )
+                    translated_error.pgcode = translated_error.sqlstate = (
+                        getattr(error, "sqlstate", None)
+                    )
+>                   raise translated_error from error
+E                   sqlalchemy.dialects.postgresql.asyncpg.AsyncAdapt_asyncpg_dbapi.IntegrityError: <class 'asyncpg.exceptions.ForeignKeyViolationError'>: insert or update on table "manufacturing_events" violates foreign key constraint "manufacturing_events_company_id_fkey"
+E                   DETAIL:  Key (company_id)=(a986232f-e679-434e-9095-7470905b3d95) is not present in table "companies".
+
+/usr/local/lib/python3.12/site-packages/sqlalchemy/dialects/postgresql/asyncpg.py:789: IntegrityError
+
+The above exception was the direct cause of the following exception:
+
+    async def test_revision_schema_and_auth():
+        ev_id, token_headers, client, actor_id, comp_id = await setup_event_and_token()
+    
+        # 7. Auth required
+        res = await client.post(f"/api/v1/events/{ev_id}/revisions", json={"changes": {"severity": "Critical"}, "reason": "test"})
+        assert res.status_code == 403
+    
+        # 13. Empty changes
+        res = await client.post(f"/api/v1/events/{ev_id}/revisions", headers=token_headers, json={"changes": {}, "reason": "test"})
+        assert res.status_code == 400
+    
+        # 14. Empty reason
+        res = await client.post(f"/api/v1/events/{ev_id}/revisions", headers=token_headers, json={"changes": {"severity": "Critical"}, "reason": ""})
+        assert res.status_code == 400
+    
+        # 11. Unknown fields
+        res = await client.post(f"/api/v1/events/{ev_id}/revisions", headers=token_headers, json={"changes": {"invalid_field": "x"}, "reason": "test"})
+        assert res.status_code == 400
+    
+        # 15. Invalid event
+        res = await client.post(f"/api/v1/events/{uuid.uuid4()}/revisions", headers=token_headers, json={"changes": {"severity": "Critical"}, "reason": "test"})
+        assert res.status_code == 404
+    
+        # 8. Cross-tenant
+        async with AsyncSessionLocal() as db:
+            ev = (await db.execute(select(ManufacturingEvent).where(ManufacturingEvent.id == ev_id))).scalars().first()
+            ev.company_id = str(uuid.uuid4())
+>           await db.commit()
+
+tests/test_phase_3f_revisions.py:73: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/usr/local/lib/python3.12/site-packages/sqlalchemy/ext/asyncio/session.py:1009: in commit
+    await greenlet_spawn(self.sync_session.commit)
+/usr/local/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py:203: in greenlet_spawn
+    result = context.switch(value)
+/usr/local/lib/python3.12/site-packages/sqlalchemy/orm/session.py:2017: in commit
+    trans.commit(_to_root=True)
+<string>:2: in commit
+    ???
+/usr/local/lib/python3.12/site-packages/sqlalchemy/orm/state_changes.py:139: in _go
+    ret_value = fn(self, *arg, **kw)
+/usr/local/lib/python3.12/site-packages/sqlalchemy/orm/session.py:1302: in commit
+    self._prepare_impl()
+<string>:2: in _prepare_impl
+    ???
+/usr/local/lib/python3.12/site-packages/sqlalchemy/orm/state_changes.py:139: in _go
+    ret_value = fn(self, *arg, **kw)
+/usr/local/lib/python3.12/site-packages/sqlalchemy/orm/session.py:1277: in _prepare_impl
+    self.session.flush()
+/usr/local/lib/python3.12/site-packages/sqlalchemy/orm/session.py:4341: in flush
+    self._flush(objects)
+/usr/local/lib/python3.12/site-packages/sqlalchemy/orm/session.py:4476: in _flush
+    with util.safe_reraise():
+/usr/local/lib/python3.12/site-packages/sqlalchemy/util/langhelpers.py:146: in __exit__
+    raise exc_value.with_traceback(exc_tb)
+/usr/local/lib/python3.12/site-packages/sqlalchemy/orm/session.py:4437: in _flush
+    flush_context.execute()
+/usr/local/lib/python3.12/site-packages/sqlalchemy/orm/unitofwork.py:466: in execute
+    rec.execute(self)
+/usr/local/lib/python3.12/site-packages/sqlalchemy/orm/unitofwork.py:642: in execute
+    util.preloaded.orm_persistence.save_obj(
+/usr/local/lib/python3.12/site-packages/sqlalchemy/orm/persistence.py:85: in save_obj
+    _emit_update_statements(
+/usr/local/lib/python3.12/site-packages/sqlalchemy/orm/persistence.py:912: in _emit_update_statements
+    c = connection.execute(
+/usr/local/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1418: in execute
+    return meth(
+/usr/local/lib/python3.12/site-packages/sqlalchemy/sql/elements.py:515: in _execute_on_connection
+    return connection._execute_clauseelement(
+/usr/local/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1640: in _execute_clauseelement
+    ret = self._execute_context(
+/usr/local/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1846: in _execute_context
+    return self._exec_single_context(
+/usr/local/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1986: in _exec_single_context
+    self._handle_dbapi_exception(
+/usr/local/lib/python3.12/site-packages/sqlalchemy/engine/base.py:2353: in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+/usr/local/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1967: in _exec_single_context
+    self.dialect.do_execute(
+/usr/local/lib/python3.12/site-packages/sqlalchemy/engine/default.py:924: in do_execute
+    cursor.execute(statement, parameters)
+/usr/local/lib/python3.12/site-packages/sqlalchemy/dialects/postgresql/asyncpg.py:572: in execute
+    self._adapt_connection.await_(
+/usr/local/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py:131: in await_only
+    return current.driver.switch(awaitable)  # type: ignore[no-any-return]
+/usr/local/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py:196: in greenlet_spawn
+    value = await result
+/usr/local/lib/python3.12/site-packages/sqlalchemy/dialects/postgresql/asyncpg.py:550: in _prepare_and_execute
+    self._handle_exception(error)
+/usr/local/lib/python3.12/site-packages/sqlalchemy/dialects/postgresql/asyncpg.py:501: in _handle_exception
+    self._adapt_connection._handle_exception(error)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <AdaptedConnection <asyncpg.connection.Connection object at 0x7548fc9c8320>>
+error = ForeignKeyViolationError('insert or update on table "manufacturing_events" violates foreign key constraint "manufacturing_events_company_id_fkey"')
+
+    def _handle_exception(self, error):
+        if self._connection.is_closed():
+            self._transaction = None
+            self._started = False
+    
+        if not isinstance(error, AsyncAdapt_asyncpg_dbapi.Error):
+            exception_mapping = self.dbapi._asyncpg_error_translate
+    
+            for super_ in type(error).__mro__:
+                if super_ in exception_mapping:
+                    translated_error = exception_mapping[super_](
+                        "%s: %s" % (type(error), error)
+                    )
+                    translated_error.pgcode = translated_error.sqlstate = (
+                        getattr(error, "sqlstate", None)
+                    )
+>                   raise translated_error from error
+E                   sqlalchemy.exc.IntegrityError: (sqlalchemy.dialects.postgresql.asyncpg.IntegrityError) <class 'asyncpg.exceptions.ForeignKeyViolationError'>: insert or update on table "manufacturing_events" violates foreign key constraint "manufacturing_events_company_id_fkey"
+E                   DETAIL:  Key (company_id)=(a986232f-e679-434e-9095-7470905b3d95) is not present in table "companies".
+E                   [SQL: UPDATE manufacturing_events SET company_id=$1::VARCHAR, updated_at=$2::TIMESTAMP WITH TIME ZONE WHERE manufacturing_events.id = $3::VARCHAR]
+E                   [parameters: ('a986232f-e679-434e-9095-7470905b3d95', datetime.datetime(2026, 9, 22, 11, 17, 42, 114326, tzinfo=datetime.timezone.utc), '7b0b27fe-e49f-4f82-94d5-ffc3502d90df')]
+E                   (Background on this error at: https://sqlalche.me/e/20/gkpj)
+
+/usr/local/lib/python3.12/site-packages/sqlalchemy/dialects/postgresql/asyncpg.py:789: IntegrityError
+_____________________ test_supersession_architectural_gap ______________________
+
+event_loop = <_UnixSelectorEventLoop running=False closed=False debug=False>
+
+    async def test_supersession_architectural_gap(event_loop):
+        # S. Supersession
+        # We assert that supersession is impossible under current architectural rules.
+        async with AsyncSessionLocal() as db_session:
+            comp, p1, p2, m1, wo1, cand = await setup_base_data(db_session, "DOWNTIME")
+    
+        while await process_one_candidate("w1"): pass
+        while await process_one_job("w2"): pass
+    
+        async with AsyncSessionLocal() as db_session:
+            ev_q = await db_session.execute(select(ManufacturingEvent).where(ManufacturingEvent.candidate_id == cand.id))
+            ev = ev_q.scalars().first()
+            ev_id = ev.id
+    
+        async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
+            res = await client.post("/api/auth/register", json={"email": "s@t.com", "password": "p", "full_name": "t", "company_name": "c", "industry": "a", "revenue_range": ""})
+            res = await client.post("/api/auth/login", data={"username": "s@t.com", "password": "p"})
+            token = res.json().get("access_token", "")
+            token_headers = {"Authorization": f"Bearer {token}"}
+    
+            async with AsyncSessionLocal() as db_session:
+                user_comp = (await db_session.execute(select(Company).where(Company.name=="c"))).scalars().first()
+                ev.company_id = user_comp.id
+                db_session.add(ev)
+                await db_session.commit()
+    
+            sup_res = await client.post(
+                f"/api/v1/events/{ev_id}/supersede",
+                headers=token_headers,
+                json={"new_severity": "Critical"}
+            )
+>           assert sup_res.status_code == 501
+E           assert 404 == 501
+E            +  where 404 = <Response [404 Not Found]>.status_code
+
+tests/test_phase_3f_validation.py:155: AssertionError
+_______________________ test_provenance_and_data_quality _______________________
+
+self = <AWSHTTPConnection(host='localhost', port=9000) at 0x7548efb3d5e0>
+
+    def _new_conn(self) -> socket.socket:
+        """Establish a socket connection and set nodelay settings on it.
+    
+        :return: New socket connection.
+        """
+        try:
+>           sock = connection.create_connection(
+                (self._dns_host, self.port),
+                self.timeout,
+                source_address=self.source_address,
+                socket_options=self.socket_options,
+            )
+
+/usr/local/lib/python3.12/site-packages/urllib3/connection.py:239: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/usr/local/lib/python3.12/site-packages/urllib3/util/connection.py:85: in create_connection
+    raise err
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+address = ('localhost', 9000), timeout = 60, source_address = None
+socket_options = [(6, 1, 1)]
+
+    def create_connection(
+        address: tuple[str, int],
+        timeout: _TYPE_TIMEOUT = _DEFAULT_TIMEOUT,
+        source_address: tuple[str, int] | None = None,
+        socket_options: _TYPE_SOCKET_OPTIONS | None = None,
+    ) -> socket.socket:
+        """Connect to *address* and return the socket object.
+    
+        Convenience function.  Connect to *address* (a 2-tuple ``(host,
+        port)``) and return the socket object.  Passing the optional
+        *timeout* parameter will set the timeout on the socket instance
+        before attempting to connect.  If no *timeout* is supplied, the
+        global default timeout setting returned by :func:`socket.getdefaulttimeout`
+        is used.  If *source_address* is set it must be a tuple of (host, port)
+        for the socket to bind as a source address before making the connection.
+        An host of '' or port 0 tells the OS to use the default.
+        """
+    
+        host, port = address
+        if host.startswith("["):
+            host = host.strip("[]")
+        err = None
+    
+        # Using the value from allowed_gai_family() in the context of getaddrinfo lets
+        # us select whether to work with IPv4 DNS records, IPv6 records, or both.
+        # The original create_connection function always returns all records.
+        family = allowed_gai_family()
+    
+        try:
+            host.encode("idna")
+        except UnicodeError:
+            raise LocationParseError(f"'{host}', label empty or too long") from None
+    
+        for res in socket.getaddrinfo(host, port, family, socket.SOCK_STREAM):
+            af, socktype, proto, canonname, sa = res
+            sock = None
+            try:
+                sock = socket.socket(af, socktype, proto)
+    
+                # If provided, set socket level options before connecting.
+                _set_socket_options(sock, socket_options)
+    
+                if timeout is not _DEFAULT_TIMEOUT:
+                    sock.settimeout(timeout)
+                if source_address:
+                    sock.bind(source_address)
+>               sock.connect(sa)
+E               ConnectionRefusedError: [Errno 111] Connection refused
+
+/usr/local/lib/python3.12/site-packages/urllib3/util/connection.py:73: ConnectionRefusedError
+
+The above exception was the direct cause of the following exception:
+
+self = <botocore.httpsession.URLLib3Session object at 0x7548ff8b6000>
+request = <AWSPreparedRequest stream_output=False, method=HEAD, url=http://localhost:9000/imports, headers={'User-Agent': b'Boto...31eb45cc8a', 'amz-sdk-invocation-id': b'62da431c-fd04-45bb-9000-2a095ac38c18', 'amz-sdk-request': b'attempt=5; max=5'}>
+
+    def send(self, request):
+        try:
+            proxy_url = self._proxy_config.proxy_url_for(request.url)
+            manager = self._get_connection_manager(request.url, proxy_url)
+            conn = manager.connection_from_url(request.url)
+            self._setup_ssl_cert(conn, request.url, self._verify)
+            if ensure_boolean(
+                os.environ.get('BOTO_EXPERIMENTAL__ADD_PROXY_HOST_HEADER', '')
+            ):
+                # This is currently an "experimental" feature which provides
+                # no guarantees of backwards compatibility. It may be subject
+                # to change or removal in any patch version. Anyone opting in
+                # to this feature should strictly pin botocore.
+                host = urlparse(request.url).hostname
+                conn.proxy_headers['host'] = host
+    
+            request_target = self._get_request_target(request.url, proxy_url)
+>           urllib_response = conn.urlopen(
+                method=request.method,
+                url=request_target,
+                body=request.body,
+                headers=request.headers,
+                retries=Retry(False),
+                assert_same_host=False,
+                preload_content=False,
+                decode_content=False,
+                chunked=self._chunked(request.headers),
+            )
+
+/usr/local/lib/python3.12/site-packages/botocore/httpsession.py:464: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/usr/local/lib/python3.12/site-packages/urllib3/connectionpool.py:847: in urlopen
+    retries = retries.increment(
+/usr/local/lib/python3.12/site-packages/urllib3/util/retry.py:485: in increment
+    raise reraise(type(error), error, _stacktrace)
+/usr/local/lib/python3.12/site-packages/urllib3/util/util.py:39: in reraise
+    raise value
+/usr/local/lib/python3.12/site-packages/urllib3/connectionpool.py:793: in urlopen
+    response = self._make_request(
+/usr/local/lib/python3.12/site-packages/urllib3/connectionpool.py:499: in _make_request
+    conn.request(
+/usr/local/lib/python3.12/site-packages/botocore/awsrequest.py:96: in request
+    rval = super().request(method, url, body, headers, *args, **kwargs)
+/usr/local/lib/python3.12/site-packages/urllib3/connection.py:567: in request
+    self.endheaders()
+/usr/local/lib/python3.12/http/client.py:1381: in endheaders
+    self._send_output(message_body, encode_chunked=encode_chunked)
+/usr/local/lib/python3.12/site-packages/botocore/awsrequest.py:123: in _send_output
+    self.send(msg)
+/usr/local/lib/python3.12/site-packages/botocore/awsrequest.py:223: in send
+    return super().send(str)
+/usr/local/lib/python3.12/http/client.py:1085: in send
+    self.connect()
+/usr/local/lib/python3.12/site-packages/urllib3/connection.py:398: in connect
+    self.sock = self._new_conn()
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <AWSHTTPConnection(host='localhost', port=9000) at 0x7548efb3d5e0>
+
+    def _new_conn(self) -> socket.socket:
+        """Establish a socket connection and set nodelay settings on it.
+    
+        :return: New socket connection.
+        """
+        try:
+            sock = connection.create_connection(
+                (self._dns_host, self.port),
+                self.timeout,
+                source_address=self.source_address,
+                socket_options=self.socket_options,
+            )
+        except socket.gaierror as e:
+            raise NameResolutionError(self.host, self, e) from e
+        except SocketTimeout as e:
+            raise ConnectTimeoutError(
+                self,
+                f"Connection to {self.host} timed out. (connect timeout={self.timeout})",
+            ) from e
+    
+        except OSError as e:
+>           raise NewConnectionError(
+                self, f"Failed to establish a new connection: {e}"
+            ) from e
+E           urllib3.exceptions.NewConnectionError: AWSHTTPConnection(host='localhost', port=9000): Failed to establish a new connection: [Errno 111] Connection refused
+
+/usr/local/lib/python3.12/site-packages/urllib3/connection.py:254: NewConnectionError
+
+During handling of the above exception, another exception occurred:
+
+self = <app.infrastructure.storage.s3_storage.S3Storage object at 0x75490044bcb0>
+bucket_name = 'imports'
+object_name = 'e10b47db-6619-4122-a064-5f1c1b620da2/3b86062e79a740c8f9407a8d75238f992615f680f109c2d34b474b3013fffa56'
+data = b'name,external_id\nCust 1,EXT1\nCust 2,EXT2\n'
+
+    async def upload(self, bucket_name: str, object_name: str, data: bytes):
+        try:
+>           self.client.head_bucket(Bucket=bucket_name)
+
+app/infrastructure/storage/s3_storage.py:20: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/usr/local/lib/python3.12/site-packages/botocore/client.py:565: in _api_call
+    return self._make_api_call(operation_name, kwargs)
+/usr/local/lib/python3.12/site-packages/botocore/client.py:999: in _make_api_call
+    http, parsed_response = self._make_request(
+/usr/local/lib/python3.12/site-packages/botocore/client.py:1023: in _make_request
+    return self._endpoint.make_request(operation_model, request_dict)
+/usr/local/lib/python3.12/site-packages/botocore/endpoint.py:119: in make_request
+    return self._send_request(request_dict, operation_model)
+/usr/local/lib/python3.12/site-packages/botocore/endpoint.py:200: in _send_request
+    while self._needs_retry(
+/usr/local/lib/python3.12/site-packages/botocore/endpoint.py:352: in _needs_retry
+    responses = self._event_emitter.emit(
+/usr/local/lib/python3.12/site-packages/botocore/hooks.py:412: in emit
+    return self._emitter.emit(aliased_event_name, **kwargs)
+/usr/local/lib/python3.12/site-packages/botocore/hooks.py:256: in emit
+    return self._emit(event_name, kwargs)
+/usr/local/lib/python3.12/site-packages/botocore/hooks.py:239: in _emit
+    response = handler(**kwargs)
+/usr/local/lib/python3.12/site-packages/botocore/retryhandler.py:207: in __call__
+    if self._checker(**checker_kwargs):
+/usr/local/lib/python3.12/site-packages/botocore/retryhandler.py:284: in __call__
+    should_retry = self._should_retry(
+/usr/local/lib/python3.12/site-packages/botocore/retryhandler.py:320: in _should_retry
+    return self._checker(attempt_number, response, caught_exception)
+/usr/local/lib/python3.12/site-packages/botocore/retryhandler.py:363: in __call__
+    checker_response = checker(
+/usr/local/lib/python3.12/site-packages/botocore/retryhandler.py:247: in __call__
+    return self._check_caught_exception(
+/usr/local/lib/python3.12/site-packages/botocore/retryhandler.py:416: in _check_caught_exception
+    raise caught_exception
+/usr/local/lib/python3.12/site-packages/botocore/endpoint.py:279: in _do_get_response
+    http_response = self._send(request)
+/usr/local/lib/python3.12/site-packages/botocore/endpoint.py:375: in _send
+    return self.http_session.send(request)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <botocore.httpsession.URLLib3Session object at 0x7548ff8b6000>
+request = <AWSPreparedRequest stream_output=False, method=HEAD, url=http://localhost:9000/imports, headers={'User-Agent': b'Boto...31eb45cc8a', 'amz-sdk-invocation-id': b'62da431c-fd04-45bb-9000-2a095ac38c18', 'amz-sdk-request': b'attempt=5; max=5'}>
+
+    def send(self, request):
+        try:
+            proxy_url = self._proxy_config.proxy_url_for(request.url)
+            manager = self._get_connection_manager(request.url, proxy_url)
+            conn = manager.connection_from_url(request.url)
+            self._setup_ssl_cert(conn, request.url, self._verify)
+            if ensure_boolean(
+                os.environ.get('BOTO_EXPERIMENTAL__ADD_PROXY_HOST_HEADER', '')
+            ):
+                # This is currently an "experimental" feature which provides
+                # no guarantees of backwards compatibility. It may be subject
+                # to change or removal in any patch version. Anyone opting in
+                # to this feature should strictly pin botocore.
+                host = urlparse(request.url).hostname
+                conn.proxy_headers['host'] = host
+    
+            request_target = self._get_request_target(request.url, proxy_url)
+            urllib_response = conn.urlopen(
+                method=request.method,
+                url=request_target,
+                body=request.body,
+                headers=request.headers,
+                retries=Retry(False),
+                assert_same_host=False,
+                preload_content=False,
+                decode_content=False,
+                chunked=self._chunked(request.headers),
+            )
+    
+            http_response = botocore.awsrequest.AWSResponse(
+                request.url,
+                urllib_response.status,
+                urllib_response.headers,
+                urllib_response,
+            )
+    
+            if not request.stream_output:
+                # Cause the raw stream to be exhausted immediately. We do it
+                # this way instead of using preload_content because
+                # preload_content will never buffer chunked responses
+                http_response.content
+    
+            return http_response
+        except URLLib3SSLError as e:
+            raise SSLError(endpoint_url=request.url, error=e)
+        except (NewConnectionError, socket.gaierror) as e:
+>           raise EndpointConnectionError(endpoint_url=request.url, error=e)
+E           botocore.exceptions.EndpointConnectionError: Could not connect to the endpoint URL: "http://localhost:9000/imports"
+
+/usr/local/lib/python3.12/site-packages/botocore/httpsession.py:493: EndpointConnectionError
+
+During handling of the above exception, another exception occurred:
+
+>   ???
+
+C:\Xaiote\backend\tests\test_provenance.py:36: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/usr/local/lib/python3.12/site-packages/httpx/_client.py:1892: in post
+    return await self.request(
+/usr/local/lib/python3.12/site-packages/httpx/_client.py:1574: in request
+    return await self.send(request, auth=auth, follow_redirects=follow_redirects)
+/usr/local/lib/python3.12/site-packages/httpx/_client.py:1661: in send
+    response = await self._send_handling_auth(
+/usr/local/lib/python3.12/site-packages/httpx/_client.py:1689: in _send_handling_auth
+    response = await self._send_handling_redirects(
+/usr/local/lib/python3.12/site-packages/httpx/_client.py:1726: in _send_handling_redirects
+    response = await self._send_single_request(request)
+/usr/local/lib/python3.12/site-packages/httpx/_client.py:1763: in _send_single_request
+    response = await transport.handle_async_request(request)
+/usr/local/lib/python3.12/site-packages/httpx/_transports/asgi.py:164: in handle_async_request
+    await self.app(scope, receive, send)
+/usr/local/lib/python3.12/site-packages/fastapi/applications.py:1054: in __call__
+    await super().__call__(scope, receive, send)
+/usr/local/lib/python3.12/site-packages/starlette/applications.py:123: in __call__
+    await self.middleware_stack(scope, receive, send)
+/usr/local/lib/python3.12/site-packages/starlette/middleware/errors.py:186: in __call__
+    raise exc
+/usr/local/lib/python3.12/site-packages/starlette/middleware/errors.py:164: in __call__
+    await self.app(scope, receive, _send)
+/usr/local/lib/python3.12/site-packages/starlette/middleware/cors.py:85: in __call__
+    await self.app(scope, receive, send)
+/usr/local/lib/python3.12/site-packages/starlette/middleware/exceptions.py:65: in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+/usr/local/lib/python3.12/site-packages/starlette/_exception_handler.py:64: in wrapped_app
+    raise exc
+/usr/local/lib/python3.12/site-packages/starlette/_exception_handler.py:53: in wrapped_app
+    await app(scope, receive, sender)
+/usr/local/lib/python3.12/site-packages/starlette/routing.py:756: in __call__
+    await self.middleware_stack(scope, receive, send)
+/usr/local/lib/python3.12/site-packages/starlette/routing.py:776: in app
+    await route.handle(scope, receive, send)
+/usr/local/lib/python3.12/site-packages/starlette/routing.py:297: in handle
+    await self.app(scope, receive, send)
+/usr/local/lib/python3.12/site-packages/starlette/routing.py:77: in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+/usr/local/lib/python3.12/site-packages/starlette/_exception_handler.py:64: in wrapped_app
+    raise exc
+/usr/local/lib/python3.12/site-packages/starlette/_exception_handler.py:53: in wrapped_app
+    await app(scope, receive, sender)
+/usr/local/lib/python3.12/site-packages/starlette/routing.py:72: in app
+    response = await func(request)
+/usr/local/lib/python3.12/site-packages/fastapi/routing.py:278: in app
+    raw_response = await run_endpoint_function(
+/usr/local/lib/python3.12/site-packages/fastapi/routing.py:191: in run_endpoint_function
+    return await dependant.call(**values)
+app/api/routes/imports.py:51: in upload_import
+    await storage.upload("imports", object_name, contents)
+app/infrastructure/storage/s3_storage.py:22: in upload
+    self.client.create_bucket(Bucket=bucket_name)
+/usr/local/lib/python3.12/site-packages/botocore/client.py:565: in _api_call
+    return self._make_api_call(operation_name, kwargs)
+/usr/local/lib/python3.12/site-packages/botocore/client.py:999: in _make_api_call
+    http, parsed_response = self._make_request(
+/usr/local/lib/python3.12/site-packages/botocore/client.py:1023: in _make_request
+    return self._endpoint.make_request(operation_model, request_dict)
+/usr/local/lib/python3.12/site-packages/botocore/endpoint.py:119: in make_request
+    return self._send_request(request_dict, operation_model)
+/usr/local/lib/python3.12/site-packages/botocore/endpoint.py:200: in _send_request
+    while self._needs_retry(
+/usr/local/lib/python3.12/site-packages/botocore/endpoint.py:352: in _needs_retry
+    responses = self._event_emitter.emit(
+/usr/local/lib/python3.12/site-packages/botocore/hooks.py:412: in emit
+    return self._emitter.emit(aliased_event_name, **kwargs)
+/usr/local/lib/python3.12/site-packages/botocore/hooks.py:256: in emit
+    return self._emit(event_name, kwargs)
+/usr/local/lib/python3.12/site-packages/botocore/hooks.py:239: in _emit
+    response = handler(**kwargs)
+/usr/local/lib/python3.12/site-packages/botocore/retryhandler.py:207: in __call__
+    if self._checker(**checker_kwargs):
+/usr/local/lib/python3.12/site-packages/botocore/retryhandler.py:284: in __call__
+    should_retry = self._should_retry(
+/usr/local/lib/python3.12/site-packages/botocore/retryhandler.py:320: in _should_retry
+    return self._checker(attempt_number, response, caught_exception)
+/usr/local/lib/python3.12/site-packages/botocore/retryhandler.py:363: in __call__
+    checker_response = checker(
+/usr/local/lib/python3.12/site-packages/botocore/retryhandler.py:247: in __call__
+    return self._check_caught_exception(
+/usr/local/lib/python3.12/site-packages/botocore/retryhandler.py:416: in _check_caught_exception
+    raise caught_exception
+/usr/local/lib/python3.12/site-packages/botocore/endpoint.py:279: in _do_get_response
+    http_response = self._send(request)
+/usr/local/lib/python3.12/site-packages/botocore/endpoint.py:375: in _send
+    return self.http_session.send(request)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <botocore.httpsession.URLLib3Session object at 0x7548ff8b6000>
+request = <AWSPreparedRequest stream_output=False, method=PUT, url=http://localhost:9000/imports, headers={'User-Agent': b'Boto3...nvocation-id': b'0efcbf66-c10a-4113-9369-efd3287ab50a', 'amz-sdk-request': b'attempt=5; max=5', 'Content-Length': '0'}>
+
+    def send(self, request):
+        try:
+            proxy_url = self._proxy_config.proxy_url_for(request.url)
+            manager = self._get_connection_manager(request.url, proxy_url)
+            conn = manager.connection_from_url(request.url)
+            self._setup_ssl_cert(conn, request.url, self._verify)
+            if ensure_boolean(
+                os.environ.get('BOTO_EXPERIMENTAL__ADD_PROXY_HOST_HEADER', '')
+            ):
+                # This is currently an "experimental" feature which provides
+                # no guarantees of backwards compatibility. It may be subject
+                # to change or removal in any patch version. Anyone opting in
+                # to this feature should strictly pin botocore.
+                host = urlparse(request.url).hostname
+                conn.proxy_headers['host'] = host
+    
+            request_target = self._get_request_target(request.url, proxy_url)
+            urllib_response = conn.urlopen(
+                method=request.method,
+                url=request_target,
+                body=request.body,
+                headers=request.headers,
+                retries=Retry(False),
+                assert_same_host=False,
+                preload_content=False,
+                decode_content=False,
+                chunked=self._chunked(request.headers),
+            )
+    
+            http_response = botocore.awsrequest.AWSResponse(
+                request.url,
+                urllib_response.status,
+                urllib_response.headers,
+                urllib_response,
+            )
+    
+            if not request.stream_output:
+                # Cause the raw stream to be exhausted immediately. We do it
+                # this way instead of using preload_content because
+                # preload_content will never buffer chunked responses
+                http_response.content
+    
+            return http_response
+        except URLLib3SSLError as e:
+            raise SSLError(endpoint_url=request.url, error=e)
+        except (NewConnectionError, socket.gaierror) as e:
+>           raise EndpointConnectionError(endpoint_url=request.url, error=e)
+E           botocore.exceptions.EndpointConnectionError: Could not connect to the endpoint URL: "http://localhost:9000/imports"
+
+/usr/local/lib/python3.12/site-packages/botocore/httpsession.py:493: EndpointConnectionError
+_______________________ test_ssrf_protection_and_failure _______________________
+
+self = <sqlalchemy.dialects.postgresql.asyncpg.AsyncAdapt_asyncpg_cursor object at 0x7548ef6702e0>
+operation = 'DELETE FROM manufacturing_events', parameters = ()
+
+    async def _prepare_and_execute(self, operation, parameters):
+        adapt_connection = self._adapt_connection
+    
+        async with adapt_connection._execute_mutex:
+            if not adapt_connection._started:
+                await adapt_connection._start_transaction()
+    
+            if parameters is None:
+                parameters = ()
+    
+            try:
+                prepared_stmt, attributes = await adapt_connection._prepare(
+                    operation, self._invalidate_schema_cache_asof
+                )
+    
+                if attributes:
+                    self.description = [
+                        (
+                            attr.name,
+                            attr.type.oid,
+                            None,
+                            None,
+                            None,
+                            None,
+                            None,
+                        )
+                        for attr in attributes
+                    ]
+                else:
+                    self.description = None
+    
+                if self.server_side:
+                    self._cursor = await prepared_stmt.cursor(*parameters)
+                    self.rowcount = -1
+                else:
+>                   self._rows = await prepared_stmt.fetch(*parameters)
+
+/usr/local/lib/python3.12/site-packages/sqlalchemy/dialects/postgresql/asyncpg.py:538: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/usr/local/lib/python3.12/site-packages/asyncpg/prepared_stmt.py:176: in fetch
+    data = await self.__bind_execute(args, 0, timeout)
+/usr/local/lib/python3.12/site-packages/asyncpg/prepared_stmt.py:241: in __bind_execute
+    data, status, _ = await self.__do_execute(
+/usr/local/lib/python3.12/site-packages/asyncpg/prepared_stmt.py:230: in __do_execute
+    return await executor(protocol)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+>   ???
+E   asyncpg.exceptions.ForeignKeyViolationError: update or delete on table "manufacturing_events" violates foreign key constraint "manufacturing_event_revisions_event_id_fkey" on table "manufacturing_event_revisions"
+E   DETAIL:  Key (id)=(af689cb8-b3b7-4fef-a853-cbaf4fba9baf) is still referenced from table "manufacturing_event_revisions".
+
+asyncpg/protocol/protocol.pyx:207: ForeignKeyViolationError
+
+The above exception was the direct cause of the following exception:
+
+self = <sqlalchemy.engine.base.Connection object at 0x7548fc2cff80>
+dialect = <sqlalchemy.dialects.postgresql.asyncpg.PGDialect_asyncpg object at 0x75490245f8f0>
+context = <sqlalchemy.dialects.postgresql.asyncpg.PGExecutionContext_asyncpg object at 0x7548fc2c6810>
+statement = <sqlalchemy.dialects.postgresql.asyncpg.PGCompiler_asyncpg object at 0x7548fc9acf20>
+parameters = [()]
+
+    def _exec_single_context(
+        self,
+        dialect: Dialect,
+        context: ExecutionContext,
+        statement: Union[str, Compiled],
+        parameters: Optional[_AnyMultiExecuteParams],
+    ) -> CursorResult[Any]:
+        """continue the _execute_context() method for a single DBAPI
+        cursor.execute() or cursor.executemany() call.
+    
+        """
+        if dialect.bind_typing is BindTyping.SETINPUTSIZES:
+            generic_setinputsizes = context._prepare_set_input_sizes()
+    
+            if generic_setinputsizes:
+                try:
+                    dialect.do_set_input_sizes(
+                        context.cursor, generic_setinputsizes, context
+                    )
+                except BaseException as e:
+                    self._handle_dbapi_exception(
+                        e, str(statement), parameters, None, context
+                    )
+    
+        cursor, str_statement, parameters = (
+            context.cursor,
+            context.statement,
+            context.parameters,
+        )
+    
+        effective_parameters: Optional[_AnyExecuteParams]
+    
+        if not context.executemany:
+            effective_parameters = parameters[0]
+        else:
+            effective_parameters = parameters
+    
+        if self._has_events or self.engine._has_events:
+            for fn in self.dispatch.before_cursor_execute:
+                str_statement, effective_parameters = fn(
+                    self,
+                    cursor,
+                    str_statement,
+                    effective_parameters,
+                    context,
+                    context.executemany,
+                )
+    
+        if self._echo:
+            self._log_info(str_statement)
+    
+            stats = context._get_cache_stats()
+    
+            if not self.engine.hide_parameters:
+                self._log_info(
+                    "[%s] %r",
+                    stats,
+                    sql_util._repr_params(
+                        effective_parameters,
+                        batches=10,
+                        ismulti=context.executemany,
+                    ),
+                )
+            else:
+                self._log_info(
+                    "[%s] [SQL parameters hidden due to hide_parameters=True]",
+                    stats,
+                )
+    
+        evt_handled: bool = False
+        try:
+            if context.execute_style is ExecuteStyle.EXECUTEMANY:
+                effective_parameters = cast(
+                    "_CoreMultiExecuteParams", effective_parameters
+                )
+                if self.dialect._has_events:
+                    for fn in self.dialect.dispatch.do_executemany:
+                        if fn(
+                            cursor,
+                            str_statement,
+                            effective_parameters,
+                            context,
+                        ):
+                            evt_handled = True
+                            break
+                if not evt_handled:
+                    self.dialect.do_executemany(
+                        cursor,
+                        str_statement,
+                        effective_parameters,
+                        context,
+                    )
+            elif not effective_parameters and context.no_parameters:
+                if self.dialect._has_events:
+                    for fn in self.dialect.dispatch.do_execute_no_params:
+                        if fn(cursor, str_statement, context):
+                            evt_handled = True
+                            break
+                if not evt_handled:
+                    self.dialect.do_execute_no_params(
+                        cursor, str_statement, context
+                    )
+            else:
+                effective_parameters = cast(
+                    "_CoreSingleExecuteParams", effective_parameters
+                )
+                if self.dialect._has_events:
+                    for fn in self.dialect.dispatch.do_execute:
+                        if fn(
+                            cursor,
+                            str_statement,
+                            effective_parameters,
+                            context,
+                        ):
+                            evt_handled = True
+                            break
+                if not evt_handled:
+>                   self.dialect.do_execute(
+                        cursor, str_statement, effective_parameters, context
+                    )
+
+/usr/local/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1967: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/usr/local/lib/python3.12/site-packages/sqlalchemy/engine/default.py:924: in do_execute
+    cursor.execute(statement, parameters)
+/usr/local/lib/python3.12/site-packages/sqlalchemy/dialects/postgresql/asyncpg.py:572: in execute
+    self._adapt_connection.await_(
+/usr/local/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py:131: in await_only
+    return current.driver.switch(awaitable)  # type: ignore[no-any-return]
+/usr/local/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py:196: in greenlet_spawn
+    value = await result
+/usr/local/lib/python3.12/site-packages/sqlalchemy/dialects/postgresql/asyncpg.py:550: in _prepare_and_execute
+    self._handle_exception(error)
+/usr/local/lib/python3.12/site-packages/sqlalchemy/dialects/postgresql/asyncpg.py:501: in _handle_exception
+    self._adapt_connection._handle_exception(error)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <AdaptedConnection <asyncpg.connection.Connection object at 0x7548fc171b80>>
+error = ForeignKeyViolationError('update or delete on table "manufacturing_events" violates foreign key constraint "manufacturing_event_revisions_event_id_fkey" on table "manufacturing_event_revisions"')
+
+    def _handle_exception(self, error):
+        if self._connection.is_closed():
+            self._transaction = None
+            self._started = False
+    
+        if not isinstance(error, AsyncAdapt_asyncpg_dbapi.Error):
+            exception_mapping = self.dbapi._asyncpg_error_translate
+    
+            for super_ in type(error).__mro__:
+                if super_ in exception_mapping:
+                    translated_error = exception_mapping[super_](
+                        "%s: %s" % (type(error), error)
+                    )
+                    translated_error.pgcode = translated_error.sqlstate = (
+                        getattr(error, "sqlstate", None)
+                    )
+>                   raise translated_error from error
+E                   sqlalchemy.dialects.postgresql.asyncpg.AsyncAdapt_asyncpg_dbapi.IntegrityError: <class 'asyncpg.exceptions.ForeignKeyViolationError'>: update or delete on table "manufacturing_events" violates foreign key constraint "manufacturing_event_revisions_event_id_fkey" on table "manufacturing_event_revisions"
+E                   DETAIL:  Key (id)=(af689cb8-b3b7-4fef-a853-cbaf4fba9baf) is still referenced from table "manufacturing_event_revisions".
+
+/usr/local/lib/python3.12/site-packages/sqlalchemy/dialects/postgresql/asyncpg.py:789: IntegrityError
+
+The above exception was the direct cause of the following exception:
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7548fc2ce360>
+
+    @pytest.mark.asyncio
+    async def test_ssrf_protection_and_failure(monkeypatch):
+        """Test SSRF boundary (Meta/Lookaside only) and failure states."""
+    
+        from sqlalchemy import delete
+    
+        async with AsyncSessionLocal() as db:
+            from app.models.communication import (
+                CommunicationTranscript,
+                ExtractedEventCandidate,
+            )
+            from app.models.resolution import EntityResolutionResult
+    
+            from app.models.manufacturing_event import CanonicalizationJob, ManufacturingEvent
+>           await db.execute(delete(ManufacturingEvent))
+
+tests/test_worker.py:63: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/usr/local/lib/python3.12/site-packages/sqlalchemy/ext/asyncio/session.py:461: in execute
+    result = await greenlet_spawn(
+/usr/local/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py:201: in greenlet_spawn
+    result = context.throw(*sys.exc_info())
+/usr/local/lib/python3.12/site-packages/sqlalchemy/orm/session.py:2351: in execute
+    return self._execute_internal(
+/usr/local/lib/python3.12/site-packages/sqlalchemy/orm/session.py:2236: in _execute_internal
+    result: Result[Any] = compile_state_cls.orm_execute_statement(
+/usr/local/lib/python3.12/site-packages/sqlalchemy/orm/bulk_persistence.py:1953: in orm_execute_statement
+    return super().orm_execute_statement(
+/usr/local/lib/python3.12/site-packages/sqlalchemy/orm/context.py:293: in orm_execute_statement
+    result = conn.execute(
+/usr/local/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1418: in execute
+    return meth(
+/usr/local/lib/python3.12/site-packages/sqlalchemy/sql/elements.py:515: in _execute_on_connection
+    return connection._execute_clauseelement(
+/usr/local/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1640: in _execute_clauseelement
+    ret = self._execute_context(
+/usr/local/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1846: in _execute_context
+    return self._exec_single_context(
+/usr/local/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1986: in _exec_single_context
+    self._handle_dbapi_exception(
+/usr/local/lib/python3.12/site-packages/sqlalchemy/engine/base.py:2353: in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+/usr/local/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1967: in _exec_single_context
+    self.dialect.do_execute(
+/usr/local/lib/python3.12/site-packages/sqlalchemy/engine/default.py:924: in do_execute
+    cursor.execute(statement, parameters)
+/usr/local/lib/python3.12/site-packages/sqlalchemy/dialects/postgresql/asyncpg.py:572: in execute
+    self._adapt_connection.await_(
+/usr/local/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py:131: in await_only
+    return current.driver.switch(awaitable)  # type: ignore[no-any-return]
+/usr/local/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py:196: in greenlet_spawn
+    value = await result
+/usr/local/lib/python3.12/site-packages/sqlalchemy/dialects/postgresql/asyncpg.py:550: in _prepare_and_execute
+    self._handle_exception(error)
+/usr/local/lib/python3.12/site-packages/sqlalchemy/dialects/postgresql/asyncpg.py:501: in _handle_exception
+    self._adapt_connection._handle_exception(error)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <AdaptedConnection <asyncpg.connection.Connection object at 0x7548fc171b80>>
+error = ForeignKeyViolationError('update or delete on table "manufacturing_events" violates foreign key constraint "manufacturing_event_revisions_event_id_fkey" on table "manufacturing_event_revisions"')
+
+    def _handle_exception(self, error):
+        if self._connection.is_closed():
+            self._transaction = None
+            self._started = False
+    
+        if not isinstance(error, AsyncAdapt_asyncpg_dbapi.Error):
+            exception_mapping = self.dbapi._asyncpg_error_translate
+    
+            for super_ in type(error).__mro__:
+                if super_ in exception_mapping:
+                    translated_error = exception_mapping[super_](
+                        "%s: %s" % (type(error), error)
+                    )
+                    translated_error.pgcode = translated_error.sqlstate = (
+                        getattr(error, "sqlstate", None)
+                    )
+>                   raise translated_error from error
+E                   sqlalchemy.exc.IntegrityError: (sqlalchemy.dialects.postgresql.asyncpg.IntegrityError) <class 'asyncpg.exceptions.ForeignKeyViolationError'>: update or delete on table "manufacturing_events" violates foreign key constraint "manufacturing_event_revisions_event_id_fkey" on table "manufacturing_event_revisions"
+E                   DETAIL:  Key (id)=(af689cb8-b3b7-4fef-a853-cbaf4fba9baf) is still referenced from table "manufacturing_event_revisions".
+E                   [SQL: DELETE FROM manufacturing_events]
+E                   (Background on this error at: https://sqlalche.me/e/20/gkpj)
+
+/usr/local/lib/python3.12/site-packages/sqlalchemy/dialects/postgresql/asyncpg.py:789: IntegrityError
+__________________________ test_worker_crash_recovery __________________________
+
+self = <sqlalchemy.dialects.postgresql.asyncpg.AsyncAdapt_asyncpg_cursor object at 0x7548ef673400>
+operation = 'DELETE FROM manufacturing_events', parameters = ()
+
+    async def _prepare_and_execute(self, operation, parameters):
+        adapt_connection = self._adapt_connection
+    
+        async with adapt_connection._execute_mutex:
+            if not adapt_connection._started:
+                await adapt_connection._start_transaction()
+    
+            if parameters is None:
+                parameters = ()
+    
+            try:
+                prepared_stmt, attributes = await adapt_connection._prepare(
+                    operation, self._invalidate_schema_cache_asof
+                )
+    
+                if attributes:
+                    self.description = [
+                        (
+                            attr.name,
+                            attr.type.oid,
+                            None,
+                            None,
+                            None,
+                            None,
+                            None,
+                        )
+                        for attr in attributes
+                    ]
+                else:
+                    self.description = None
+    
+                if self.server_side:
+                    self._cursor = await prepared_stmt.cursor(*parameters)
+                    self.rowcount = -1
+                else:
+>                   self._rows = await prepared_stmt.fetch(*parameters)
+
+/usr/local/lib/python3.12/site-packages/sqlalchemy/dialects/postgresql/asyncpg.py:538: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/usr/local/lib/python3.12/site-packages/asyncpg/prepared_stmt.py:176: in fetch
+    data = await self.__bind_execute(args, 0, timeout)
+/usr/local/lib/python3.12/site-packages/asyncpg/prepared_stmt.py:241: in __bind_execute
+    data, status, _ = await self.__do_execute(
+/usr/local/lib/python3.12/site-packages/asyncpg/prepared_stmt.py:230: in __do_execute
+    return await executor(protocol)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+>   ???
+E   asyncpg.exceptions.ForeignKeyViolationError: update or delete on table "manufacturing_events" violates foreign key constraint "manufacturing_event_revisions_event_id_fkey" on table "manufacturing_event_revisions"
+E   DETAIL:  Key (id)=(af689cb8-b3b7-4fef-a853-cbaf4fba9baf) is still referenced from table "manufacturing_event_revisions".
+
+asyncpg/protocol/protocol.pyx:207: ForeignKeyViolationError
+
+The above exception was the direct cause of the following exception:
+
+self = <sqlalchemy.engine.base.Connection object at 0x7548fc2afce0>
+dialect = <sqlalchemy.dialects.postgresql.asyncpg.PGDialect_asyncpg object at 0x75490245f8f0>
+context = <sqlalchemy.dialects.postgresql.asyncpg.PGExecutionContext_asyncpg object at 0x7548fc2af1d0>
+statement = <sqlalchemy.dialects.postgresql.asyncpg.PGCompiler_asyncpg object at 0x7548fc9acf20>
+parameters = [()]
+
+    def _exec_single_context(
+        self,
+        dialect: Dialect,
+        context: ExecutionContext,
+        statement: Union[str, Compiled],
+        parameters: Optional[_AnyMultiExecuteParams],
+    ) -> CursorResult[Any]:
+        """continue the _execute_context() method for a single DBAPI
+        cursor.execute() or cursor.executemany() call.
+    
+        """
+        if dialect.bind_typing is BindTyping.SETINPUTSIZES:
+            generic_setinputsizes = context._prepare_set_input_sizes()
+    
+            if generic_setinputsizes:
+                try:
+                    dialect.do_set_input_sizes(
+                        context.cursor, generic_setinputsizes, context
+                    )
+                except BaseException as e:
+                    self._handle_dbapi_exception(
+                        e, str(statement), parameters, None, context
+                    )
+    
+        cursor, str_statement, parameters = (
+            context.cursor,
+            context.statement,
+            context.parameters,
+        )
+    
+        effective_parameters: Optional[_AnyExecuteParams]
+    
+        if not context.executemany:
+            effective_parameters = parameters[0]
+        else:
+            effective_parameters = parameters
+    
+        if self._has_events or self.engine._has_events:
+            for fn in self.dispatch.before_cursor_execute:
+                str_statement, effective_parameters = fn(
+                    self,
+                    cursor,
+                    str_statement,
+                    effective_parameters,
+                    context,
+                    context.executemany,
+                )
+    
+        if self._echo:
+            self._log_info(str_statement)
+    
+            stats = context._get_cache_stats()
+    
+            if not self.engine.hide_parameters:
+                self._log_info(
+                    "[%s] %r",
+                    stats,
+                    sql_util._repr_params(
+                        effective_parameters,
+                        batches=10,
+                        ismulti=context.executemany,
+                    ),
+                )
+            else:
+                self._log_info(
+                    "[%s] [SQL parameters hidden due to hide_parameters=True]",
+                    stats,
+                )
+    
+        evt_handled: bool = False
+        try:
+            if context.execute_style is ExecuteStyle.EXECUTEMANY:
+                effective_parameters = cast(
+                    "_CoreMultiExecuteParams", effective_parameters
+                )
+                if self.dialect._has_events:
+                    for fn in self.dialect.dispatch.do_executemany:
+                        if fn(
+                            cursor,
+                            str_statement,
+                            effective_parameters,
+                            context,
+                        ):
+                            evt_handled = True
+                            break
+                if not evt_handled:
+                    self.dialect.do_executemany(
+                        cursor,
+                        str_statement,
+                        effective_parameters,
+                        context,
+                    )
+            elif not effective_parameters and context.no_parameters:
+                if self.dialect._has_events:
+                    for fn in self.dialect.dispatch.do_execute_no_params:
+                        if fn(cursor, str_statement, context):
+                            evt_handled = True
+                            break
+                if not evt_handled:
+                    self.dialect.do_execute_no_params(
+                        cursor, str_statement, context
+                    )
+            else:
+                effective_parameters = cast(
+                    "_CoreSingleExecuteParams", effective_parameters
+                )
+                if self.dialect._has_events:
+                    for fn in self.dialect.dispatch.do_execute:
+                        if fn(
+                            cursor,
+                            str_statement,
+                            effective_parameters,
+                            context,
+                        ):
+                            evt_handled = True
+                            break
+                if not evt_handled:
+>                   self.dialect.do_execute(
+                        cursor, str_statement, effective_parameters, context
+                    )
+
+/usr/local/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1967: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/usr/local/lib/python3.12/site-packages/sqlalchemy/engine/default.py:924: in do_execute
+    cursor.execute(statement, parameters)
+/usr/local/lib/python3.12/site-packages/sqlalchemy/dialects/postgresql/asyncpg.py:572: in execute
+    self._adapt_connection.await_(
+/usr/local/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py:131: in await_only
+    return current.driver.switch(awaitable)  # type: ignore[no-any-return]
+/usr/local/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py:196: in greenlet_spawn
+    value = await result
+/usr/local/lib/python3.12/site-packages/sqlalchemy/dialects/postgresql/asyncpg.py:550: in _prepare_and_execute
+    self._handle_exception(error)
+/usr/local/lib/python3.12/site-packages/sqlalchemy/dialects/postgresql/asyncpg.py:501: in _handle_exception
+    self._adapt_connection._handle_exception(error)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <AdaptedConnection <asyncpg.connection.Connection object at 0x7548fc170f50>>
+error = ForeignKeyViolationError('update or delete on table "manufacturing_events" violates foreign key constraint "manufacturing_event_revisions_event_id_fkey" on table "manufacturing_event_revisions"')
+
+    def _handle_exception(self, error):
+        if self._connection.is_closed():
+            self._transaction = None
+            self._started = False
+    
+        if not isinstance(error, AsyncAdapt_asyncpg_dbapi.Error):
+            exception_mapping = self.dbapi._asyncpg_error_translate
+    
+            for super_ in type(error).__mro__:
+                if super_ in exception_mapping:
+                    translated_error = exception_mapping[super_](
+                        "%s: %s" % (type(error), error)
+                    )
+                    translated_error.pgcode = translated_error.sqlstate = (
+                        getattr(error, "sqlstate", None)
+                    )
+>                   raise translated_error from error
+E                   sqlalchemy.dialects.postgresql.asyncpg.AsyncAdapt_asyncpg_dbapi.IntegrityError: <class 'asyncpg.exceptions.ForeignKeyViolationError'>: update or delete on table "manufacturing_events" violates foreign key constraint "manufacturing_event_revisions_event_id_fkey" on table "manufacturing_event_revisions"
+E                   DETAIL:  Key (id)=(af689cb8-b3b7-4fef-a853-cbaf4fba9baf) is still referenced from table "manufacturing_event_revisions".
+
+/usr/local/lib/python3.12/site-packages/sqlalchemy/dialects/postgresql/asyncpg.py:789: IntegrityError
+
+The above exception was the direct cause of the following exception:
+
+    @pytest.mark.asyncio
+    async def test_worker_crash_recovery():
+        """Verify that a crashed worker's leased item is recovered."""
+        from sqlalchemy import delete
+    
+        async with AsyncSessionLocal() as db:
+            from app.models.communication import (
+                CommunicationTranscript,
+                ExtractedEventCandidate,
+            )
+            from app.models.resolution import EntityResolutionResult
+    
+            from app.models.manufacturing_event import CanonicalizationJob, ManufacturingEvent
+>           await db.execute(delete(ManufacturingEvent))
+
+tests/test_worker.py:147: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/usr/local/lib/python3.12/site-packages/sqlalchemy/ext/asyncio/session.py:461: in execute
+    result = await greenlet_spawn(
+/usr/local/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py:201: in greenlet_spawn
+    result = context.throw(*sys.exc_info())
+/usr/local/lib/python3.12/site-packages/sqlalchemy/orm/session.py:2351: in execute
+    return self._execute_internal(
+/usr/local/lib/python3.12/site-packages/sqlalchemy/orm/session.py:2236: in _execute_internal
+    result: Result[Any] = compile_state_cls.orm_execute_statement(
+/usr/local/lib/python3.12/site-packages/sqlalchemy/orm/bulk_persistence.py:1953: in orm_execute_statement
+    return super().orm_execute_statement(
+/usr/local/lib/python3.12/site-packages/sqlalchemy/orm/context.py:293: in orm_execute_statement
+    result = conn.execute(
+/usr/local/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1418: in execute
+    return meth(
+/usr/local/lib/python3.12/site-packages/sqlalchemy/sql/elements.py:515: in _execute_on_connection
+    return connection._execute_clauseelement(
+/usr/local/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1640: in _execute_clauseelement
+    ret = self._execute_context(
+/usr/local/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1846: in _execute_context
+    return self._exec_single_context(
+/usr/local/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1986: in _exec_single_context
+    self._handle_dbapi_exception(
+/usr/local/lib/python3.12/site-packages/sqlalchemy/engine/base.py:2353: in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+/usr/local/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1967: in _exec_single_context
+    self.dialect.do_execute(
+/usr/local/lib/python3.12/site-packages/sqlalchemy/engine/default.py:924: in do_execute
+    cursor.execute(statement, parameters)
+/usr/local/lib/python3.12/site-packages/sqlalchemy/dialects/postgresql/asyncpg.py:572: in execute
+    self._adapt_connection.await_(
+/usr/local/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py:131: in await_only
+    return current.driver.switch(awaitable)  # type: ignore[no-any-return]
+/usr/local/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py:196: in greenlet_spawn
+    value = await result
+/usr/local/lib/python3.12/site-packages/sqlalchemy/dialects/postgresql/asyncpg.py:550: in _prepare_and_execute
+    self._handle_exception(error)
+/usr/local/lib/python3.12/site-packages/sqlalchemy/dialects/postgresql/asyncpg.py:501: in _handle_exception
+    self._adapt_connection._handle_exception(error)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <AdaptedConnection <asyncpg.connection.Connection object at 0x7548fc170f50>>
+error = ForeignKeyViolationError('update or delete on table "manufacturing_events" violates foreign key constraint "manufacturing_event_revisions_event_id_fkey" on table "manufacturing_event_revisions"')
+
+    def _handle_exception(self, error):
+        if self._connection.is_closed():
+            self._transaction = None
+            self._started = False
+    
+        if not isinstance(error, AsyncAdapt_asyncpg_dbapi.Error):
+            exception_mapping = self.dbapi._asyncpg_error_translate
+    
+            for super_ in type(error).__mro__:
+                if super_ in exception_mapping:
+                    translated_error = exception_mapping[super_](
+                        "%s: %s" % (type(error), error)
+                    )
+                    translated_error.pgcode = translated_error.sqlstate = (
+                        getattr(error, "sqlstate", None)
+                    )
+>                   raise translated_error from error
+E                   sqlalchemy.exc.IntegrityError: (sqlalchemy.dialects.postgresql.asyncpg.IntegrityError) <class 'asyncpg.exceptions.ForeignKeyViolationError'>: update or delete on table "manufacturing_events" violates foreign key constraint "manufacturing_event_revisions_event_id_fkey" on table "manufacturing_event_revisions"
+E                   DETAIL:  Key (id)=(af689cb8-b3b7-4fef-a853-cbaf4fba9baf) is still referenced from table "manufacturing_event_revisions".
+E                   [SQL: DELETE FROM manufacturing_events]
+E                   (Background on this error at: https://sqlalche.me/e/20/gkpj)
+
+/usr/local/lib/python3.12/site-packages/sqlalchemy/dialects/postgresql/asyncpg.py:789: IntegrityError
+_________________ test_duplicate_media_processing_concurrency __________________
+
+self = <sqlalchemy.dialects.postgresql.asyncpg.AsyncAdapt_asyncpg_cursor object at 0x7548ef6738e0>
+operation = 'DELETE FROM manufacturing_events', parameters = ()
+
+    async def _prepare_and_execute(self, operation, parameters):
+        adapt_connection = self._adapt_connection
+    
+        async with adapt_connection._execute_mutex:
+            if not adapt_connection._started:
+                await adapt_connection._start_transaction()
+    
+            if parameters is None:
+                parameters = ()
+    
+            try:
+                prepared_stmt, attributes = await adapt_connection._prepare(
+                    operation, self._invalidate_schema_cache_asof
+                )
+    
+                if attributes:
+                    self.description = [
+                        (
+                            attr.name,
+                            attr.type.oid,
+                            None,
+                            None,
+                            None,
+                            None,
+                            None,
+                        )
+                        for attr in attributes
+                    ]
+                else:
+                    self.description = None
+    
+                if self.server_side:
+                    self._cursor = await prepared_stmt.cursor(*parameters)
+                    self.rowcount = -1
+                else:
+>                   self._rows = await prepared_stmt.fetch(*parameters)
+
+/usr/local/lib/python3.12/site-packages/sqlalchemy/dialects/postgresql/asyncpg.py:538: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/usr/local/lib/python3.12/site-packages/asyncpg/prepared_stmt.py:176: in fetch
+    data = await self.__bind_execute(args, 0, timeout)
+/usr/local/lib/python3.12/site-packages/asyncpg/prepared_stmt.py:241: in __bind_execute
+    data, status, _ = await self.__do_execute(
+/usr/local/lib/python3.12/site-packages/asyncpg/prepared_stmt.py:230: in __do_execute
+    return await executor(protocol)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+>   ???
+E   asyncpg.exceptions.ForeignKeyViolationError: update or delete on table "manufacturing_events" violates foreign key constraint "manufacturing_event_revisions_event_id_fkey" on table "manufacturing_event_revisions"
+E   DETAIL:  Key (id)=(af689cb8-b3b7-4fef-a853-cbaf4fba9baf) is still referenced from table "manufacturing_event_revisions".
+
+asyncpg/protocol/protocol.pyx:207: ForeignKeyViolationError
+
+The above exception was the direct cause of the following exception:
+
+self = <sqlalchemy.engine.base.Connection object at 0x7548fc25ff80>
+dialect = <sqlalchemy.dialects.postgresql.asyncpg.PGDialect_asyncpg object at 0x75490245f8f0>
+context = <sqlalchemy.dialects.postgresql.asyncpg.PGExecutionContext_asyncpg object at 0x7548fc25d2b0>
+statement = <sqlalchemy.dialects.postgresql.asyncpg.PGCompiler_asyncpg object at 0x7548fc9acf20>
+parameters = [()]
+
+    def _exec_single_context(
+        self,
+        dialect: Dialect,
+        context: ExecutionContext,
+        statement: Union[str, Compiled],
+        parameters: Optional[_AnyMultiExecuteParams],
+    ) -> CursorResult[Any]:
+        """continue the _execute_context() method for a single DBAPI
+        cursor.execute() or cursor.executemany() call.
+    
+        """
+        if dialect.bind_typing is BindTyping.SETINPUTSIZES:
+            generic_setinputsizes = context._prepare_set_input_sizes()
+    
+            if generic_setinputsizes:
+                try:
+                    dialect.do_set_input_sizes(
+                        context.cursor, generic_setinputsizes, context
+                    )
+                except BaseException as e:
+                    self._handle_dbapi_exception(
+                        e, str(statement), parameters, None, context
+                    )
+    
+        cursor, str_statement, parameters = (
+            context.cursor,
+            context.statement,
+            context.parameters,
+        )
+    
+        effective_parameters: Optional[_AnyExecuteParams]
+    
+        if not context.executemany:
+            effective_parameters = parameters[0]
+        else:
+            effective_parameters = parameters
+    
+        if self._has_events or self.engine._has_events:
+            for fn in self.dispatch.before_cursor_execute:
+                str_statement, effective_parameters = fn(
+                    self,
+                    cursor,
+                    str_statement,
+                    effective_parameters,
+                    context,
+                    context.executemany,
+                )
+    
+        if self._echo:
+            self._log_info(str_statement)
+    
+            stats = context._get_cache_stats()
+    
+            if not self.engine.hide_parameters:
+                self._log_info(
+                    "[%s] %r",
+                    stats,
+                    sql_util._repr_params(
+                        effective_parameters,
+                        batches=10,
+                        ismulti=context.executemany,
+                    ),
+                )
+            else:
+                self._log_info(
+                    "[%s] [SQL parameters hidden due to hide_parameters=True]",
+                    stats,
+                )
+    
+        evt_handled: bool = False
+        try:
+            if context.execute_style is ExecuteStyle.EXECUTEMANY:
+                effective_parameters = cast(
+                    "_CoreMultiExecuteParams", effective_parameters
+                )
+                if self.dialect._has_events:
+                    for fn in self.dialect.dispatch.do_executemany:
+                        if fn(
+                            cursor,
+                            str_statement,
+                            effective_parameters,
+                            context,
+                        ):
+                            evt_handled = True
+                            break
+                if not evt_handled:
+                    self.dialect.do_executemany(
+                        cursor,
+                        str_statement,
+                        effective_parameters,
+                        context,
+                    )
+            elif not effective_parameters and context.no_parameters:
+                if self.dialect._has_events:
+                    for fn in self.dialect.dispatch.do_execute_no_params:
+                        if fn(cursor, str_statement, context):
+                            evt_handled = True
+                            break
+                if not evt_handled:
+                    self.dialect.do_execute_no_params(
+                        cursor, str_statement, context
+                    )
+            else:
+                effective_parameters = cast(
+                    "_CoreSingleExecuteParams", effective_parameters
+                )
+                if self.dialect._has_events:
+                    for fn in self.dialect.dispatch.do_execute:
+                        if fn(
+                            cursor,
+                            str_statement,
+                            effective_parameters,
+                            context,
+                        ):
+                            evt_handled = True
+                            break
+                if not evt_handled:
+>                   self.dialect.do_execute(
+                        cursor, str_statement, effective_parameters, context
+                    )
+
+/usr/local/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1967: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/usr/local/lib/python3.12/site-packages/sqlalchemy/engine/default.py:924: in do_execute
+    cursor.execute(statement, parameters)
+/usr/local/lib/python3.12/site-packages/sqlalchemy/dialects/postgresql/asyncpg.py:572: in execute
+    self._adapt_connection.await_(
+/usr/local/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py:131: in await_only
+    return current.driver.switch(awaitable)  # type: ignore[no-any-return]
+/usr/local/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py:196: in greenlet_spawn
+    value = await result
+/usr/local/lib/python3.12/site-packages/sqlalchemy/dialects/postgresql/asyncpg.py:550: in _prepare_and_execute
+    self._handle_exception(error)
+/usr/local/lib/python3.12/site-packages/sqlalchemy/dialects/postgresql/asyncpg.py:501: in _handle_exception
+    self._adapt_connection._handle_exception(error)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <AdaptedConnection <asyncpg.connection.Connection object at 0x7548fc1732f0>>
+error = ForeignKeyViolationError('update or delete on table "manufacturing_events" violates foreign key constraint "manufacturing_event_revisions_event_id_fkey" on table "manufacturing_event_revisions"')
+
+    def _handle_exception(self, error):
+        if self._connection.is_closed():
+            self._transaction = None
+            self._started = False
+    
+        if not isinstance(error, AsyncAdapt_asyncpg_dbapi.Error):
+            exception_mapping = self.dbapi._asyncpg_error_translate
+    
+            for super_ in type(error).__mro__:
+                if super_ in exception_mapping:
+                    translated_error = exception_mapping[super_](
+                        "%s: %s" % (type(error), error)
+                    )
+                    translated_error.pgcode = translated_error.sqlstate = (
+                        getattr(error, "sqlstate", None)
+                    )
+>                   raise translated_error from error
+E                   sqlalchemy.dialects.postgresql.asyncpg.AsyncAdapt_asyncpg_dbapi.IntegrityError: <class 'asyncpg.exceptions.ForeignKeyViolationError'>: update or delete on table "manufacturing_events" violates foreign key constraint "manufacturing_event_revisions_event_id_fkey" on table "manufacturing_event_revisions"
+E                   DETAIL:  Key (id)=(af689cb8-b3b7-4fef-a853-cbaf4fba9baf) is still referenced from table "manufacturing_event_revisions".
+
+/usr/local/lib/python3.12/site-packages/sqlalchemy/dialects/postgresql/asyncpg.py:789: IntegrityError
+
+The above exception was the direct cause of the following exception:
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7548fc2cf470>
+
+    @pytest.mark.asyncio
+    async def test_duplicate_media_processing_concurrency(monkeypatch):
+        import app.workers.media_worker as mw
+    
+        async def mock_process(*args, **kwargs):
+            return False
+    
+        monkeypatch.setattr(mw, "process_one_attachment", mock_process)
+        """Prove concurrent workers cannot process the same attachment."""
+        from sqlalchemy import delete
+    
+        async with AsyncSessionLocal() as db:
+            from app.models.communication import (
+                CommunicationTranscript,
+                ExtractedEventCandidate,
+            )
+            from app.models.resolution import EntityResolutionResult
+    
+            from app.models.manufacturing_event import CanonicalizationJob, ManufacturingEvent
+>           await db.execute(delete(ManufacturingEvent))
+
+tests/test_worker.py:223: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/usr/local/lib/python3.12/site-packages/sqlalchemy/ext/asyncio/session.py:461: in execute
+    result = await greenlet_spawn(
+/usr/local/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py:201: in greenlet_spawn
+    result = context.throw(*sys.exc_info())
+/usr/local/lib/python3.12/site-packages/sqlalchemy/orm/session.py:2351: in execute
+    return self._execute_internal(
+/usr/local/lib/python3.12/site-packages/sqlalchemy/orm/session.py:2236: in _execute_internal
+    result: Result[Any] = compile_state_cls.orm_execute_statement(
+/usr/local/lib/python3.12/site-packages/sqlalchemy/orm/bulk_persistence.py:1953: in orm_execute_statement
+    return super().orm_execute_statement(
+/usr/local/lib/python3.12/site-packages/sqlalchemy/orm/context.py:293: in orm_execute_statement
+    result = conn.execute(
+/usr/local/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1418: in execute
+    return meth(
+/usr/local/lib/python3.12/site-packages/sqlalchemy/sql/elements.py:515: in _execute_on_connection
+    return connection._execute_clauseelement(
+/usr/local/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1640: in _execute_clauseelement
+    ret = self._execute_context(
+/usr/local/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1846: in _execute_context
+    return self._exec_single_context(
+/usr/local/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1986: in _exec_single_context
+    self._handle_dbapi_exception(
+/usr/local/lib/python3.12/site-packages/sqlalchemy/engine/base.py:2353: in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+/usr/local/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1967: in _exec_single_context
+    self.dialect.do_execute(
+/usr/local/lib/python3.12/site-packages/sqlalchemy/engine/default.py:924: in do_execute
+    cursor.execute(statement, parameters)
+/usr/local/lib/python3.12/site-packages/sqlalchemy/dialects/postgresql/asyncpg.py:572: in execute
+    self._adapt_connection.await_(
+/usr/local/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py:131: in await_only
+    return current.driver.switch(awaitable)  # type: ignore[no-any-return]
+/usr/local/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py:196: in greenlet_spawn
+    value = await result
+/usr/local/lib/python3.12/site-packages/sqlalchemy/dialects/postgresql/asyncpg.py:550: in _prepare_and_execute
+    self._handle_exception(error)
+/usr/local/lib/python3.12/site-packages/sqlalchemy/dialects/postgresql/asyncpg.py:501: in _handle_exception
+    self._adapt_connection._handle_exception(error)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <AdaptedConnection <asyncpg.connection.Connection object at 0x7548fc1732f0>>
+error = ForeignKeyViolationError('update or delete on table "manufacturing_events" violates foreign key constraint "manufacturing_event_revisions_event_id_fkey" on table "manufacturing_event_revisions"')
+
+    def _handle_exception(self, error):
+        if self._connection.is_closed():
+            self._transaction = None
+            self._started = False
+    
+        if not isinstance(error, AsyncAdapt_asyncpg_dbapi.Error):
+            exception_mapping = self.dbapi._asyncpg_error_translate
+    
+            for super_ in type(error).__mro__:
+                if super_ in exception_mapping:
+                    translated_error = exception_mapping[super_](
+                        "%s: %s" % (type(error), error)
+                    )
+                    translated_error.pgcode = translated_error.sqlstate = (
+                        getattr(error, "sqlstate", None)
+                    )
+>                   raise translated_error from error
+E                   sqlalchemy.exc.IntegrityError: (sqlalchemy.dialects.postgresql.asyncpg.IntegrityError) <class 'asyncpg.exceptions.ForeignKeyViolationError'>: update or delete on table "manufacturing_events" violates foreign key constraint "manufacturing_event_revisions_event_id_fkey" on table "manufacturing_event_revisions"
+E                   DETAIL:  Key (id)=(af689cb8-b3b7-4fef-a853-cbaf4fba9baf) is still referenced from table "manufacturing_event_revisions".
+E                   [SQL: DELETE FROM manufacturing_events]
+E                   (Background on this error at: https://sqlalche.me/e/20/gkpj)
+
+/usr/local/lib/python3.12/site-packages/sqlalchemy/dialects/postgresql/asyncpg.py:789: IntegrityError
+=============================== warnings summary ===============================
+../usr/local/lib/python3.12/site-packages/pydantic/_internal/_config.py:284
+../usr/local/lib/python3.12/site-packages/pydantic/_internal/_config.py:284
+  /usr/local/lib/python3.12/site-packages/pydantic/_internal/_config.py:284: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.7/migration/
+    warnings.warn(DEPRECATION_MESSAGE, DeprecationWarning)
+
+../usr/local/lib/python3.12/site-packages/passlib/utils/__init__.py:854
+  /usr/local/lib/python3.12/site-packages/passlib/utils/__init__.py:854: DeprecationWarning: 'crypt' is deprecated and slated for removal in Python 3.13
+    from crypt import crypt as _crypt
+
+app/main.py:104
+  /app/app/main.py:104: DeprecationWarning: 
+          on_event is deprecated, use lifespan event handlers instead.
+  
+          Read more about it in the
+          [FastAPI docs for Lifespan Events](https://fastapi.tiangolo.com/advanced/events/).
+          
+    @app.on_event("startup")
+
+../usr/local/lib/python3.12/site-packages/fastapi/applications.py:4495
+../usr/local/lib/python3.12/site-packages/fastapi/applications.py:4495
+../usr/local/lib/python3.12/site-packages/fastapi/applications.py:4495
+  /usr/local/lib/python3.12/site-packages/fastapi/applications.py:4495: DeprecationWarning: 
+          on_event is deprecated, use lifespan event handlers instead.
+  
+          Read more about it in the
+          [FastAPI docs for Lifespan Events](https://fastapi.tiangolo.com/advanced/events/).
+          
+    return self.router.on_event(event_type)
+
+app/main.py:113
+  /app/app/main.py:113: DeprecationWarning: 
+          on_event is deprecated, use lifespan event handlers instead.
+  
+          Read more about it in the
+          [FastAPI docs for Lifespan Events](https://fastapi.tiangolo.com/advanced/events/).
+          
+    @app.on_event("startup")
+
+app/main.py:122
+  /app/app/main.py:122: DeprecationWarning: 
+          on_event is deprecated, use lifespan event handlers instead.
+  
+          Read more about it in the
+          [FastAPI docs for Lifespan Events](https://fastapi.tiangolo.com/advanced/events/).
+          
+    @app.on_event("startup")
+
+../usr/local/lib/python3.12/site-packages/_pytest/config/__init__.py:1448
+  /usr/local/lib/python3.12/site-packages/_pytest/config/__init__.py:1448: PytestConfigWarning: Unknown config option: asyncio_default_fixture_loop_scope
+  
+    self._warn_or_fail_if_strict(f"Unknown config option: {key}\n")
+
+../usr/local/lib/python3.12/site-packages/pydantic/_internal/_fields.py:160
+  /usr/local/lib/python3.12/site-packages/pydantic/_internal/_fields.py:160: UserWarning: Field "model_confidence" has conflict with protected namespace "model_".
+  
+  You may be able to resolve this warning by setting `model_config['protected_namespaces'] = ()`.
+    warnings.warn(
+
+tests/test_phase_3f_validation.py:71
+  tests/test_phase_3f_validation.py:71: PytestDeprecationWarning: test_provenance_and_temporal is asynchronous and explicitly requests the "event_loop" fixture. Asynchronous fixtures and test functions should use "asyncio.get_running_loop()" instead.
+    async def test_provenance_and_temporal(event_loop):
+
+tests/test_phase_3f_validation.py:111
+  tests/test_phase_3f_validation.py:111: PytestDeprecationWarning: test_plant_conflict is asynchronous and explicitly requests the "event_loop" fixture. Asynchronous fixtures and test functions should use "asyncio.get_running_loop()" instead.
+    async def test_plant_conflict(event_loop):
+
+tests/test_phase_3f_validation.py:124
+  tests/test_phase_3f_validation.py:124: PytestDeprecationWarning: test_supersession_architectural_gap is asynchronous and explicitly requests the "event_loop" fixture. Asynchronous fixtures and test functions should use "asyncio.get_running_loop()" instead.
+    async def test_supersession_architectural_gap(event_loop):
+
+tests/test_phase_3f_validation.py:158
+  tests/test_phase_3f_validation.py:158: PytestDeprecationWarning: test_transactional_handoff is asynchronous and explicitly requests the "event_loop" fixture. Asynchronous fixtures and test functions should use "asyncio.get_running_loop()" instead.
+    async def test_transactional_handoff(event_loop):
+
+../usr/local/lib/python3.12/site-packages/pytest_asyncio/plugin.py:231
+  /usr/local/lib/python3.12/site-packages/pytest_asyncio/plugin.py:231: PytestDeprecationWarning: clear_transcripts is asynchronous and explicitly requests the "event_loop" fixture. Asynchronous fixtures and test functions should use "asyncio.get_running_loop()" instead.
+    warnings.warn(
+
+tests/test_auth.py::test_auth_lifecycle
+  /usr/local/lib/python3.12/site-packages/passlib/handlers/argon2.py:716: DeprecationWarning: Accessing argon2.__version__ is deprecated and will be removed in a future release. Use importlib.metadata directly to query for structlog's packaging metadata.
+    _argon2_cffi.__version__, max_version)
+
+tests/test_imports.py: 10 warnings
+tests/test_provenance.py: 10 warnings
+  /usr/local/lib/python3.12/site-packages/botocore/auth.py:419: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+    datetime_now = datetime.datetime.utcnow()
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/test_imports.py::test_imports_comprehensive - botocore.exception...
+FAILED tests/test_phase_3f_revisions.py::test_revision_schema_and_auth - sqla...
+FAILED tests/test_phase_3f_validation.py::test_supersession_architectural_gap
+FAILED tests/test_provenance.py::test_provenance_and_data_quality - botocore....
+FAILED tests/test_worker.py::test_ssrf_protection_and_failure - sqlalchemy.ex...
+FAILED tests/test_worker.py::test_worker_crash_recovery - sqlalchemy.exc.Inte...
+FAILED tests/test_worker.py::test_duplicate_media_processing_concurrency - sq...
+ERROR tests/test_stt_worker2.py::test_stt_worker_valid_audio - sqlalchemy.exc...
+ERROR tests/test_stt_worker2.py::test_stt_worker_no_speech - sqlalchemy.exc.I...
+ERROR tests/test_stt_worker2.py::test_stt_worker_unsupported_codec - sqlalche...
+7 failed, 60 passed, 37 warnings, 3 errors in 115.98s (0:01:55)

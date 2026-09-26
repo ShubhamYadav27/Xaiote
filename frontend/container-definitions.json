@@ -1,0 +1,29 @@
+[
+  {
+    "name": "Main",
+    "image": "394920712303.dkr.ecr.ap-south-1.amazonaws.com/xaiote-frontend@sha256:f2c37bba6b5c4336e4e23fe92f85e96eb8f8d6a11b1436a3e92fa026d5d153e9",
+    "cpu": 1024,
+    "memoryReservation": 2048,
+    "portMappings": [
+      {
+        "containerPort": 3000,
+        "hostPort": 3000,
+        "protocol": "tcp",
+        "name": "main-3000-tcp"
+      }
+    ],
+    "essential": true,
+    "environment": [],
+    "mountPoints": [],
+    "volumesFrom": [],
+    "secrets": [],
+    "logConfiguration": {
+      "logDriver": "awslogs",
+      "options": {
+        "awslogs-group": "/aws/ecs/default/xaiote-frontend-e9cb",
+        "awslogs-region": "ap-south-1",
+        "awslogs-stream-prefix": "ecs"
+      }
+    }
+  }
+]
