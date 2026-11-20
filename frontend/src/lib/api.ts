@@ -13,11 +13,16 @@
 
 import { getAccessToken, refreshAccessToken, clearTokens } from './auth';
 
-export const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_URL ||
-  (process.env.NODE_ENV === 'production'
-    ? 'https://api.xaiote.com/api/v1'
-    : 'http://localhost:8000/api/v1');
+export const API_BASE_URL = (() => {
+  const configuredUrl = process.env.NEXT_PUBLIC_API_URL;
+  if (process.env.NODE_ENV === 'production') {
+    if (configuredUrl && configuredUrl.includes('localhost')) {
+      throw new Error("PRODUCTION CONFIGURATION ERROR: NEXT_PUBLIC_API_URL cannot point to localhost in production.");
+    }
+    return configuredUrl || 'https://api.xaiote.com/api/v1';
+  }
+  return configuredUrl || 'http://localhost:8000/api/v1';
+})();
 
 /**
  * Main API fetch for JSON endpoints under /api/v1/*.

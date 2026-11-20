@@ -16,6 +16,7 @@ from . import (
     vendors,
     webhooks,
     work_orders,
+    candidates,
 )
 
 __all__ = [
@@ -36,5 +37,6 @@ __all__ = [
     "vendors",
     "webhooks",
     "work_orders",
+    "candidates",
 ]
 from . import operational

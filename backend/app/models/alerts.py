@@ -297,3 +297,25 @@ class AlertEvaluationJob(Base):
             name="ck_alert_eval_job_target_xor"
         ),
     )
+
+
+class AlertEvaluationJobRetryAudit(Base):
+    __tablename__ = "alert_evaluation_job_retry_audits"
+
+    id = Column(String, primary_key=True, default=lambda: str(uuid.uuid4()))
+    job_id = Column(String, ForeignKey("alert_evaluation_jobs.id"), nullable=False)
+    company_id = Column(String, ForeignKey("companies.id"), nullable=False)
+    
+    actor_id = Column(String, ForeignKey("users.id"), nullable=False)
+    
+    previous_state = Column(String, nullable=False)
+    new_state = Column(String, nullable=False)
+    
+    original_error = Column(String, nullable=True)
+    retry_reason = Column(String, nullable=False)
+    
+    timestamp = Column(
+        DateTime(timezone=True),
+        default=lambda: datetime.now(timezone.utc),
+        nullable=False,
+    )

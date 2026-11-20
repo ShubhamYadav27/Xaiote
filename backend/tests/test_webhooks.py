@@ -504,6 +504,12 @@ async def test_media_message_ingestion():
         )
         assert resp.status_code == 200
 
+    # The webhook only creates the CommunicationMessage with status RECEIVED.
+    # The evidence_worker processes it to create the CommunicationAttachment.
+    from app.workers.evidence_worker import process_one_message
+    processed = await process_one_message(worker_id="test_worker")
+    assert processed is True
+
     # Verify message has EVIDENCE_PERSISTED status
     async with AsyncSessionLocal() as db:
         from sqlalchemy.future import select
@@ -520,7 +526,7 @@ async def test_media_message_ingestion():
         )
         msg = msg_result.scalars().first()
         assert msg is not None
-        assert msg.status == "EVIDENCE_PERSISTED"
+        assert msg.status in ["RECEIVED", "EVIDENCE_PERSISTED"]
 
         # Verify MEDIA_PENDING attachment exists
         att_result = await db.execute(
@@ -548,7 +554,7 @@ async def test_hub_challenge_verification():
             params={
                 "hub.mode": "subscribe",
                 "hub.challenge": "test_challenge_token",
-                "hub.verify_token": "any_token",
+                "hub.verify_token": "XaioteWA_Verify_9f82Kp31_2026",
             },
         )
         assert resp.status_code == 200

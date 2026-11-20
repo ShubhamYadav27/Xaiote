@@ -1,36 +1,94 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Xaiote — Frontend Web Console
 
-## Getting Started
+[![Next.js 15.2](https://img.shields.io/badge/next.js-15.2.0-black.svg)](https://nextjs.org/)
+[![React 19](https://img.shields.io/badge/react-19.2.8-blue.svg)](https://react.dev/)
+[![Tailwind CSS 4](https://img.shields.io/badge/tailwindcss-v4-06B6D4.svg)](https://tailwindcss.com/)
+[![AWS Amplify](https://img.shields.io/badge/aws-amplify-FF9900.svg)](https://aws.amazon.com/amplify/)
 
-First, run the development server:
+The Xaiote web console is an enterprise Next.js 15 (App Router) application providing factory operators and plant leadership with real-time operational visibility, incident investigation workflows, work order risk forecasting, and master data management.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+Hosted on **AWS Amplify Hosting** in Mumbai (`ap-south-1`) at [https://xaiote.com](https://xaiote.com), communicating securely with the backend API at `https://api.xaiote.com`.
+
+---
+
+## 1. Frontend Architecture & Features
+
+- **Route Groups:**
+  - `(auth)`: Login and multi-tenant registration.
+  - `(marketing)`: Public product marketing pages, pilot onboarding modal.
+  - `(dashboard)`: Authenticated console shell (Overview, Command Center, Manufacturing Events, Incidents, Work Orders, Risk, Machines, Plants, Customers, Vendors, Imports, Settings).
+- **Edge Route Protection (`src/middleware.ts`):** Validates the lightweight `xaiote_auth=1` cookie signal to redirect unauthenticated requests before rendering dashboard components.
+- **Resilient API Client (`src/lib/api.ts` & `src/lib/auth.ts`):** Centralized `fetchApi` wrapper attaching Bearer tokens, automatically refreshing expired tokens on HTTP 401 via `/api/auth/refresh`, and retrying requests seamlessly.
+- **Production Assertion:** Enforces a build-time and runtime check preventing `NEXT_PUBLIC_API_URL` from pointing to `localhost` in production.
+- **Industrial Dark-Mode UI:** Built with Tailwind CSS v4, Lucide React icons, and TanStack React Query caching.
+
+---
+
+## 2. Directory Structure
+
+```
+frontend/
+├── src/
+│   ├── app/
+│   │   ├── (auth)/              # /login, /register
+│   │   ├── (marketing)/         # Landing page, features, pricing, pilot
+│   │   ├── (dashboard)/         # Protected operator/executive console
+│   │   ├── layout.tsx           # Root HTML layout and global styles
+│   │   └── globals.css          # Tailwind CSS v4 imports
+│   ├── components/
+│   │   ├── layout/              # Sidebar, Header, Breadcrumbs
+│   │   ├── marketing/           # Landing page interactive sections
+│   │   ├── providers/           # AuthProvider, ReactQueryProvider
+│   │   ├── timeline/            # Operational & Evidence timelines
+│   │   └── ui/                  # UncertaintyBadge, ObservabilityPanel
+│   └── lib/
+│       ├── api.ts               # Core fetch client & base URL resolver
+│       └── auth.ts              # Token storage, login, refresh handlers
+├── public/                      # Static branding assets and icons
+├── amplify.yml                  # AWS Amplify Hosting CI/CD configuration
+├── Dockerfile                   # Node 20-alpine container
+└── package.json                 # Dependencies (Next.js 15.2, React 19.2)
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+---
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## 3. Local Development Quick Start
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### 1. Prerequisites
+- Node.js 20.x LTS
+- npm 10.x+
 
-## Learn More
+### 2. Install Dependencies
+```powershell
+cd c:\Xaiote\frontend
+npm ci
+```
 
-To learn more about Next.js, take a look at the following resources:
+### 3. Environment Configuration
+```powershell
+Copy-Item .env.local.example .env.local
+```
+Set `NEXT_PUBLIC_API_URL` for local development:
+```ini
+NEXT_PUBLIC_API_URL=http://localhost:8000/api/v1
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### 4. Start Development Server
+```powershell
+npm run dev
+```
+Open [http://localhost:3000](http://localhost:3000) in your browser.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+---
 
-## Deploy on Vercel
+## 4. Quality Checks & Production Build
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+```powershell
+# Run ESLint validation
+npm run lint
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+# Run Next.js production type-check and build
+npm run build
+```
+
+For complete technical documentation, refer to the root [README.md](../README.md) and [docs/](../docs/).

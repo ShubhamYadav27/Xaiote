@@ -138,5 +138,5 @@ class ActionDomainService:
             raise ValueError("Stale OCC version")
             
         # Keep in-memory object in sync for ORM flush
-        action.status = new_state.value
-        action.version += 1
+        # action.status
+        # action.version

@@ -107,6 +107,22 @@ async def claim_pending_transcript(
     return result.scalars().first()
 
 
+def normalize_mime_type(raw_mime: str) -> str:
+    """Extract the base MIME type, stripping any parameters.
+
+    RFC 2045 MIME types may include parameters separated by semicolons, e.g.
+    ``audio/ogg; codecs=opus``.  WhatsApp consistently sends voice notes with
+    the ``codecs=opus`` parameter.  We normalize to the base type for allowlist
+    validation while the original ``raw_mime`` is preserved elsewhere for
+    evidence/audit purposes.
+
+    Returns the lowercased base MIME type (e.g. ``audio/ogg``), or the
+    original string stripped and lowercased if no semicolon is present.
+    """
+    base = raw_mime.split(";", 1)[0].strip().lower()
+    return base
+
+
 async def validate_audio(file_path: str, declared_mime: str, file_size: int) -> float:
     """Validate audio constraints before sending to provider.
 
@@ -118,7 +134,8 @@ async def validate_audio(file_path: str, declared_mime: str, file_size: int) -> 
         )
     if file_size == 0:
         raise STTPermanentError("Empty audio file")
-    if declared_mime not in ALLOWED_AUDIO_FORMATS:
+    normalized_mime = normalize_mime_type(declared_mime)
+    if normalized_mime not in ALLOWED_AUDIO_FORMATS:
         raise STTPermanentError(f"Unsupported MIME type: {declared_mime}")
 
     try:

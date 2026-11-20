@@ -11,6 +11,7 @@ class Plant(Base):
     id = Column(String, primary_key=True, default=lambda: str(uuid.uuid4()))
     company_id = Column(String, ForeignKey("companies.id"), nullable=False, index=True)
     name = Column(String, nullable=False)
+    location = Column(String, nullable=True)
     timezone = Column(String, nullable=False)
     created_at = Column(
         DateTime(timezone=True),

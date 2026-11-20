@@ -302,7 +302,10 @@ class ResolutionEngine:
             )
             j_res = await self.db.execute(j_stmt)
             if not j_res.scalars().first():
-                job = CanonicalizationJob(candidate_id=er.candidate_id)
+                job = CanonicalizationJob(
+                    candidate_id=er.candidate_id,
+                    company_id=self.company_id
+                )
                 self.db.add(job)
 
         return {"status": "success", "overall_status": er.overall_status}

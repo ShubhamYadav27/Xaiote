@@ -29,7 +29,10 @@ def setup_test_db():
 
     async def _teardown():
         async with engine.begin() as conn:
-            await conn.run_sync(Base.metadata.drop_all)
+            try:
+                await conn.run_sync(Base.metadata.drop_all)
+            except Exception as e:
+                print(f"Teardown drop_all error: {e}")
         await engine.dispose()
 
     asyncio.run(_setup())

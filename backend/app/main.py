@@ -24,6 +24,7 @@ from app.api.routes import (
     vendors,
     webhooks,
     work_orders,
+    candidates,
     alerts
 )
 
@@ -43,9 +44,11 @@ async def lifespan(app: FastAPI):
         # Start background workers as tasks tied to this lifespan
         from app.workers.extraction_worker import extraction_worker_loop
         from app.workers.resolution_worker import resolution_worker_loop
+        from app.workers.evidence_worker import evidence_worker_loop
         t1 = asyncio.create_task(media_worker_loop())
         t4 = asyncio.create_task(extraction_worker_loop())
         t5 = asyncio.create_task(resolution_worker_loop())
+        t6 = asyncio.create_task(evidence_worker_loop())
         t2 = asyncio.create_task(stt_worker_loop())
         t3 = asyncio.create_task(canonicalization_worker_loop())
         logger.info("Background workers started")
@@ -54,6 +57,7 @@ async def lifespan(app: FastAPI):
     if t1:
         t4.cancel()
         t5.cancel()
+        t6.cancel()
         t1.cancel()
     if t2:
         t2.cancel()
@@ -108,3 +112,4 @@ app.include_router(analysis.router, prefix="/api/v1", tags=["analysis"])
 app.include_router(risk.router, prefix="/api/v1", tags=["risk"])
 app.include_router(operational.router, prefix="/api/v1", tags=["operational"])
 app.include_router(alerts.router, prefix="/api/v1/alerts", tags=["alerts"])
+app.include_router(candidates.router, prefix="/api/v1/candidates", tags=["candidates"])

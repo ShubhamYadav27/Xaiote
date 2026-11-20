@@ -154,3 +154,43 @@ async def transition_alert(
     
     # Reload with history
     return await get_alert(alert_id, db, company)
+
+
+class JobRetryRequest(BaseModel):
+    reason: str
+
+class JobRetryResponse(BaseModel):
+    id: str
+    status: str
+    message: str
+
+@router.post("/jobs/{job_id}/retry", response_model=JobRetryResponse)
+async def retry_alert_job(
+    request: JobRetryRequest,
+    job_id: str = Path(...),
+    db: AsyncSession = Depends(get_db),
+    company: Company = Depends(get_current_company),
+    user: User = Depends(get_current_user)
+):
+    if user.role not in ["OWNER", "ADMIN", "SYSTEM"]:
+        raise HTTPException(status_code=403, detail="Only OWNER, ADMIN, or SYSTEM can retry jobs")
+        
+    from app.services.alert_job_service import retry_failed_alert_evaluation_job
+    
+    # Optional plant authorization check if user is bound to a specific plant
+    # For now, we assume ADMIN has tenant-wide access, or we check user's plant context if necessary.
+    # In Xaiote, get_current_user usually verifies tenant. We can pass None for plant isolation,
+    # as ADMINs can manage tenant jobs.
+    
+    job = await retry_failed_alert_evaluation_job(
+        db=db,
+        job_id=job_id,
+        company_id=company.id,
+        actor_id=user.id,
+        reason=request.reason,
+        user_plant_id=None
+    )
+    
+    await db.commit()
+    return JobRetryResponse(id=job.id, status=job.status, message="Job successfully requeued")
+

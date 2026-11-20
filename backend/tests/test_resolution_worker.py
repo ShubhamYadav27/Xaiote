@@ -396,6 +396,14 @@ async def test_human_review_constraints():
         assert len(er.human_review_audit) == 1
         assert er.human_review_audit[0]["user_id"] == "user1"
 
+        from app.models.manufacturing_event import CanonicalizationJob
+        job_q = await db_session.execute(
+            select(CanonicalizationJob).where(CanonicalizationJob.candidate_id == cand_id)
+        )
+        job = job_q.scalars().first()
+        assert job is not None
+        assert job.company_id == setup_data_dict["comp1"]["id"]
+
         # Check append only behavior
         engine = ResolutionEngine(db_session, setup_data_dict["comp1"]["id"])
         await engine.submit_human_review(

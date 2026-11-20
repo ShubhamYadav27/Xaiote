@@ -156,7 +156,7 @@ async def handle_whatsapp_webhook(
     # Step 8: Determine message type and status
     message_type = msg.get("type", "text")
     has_media = message_type in MAX_MEDIA_TYPES
-    initial_status = "EVIDENCE_PERSISTED" if has_media else "RECEIVED"
+    initial_status = "RECEIVED"
 
     # Step 9: Persist durable communication envelope
     # Store raw_payload as the exact raw JSON string for provenance
@@ -180,55 +180,6 @@ async def handle_whatsapp_webhook(
             extra={"external_message_id": external_message_id},
         )
         return Response(content="OK", status_code=200)
-
-    # Step 10: If media, create MEDIA_PENDING attachment for async retrieval
-    if has_media:
-        media_data = msg.get(message_type, {})
-        provider_media_id = media_data.get("id", "")
-        mime_type = media_data.get("mime_type", "application/octet-stream")
-
-        if provider_media_id:
-            attachment = CommunicationAttachment(
-                message_id=comm_msg.id,
-                media_type=mime_type,
-                status="MEDIA_PENDING",
-                provider_media_id=provider_media_id,
-            )
-            db.add(attachment)
-    else:
-        import uuid
-        from app.models.communication import CommunicationTranscript, ExtractedEventCandidate
-        text_body = msg.get("text", {}).get("body", "")
-        if text_body:
-            attachment = CommunicationAttachment(
-                id=str(uuid.uuid4()),
-                message_id=comm_msg.id,
-                media_type="text/plain",
-                status="MEDIA_PERSISTED",
-                file_size=len(text_body)
-            )
-            db.add(attachment)
-            
-            transcript = CommunicationTranscript(
-                id=str(uuid.uuid4()),
-                company_id=company_id,
-                attachment_id=attachment.id,
-                provider="META_WHATSAPP_TEXT",
-                model="DIRECT",
-                language="en",
-                status="COMPLETED",
-                provider_transcript=text_body,
-                corrected_transcript=text_body
-            )
-            db.add(transcript)
-            
-            candidate = ExtractedEventCandidate(
-                id=str(uuid.uuid4()),
-                company_id=company_id,
-                transcript_id=transcript.id,
-                processing_status="PENDING"
-            )
-            db.add(candidate)
 
     # Step 11: COMMIT the durable envelope
     await db.commit()

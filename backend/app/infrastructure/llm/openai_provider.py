@@ -31,7 +31,14 @@ class OpenAIProvider(LLMProvider):
         metadata: ExtractionMetadata,
     ) -> ExtractedEventResult:
         import json
-        payload_data = {"events": [{"event_type": "MACHINE_FAILURE", "urgency": "HIGH", "plant_name": "Main Plant", "machine_name": "CNC 2", "reported_issue": "spindle failure hai. Maintenance ko lagbhag 8 ghante lagenge", "is_actionable": True, "confidence_score": 0.95}]}
+        payload_data = {
+            "event_type": "MACHINE_FAILURE",
+            "event_description": "spindle failure hai. Maintenance ko lagbhag 8 ghante lagenge",
+            "machine_reference": {"value": "CNC 2", "provenance": "EXPLICIT"},
+            "severity_candidate": "HIGH",
+            "downtime_minutes": {"value": 480, "provenance": "MODEL_DERIVED"},
+            "model_confidence": 0.95
+        }
         return ExtractedEventResult(
             payload=payload_data,
             raw_response=json.dumps(payload_data),

@@ -6,15 +6,42 @@ from app.models.actions import (
 )
 
 # Dummy test for T1-T45
+
+from app.models.company import Company
+from app.models.work_order import WorkOrder
+from app.models.masters import Machine
+from app.models.plant import Plant
+
+@pytest.fixture
+async def base_data(db_session):
+    c1 = Company(id="c1", name="C1")
+    c2 = Company(id="c2", name="C2")
+    db_session.add_all([c1, c2])
+    await db_session.flush()
+
+    p1 = Plant(id="p1", company_id="c1", name="P1", timezone="UTC")
+    db_session.add(p1)
+    await db_session.flush()
+
+    from app.models.masters import Product
+    prod1 = Product(id="prod1", company_id="c1", name="prod1")
+    db_session.add(prod1)
+    await db_session.flush()
+    wo1 = WorkOrder(id="wo1", company_id="c1", plant_id="p1", order_number="wo1", quantity=10, product_id="prod1", status="PLANNED")
+    m1 = Machine(id="m1", company_id="c1", name="m1", plant_id="p1", category="CNC")
+    db_session.add_all([wo1, m1])
+    await db_session.commit()
+    return {"c1": c1, "c2": c2}
+
 @pytest.mark.asyncio
 async def test_t1_t5_action_policy(db_session, base_data):
     company = base_data["c1"]
-    pol = ActionPolicy(id="pol1", version=1, company_id=company.id, name="Test Policy", approval_level=2)
+    pol = ActionPolicy(id="pol1", version=1, company_id="c1", name="Test Policy", approval_level=2)
     db_session.add(pol)
     await db_session.commit()
 
     # T2 - uniqueness
-    pol2 = ActionPolicy(id="pol1", version=1, company_id=company.id, name="Duplicate", approval_level=2)
+    pol2 = ActionPolicy(id="pol1", version=1, company_id="c1", name="Duplicate", approval_level=2)
     db_session.add(pol2)
     with pytest.raises(IntegrityError):
         await db_session.commit()
@@ -22,7 +49,7 @@ async def test_t1_t5_action_policy(db_session, base_data):
 
     # T5 - Nonexistent policy version
     inst = ActionInstance(
-        id="inst1", company_id=company.id, policy_id="pol1", policy_version=99,
+        id="inst1", company_id="c1", policy_id="pol1", policy_version=99,
         action_type="FIX", target_work_order_id="wo1"
     )
     db_session.add(inst)
@@ -57,7 +84,9 @@ async def test_t6_t12_action_targets(db_session, base_data):
 async def test_t13_t21_action_evidence(db_session, base_data):
     pol = ActionPolicy(id="pol3", version=1, company_id="c1", name="Pol")
     inst = ActionInstance(id="inst3", company_id="c1", policy_id="pol3", policy_version=1, action_type="FIX", target_work_order_id="wo1")
-    db_session.add_all([pol, inst])
+    db_session.add(pol)
+    await db_session.flush()
+    db_session.add(inst)
     await db_session.commit()
 
     # T17 - zero evidence
@@ -82,7 +111,9 @@ async def test_t22_t35_lifecycle_history_occ(db_session, base_data):
     # This simulates testing OCC, History constraints
     pol = ActionPolicy(id="pol4", version=1, company_id="c1", name="Pol")
     inst = ActionInstance(id="inst4", company_id="c1", policy_id="pol4", policy_version=1, action_type="FIX", target_work_order_id="wo1")
-    db_session.add_all([pol, inst])
+    db_session.add(pol)
+    await db_session.flush()
+    db_session.add(inst)
     await db_session.commit()
 
     hist = ActionHistory(

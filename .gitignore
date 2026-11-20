@@ -73,3 +73,30 @@ t14_table.md
 all_user_prompts.txt
 Local Deploy.pdf
 null
+
+# Xaiote local sensitive files
+db_url.txt
+backend_svc.json
+frontend_svc.json
+listener_rules_backup.json
+backend_logs.txt
+
+# Local deployment and inspection outputs
+*_svc.json
+*_rev.json
+*_td.json
+*_out.json
+
+# Temporary development scripts
+scratch_*.py
+debug.py
+inspect*.py
+check*.py
+fix*.py
+poll*.py
+
+db_url.txt
+backend_logs.txt
+backend_svc.json
+frontend_svc.json
+listener_rules_backup.json

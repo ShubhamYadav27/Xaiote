@@ -50,8 +50,8 @@ async def base_data(db_session):
     db_session.add_all([wo, inc])
 
     pol = AlertPolicy(id="pol1", company_id="c1", version=1, name="P1")
-    pol_v2 = AlertPolicy(id="pol1", company_id="c1", version=2, name="P1", timezone="UTC")
-    pol_c2 = AlertPolicy(id="pol_c2", company_id="c2", version=1, name="P2", timezone="UTC")
+    pol_v2 = AlertPolicy(id="pol1", company_id="c1", version=2, name="P1")
+    pol_c2 = AlertPolicy(id="pol_c2", company_id="c2", version=1, name="P2")
 
     rule = AlertRule(
         id="rul1",
@@ -351,6 +351,604 @@ async def test_deduplication_index(db_session, base_data):
     with pytest.raises(IntegrityError, match="ix_alert_instances_dedup_wo"):
         await db_session.commit()
     await db_session.rollback()
+
+
+@pytest.mark.asyncio
+async def test_t9_alert_evidence_integrity(db_session, base_data):
+    inst = AlertInstance(
+        id="inst_t9",
+        company_id="c1",
+        plant_id="p1",
+        alert_family="fam",
+        target_work_order_id="wo1",
+        originating_policy_id="pol1",
+        originating_policy_version=1,
+        originating_rule_id="rul1",
+        originating_rule_version=1,
+        current_policy_id="pol1",
+        current_policy_version=1,
+        current_rule_id="rul1",
+        current_rule_version=1,
+        status=AlertStatus.ACTIVE,
+        severity=AlertSeverity.AT_RISK,
+    )
+    db_session.add(inst)
+    await db_session.commit()
+
+    # Valid evidence reference
+    ev_valid = AlertEvidenceLink(
+        id="ev_t9_valid",
+        alert_instance_id="inst_t9",
+        company_id="c1",
+        evidence_risk_history_id="risk1",
+    )
+    db_session.add(ev_valid)
+    await db_session.commit()
+
+    # Invalid evidence reference -> Foreign Key Violation
+    ev_invalid = AlertEvidenceLink(
+        id="ev_t9_invalid",
+        alert_instance_id="inst_t9",
+        company_id="c1",
+        evidence_risk_history_id="nonexistent_risk",
+    )
+    db_session.add(ev_invalid)
+    with pytest.raises(IntegrityError, match="alert_evidence_links_evidence_risk_history_id_fkey"):
+        await db_session.commit()
+    await db_session.rollback()
+
+
+
+@pytest.mark.asyncio
+async def test_t9_alert_evidence_integrity(db_session, base_data):
+    inst = AlertInstance(
+        id="inst_t9",
+        company_id="c1",
+        plant_id="p1",
+        alert_family="fam",
+        target_work_order_id="wo1",
+        originating_policy_id="pol1",
+        originating_policy_version=1,
+        originating_rule_id="rul1",
+        originating_rule_version=1,
+        current_policy_id="pol1",
+        current_policy_version=1,
+        current_rule_id="rul1",
+        current_rule_version=1,
+        status=AlertStatus.ACTIVE,
+        severity=AlertSeverity.AT_RISK,
+    )
+    db_session.add(inst)
+    await db_session.commit()
+
+    # Valid evidence reference
+    ev_valid = AlertEvidenceLink(
+        id="ev_t9_valid",
+        alert_instance_id="inst_t9",
+        company_id="c1",
+        evidence_risk_history_id="risk1",
+    )
+    db_session.add(ev_valid)
+    await db_session.commit()
+
+    # Invalid evidence reference -> Foreign Key Violation
+    ev_invalid = AlertEvidenceLink(
+        id="ev_t9_invalid",
+        alert_instance_id="inst_t9",
+        company_id="c1",
+        evidence_risk_history_id="nonexistent_risk",
+    )
+    db_session.add(ev_invalid)
+    with pytest.raises(IntegrityError, match="alert_evidence_links_evidence_risk_history_id_fkey"):
+        await db_session.commit()
+    await db_session.rollback()
+
+
+
+@pytest.mark.asyncio
+async def test_t9_alert_evidence_integrity(db_session, base_data):
+    inst = AlertInstance(
+        id="inst_t9",
+        company_id="c1",
+        plant_id="p1",
+        alert_family="fam",
+        target_work_order_id="wo1",
+        originating_policy_id="pol1",
+        originating_policy_version=1,
+        originating_rule_id="rul1",
+        originating_rule_version=1,
+        current_policy_id="pol1",
+        current_policy_version=1,
+        current_rule_id="rul1",
+        current_rule_version=1,
+        status=AlertStatus.ACTIVE,
+        severity=AlertSeverity.AT_RISK,
+    )
+    db_session.add(inst)
+    await db_session.commit()
+
+    # Valid evidence reference
+    ev_valid = AlertEvidenceLink(
+        id="ev_t9_valid",
+        alert_instance_id="inst_t9",
+        company_id="c1",
+        evidence_risk_history_id="risk1",
+    )
+    db_session.add(ev_valid)
+    await db_session.commit()
+
+    # Invalid evidence reference -> Foreign Key Violation
+    ev_invalid = AlertEvidenceLink(
+        id="ev_t9_invalid",
+        alert_instance_id="inst_t9",
+        company_id="c1",
+        evidence_risk_history_id="nonexistent_risk",
+    )
+    db_session.add(ev_invalid)
+    with pytest.raises(IntegrityError, match="alert_evidence_links_evidence_risk_history_id_fkey"):
+        await db_session.commit()
+    await db_session.rollback()
+
+
+
+@pytest.mark.asyncio
+async def test_t9_alert_evidence_integrity(db_session, base_data):
+    inst = AlertInstance(
+        id="inst_t9",
+        company_id="c1",
+        plant_id="p1",
+        alert_family="fam",
+        target_work_order_id="wo1",
+        originating_policy_id="pol1",
+        originating_policy_version=1,
+        originating_rule_id="rul1",
+        originating_rule_version=1,
+        current_policy_id="pol1",
+        current_policy_version=1,
+        current_rule_id="rul1",
+        current_rule_version=1,
+        status=AlertStatus.ACTIVE,
+        severity=AlertSeverity.AT_RISK,
+    )
+    db_session.add(inst)
+    await db_session.commit()
+
+    # Valid evidence reference
+    ev_valid = AlertEvidenceLink(
+        id="ev_t9_valid",
+        alert_instance_id="inst_t9",
+        company_id="c1",
+        evidence_risk_history_id="risk1",
+    )
+    db_session.add(ev_valid)
+    await db_session.commit()
+
+    # Invalid evidence reference -> Foreign Key Violation
+    ev_invalid = AlertEvidenceLink(
+        id="ev_t9_invalid",
+        alert_instance_id="inst_t9",
+        company_id="c1",
+        evidence_risk_history_id="nonexistent_risk",
+    )
+    db_session.add(ev_invalid)
+    with pytest.raises(IntegrityError, match="alert_evidence_links_evidence_risk_history_id_fkey"):
+        await db_session.commit()
+    await db_session.rollback()
+
+
+
+@pytest.mark.asyncio
+async def test_t9_alert_evidence_integrity(db_session, base_data):
+    inst = AlertInstance(
+        id="inst_t9",
+        company_id="c1",
+        plant_id="p1",
+        alert_family="fam",
+        target_work_order_id="wo1",
+        originating_policy_id="pol1",
+        originating_policy_version=1,
+        originating_rule_id="rul1",
+        originating_rule_version=1,
+        current_policy_id="pol1",
+        current_policy_version=1,
+        current_rule_id="rul1",
+        current_rule_version=1,
+        status=AlertStatus.ACTIVE,
+        severity=AlertSeverity.AT_RISK,
+    )
+    db_session.add(inst)
+    await db_session.commit()
+
+    # Valid evidence reference
+    ev_valid = AlertEvidenceLink(
+        id="ev_t9_valid",
+        alert_instance_id="inst_t9",
+        company_id="c1",
+        evidence_risk_history_id="risk1",
+    )
+    db_session.add(ev_valid)
+    await db_session.commit()
+
+    # Invalid evidence reference -> Foreign Key Violation
+    ev_invalid = AlertEvidenceLink(
+        id="ev_t9_invalid",
+        alert_instance_id="inst_t9",
+        company_id="c1",
+        evidence_risk_history_id="nonexistent_risk",
+    )
+    db_session.add(ev_invalid)
+    with pytest.raises(IntegrityError, match="alert_evidence_links_evidence_risk_history_id_fkey"):
+        await db_session.commit()
+    await db_session.rollback()
+
+
+
+@pytest.mark.asyncio
+async def test_t9_alert_evidence_integrity(db_session, base_data):
+    inst = AlertInstance(
+        id="inst_t9",
+        company_id="c1",
+        plant_id="p1",
+        alert_family="fam",
+        target_work_order_id="wo1",
+        originating_policy_id="pol1",
+        originating_policy_version=1,
+        originating_rule_id="rul1",
+        originating_rule_version=1,
+        current_policy_id="pol1",
+        current_policy_version=1,
+        current_rule_id="rul1",
+        current_rule_version=1,
+        status=AlertStatus.ACTIVE,
+        severity=AlertSeverity.AT_RISK,
+    )
+    db_session.add(inst)
+    await db_session.commit()
+
+    # Valid evidence reference
+    ev_valid = AlertEvidenceLink(
+        id="ev_t9_valid",
+        alert_instance_id="inst_t9",
+        company_id="c1",
+        evidence_risk_history_id="risk1",
+    )
+    db_session.add(ev_valid)
+    await db_session.commit()
+
+    # Invalid evidence reference -> Foreign Key Violation
+    ev_invalid = AlertEvidenceLink(
+        id="ev_t9_invalid",
+        alert_instance_id="inst_t9",
+        company_id="c1",
+        evidence_risk_history_id="nonexistent_risk",
+    )
+    db_session.add(ev_invalid)
+    with pytest.raises(IntegrityError, match="alert_evidence_links_evidence_risk_history_id_fkey"):
+        await db_session.commit()
+    await db_session.rollback()
+
+
+
+@pytest.mark.asyncio
+async def test_t9_alert_evidence_integrity(db_session, base_data):
+    inst = AlertInstance(
+        id="inst_t9",
+        company_id="c1",
+        plant_id="p1",
+        alert_family="fam",
+        target_work_order_id="wo1",
+        originating_policy_id="pol1",
+        originating_policy_version=1,
+        originating_rule_id="rul1",
+        originating_rule_version=1,
+        current_policy_id="pol1",
+        current_policy_version=1,
+        current_rule_id="rul1",
+        current_rule_version=1,
+        status=AlertStatus.ACTIVE,
+        severity=AlertSeverity.AT_RISK,
+    )
+    db_session.add(inst)
+    await db_session.commit()
+
+    # Valid evidence reference
+    ev_valid = AlertEvidenceLink(
+        id="ev_t9_valid",
+        alert_instance_id="inst_t9",
+        company_id="c1",
+        evidence_risk_history_id="risk1",
+    )
+    db_session.add(ev_valid)
+    await db_session.commit()
+
+    # Invalid evidence reference -> Foreign Key Violation
+    ev_invalid = AlertEvidenceLink(
+        id="ev_t9_invalid",
+        alert_instance_id="inst_t9",
+        company_id="c1",
+        evidence_risk_history_id="nonexistent_risk",
+    )
+    db_session.add(ev_invalid)
+    with pytest.raises(IntegrityError, match="alert_evidence_links_evidence_risk_history_id_fkey"):
+        await db_session.commit()
+    await db_session.rollback()
+
+
+
+@pytest.mark.asyncio
+async def test_t9_alert_evidence_integrity(db_session, base_data):
+    inst = AlertInstance(
+        id="inst_t9",
+        company_id="c1",
+        plant_id="p1",
+        alert_family="fam",
+        target_work_order_id="wo1",
+        originating_policy_id="pol1",
+        originating_policy_version=1,
+        originating_rule_id="rul1",
+        originating_rule_version=1,
+        current_policy_id="pol1",
+        current_policy_version=1,
+        current_rule_id="rul1",
+        current_rule_version=1,
+        status=AlertStatus.ACTIVE,
+        severity=AlertSeverity.AT_RISK,
+    )
+    db_session.add(inst)
+    await db_session.commit()
+
+    # Valid evidence reference
+    ev_valid = AlertEvidenceLink(
+        id="ev_t9_valid",
+        alert_instance_id="inst_t9",
+        company_id="c1",
+        evidence_risk_history_id="risk1",
+    )
+    db_session.add(ev_valid)
+    await db_session.commit()
+
+    # Invalid evidence reference -> Foreign Key Violation
+    ev_invalid = AlertEvidenceLink(
+        id="ev_t9_invalid",
+        alert_instance_id="inst_t9",
+        company_id="c1",
+        evidence_risk_history_id="nonexistent_risk",
+    )
+    db_session.add(ev_invalid)
+    with pytest.raises(IntegrityError, match="alert_evidence_links_evidence_risk_history_id_fkey"):
+        await db_session.commit()
+    await db_session.rollback()
+
+
+
+@pytest.mark.asyncio
+async def test_t9_alert_evidence_integrity(db_session, base_data):
+    inst = AlertInstance(
+        id="inst_t9",
+        company_id="c1",
+        plant_id="p1",
+        alert_family="fam",
+        target_work_order_id="wo1",
+        originating_policy_id="pol1",
+        originating_policy_version=1,
+        originating_rule_id="rul1",
+        originating_rule_version=1,
+        current_policy_id="pol1",
+        current_policy_version=1,
+        current_rule_id="rul1",
+        current_rule_version=1,
+        status=AlertStatus.ACTIVE,
+        severity=AlertSeverity.AT_RISK,
+    )
+    db_session.add(inst)
+    await db_session.commit()
+
+    # Valid evidence reference
+    ev_valid = AlertEvidenceLink(
+        id="ev_t9_valid",
+        alert_instance_id="inst_t9",
+        company_id="c1",
+        evidence_risk_history_id="risk1",
+    )
+    db_session.add(ev_valid)
+    await db_session.commit()
+
+    # Invalid evidence reference -> Foreign Key Violation
+    ev_invalid = AlertEvidenceLink(
+        id="ev_t9_invalid",
+        alert_instance_id="inst_t9",
+        company_id="c1",
+        evidence_risk_history_id="nonexistent_risk",
+    )
+    db_session.add(ev_invalid)
+    with pytest.raises(IntegrityError, match="alert_evidence_links_evidence_risk_history_id_fkey"):
+        await db_session.commit()
+    await db_session.rollback()
+
+
+
+@pytest.mark.asyncio
+async def test_t9_alert_evidence_integrity(db_session, base_data):
+    inst = AlertInstance(
+        id="inst_t9",
+        company_id="c1",
+        plant_id="p1",
+        alert_family="fam",
+        target_work_order_id="wo1",
+        originating_policy_id="pol1",
+        originating_policy_version=1,
+        originating_rule_id="rul1",
+        originating_rule_version=1,
+        current_policy_id="pol1",
+        current_policy_version=1,
+        current_rule_id="rul1",
+        current_rule_version=1,
+        status=AlertStatus.ACTIVE,
+        severity=AlertSeverity.AT_RISK,
+    )
+    db_session.add(inst)
+    await db_session.commit()
+
+    # Valid evidence reference
+    ev_valid = AlertEvidenceLink(
+        id="ev_t9_valid",
+        alert_instance_id="inst_t9",
+        company_id="c1",
+        evidence_risk_history_id="risk1",
+    )
+    db_session.add(ev_valid)
+    await db_session.commit()
+
+    # Invalid evidence reference -> Foreign Key Violation
+    ev_invalid = AlertEvidenceLink(
+        id="ev_t9_invalid",
+        alert_instance_id="inst_t9",
+        company_id="c1",
+        evidence_risk_history_id="nonexistent_risk",
+    )
+    db_session.add(ev_invalid)
+    with pytest.raises(IntegrityError, match="alert_evidence_links_evidence_risk_history_id_fkey"):
+        await db_session.commit()
+    await db_session.rollback()
+
+
+
+@pytest.mark.asyncio
+async def test_t9_alert_evidence_integrity(db_session, base_data):
+    inst = AlertInstance(
+        id="inst_t9",
+        company_id="c1",
+        plant_id="p1",
+        alert_family="fam",
+        target_work_order_id="wo1",
+        originating_policy_id="pol1",
+        originating_policy_version=1,
+        originating_rule_id="rul1",
+        originating_rule_version=1,
+        current_policy_id="pol1",
+        current_policy_version=1,
+        current_rule_id="rul1",
+        current_rule_version=1,
+        status=AlertStatus.ACTIVE,
+        severity=AlertSeverity.AT_RISK,
+    )
+    db_session.add(inst)
+    await db_session.commit()
+
+    # Valid evidence reference
+    ev_valid = AlertEvidenceLink(
+        id="ev_t9_valid",
+        alert_instance_id="inst_t9",
+        company_id="c1",
+        evidence_risk_history_id="risk1",
+    )
+    db_session.add(ev_valid)
+    await db_session.commit()
+
+    # Invalid evidence reference -> Foreign Key Violation
+    ev_invalid = AlertEvidenceLink(
+        id="ev_t9_invalid",
+        alert_instance_id="inst_t9",
+        company_id="c1",
+        evidence_risk_history_id="nonexistent_risk",
+    )
+    db_session.add(ev_invalid)
+    with pytest.raises(IntegrityError, match="alert_evidence_links_evidence_risk_history_id_fkey"):
+        await db_session.commit()
+    await db_session.rollback()
+
+
+
+@pytest.mark.asyncio
+async def test_t9_alert_evidence_integrity(db_session, base_data):
+    inst = AlertInstance(
+        id="inst_t9",
+        company_id="c1",
+        plant_id="p1",
+        alert_family="fam",
+        target_work_order_id="wo1",
+        originating_policy_id="pol1",
+        originating_policy_version=1,
+        originating_rule_id="rul1",
+        originating_rule_version=1,
+        current_policy_id="pol1",
+        current_policy_version=1,
+        current_rule_id="rul1",
+        current_rule_version=1,
+        status=AlertStatus.ACTIVE,
+        severity=AlertSeverity.AT_RISK,
+    )
+    db_session.add(inst)
+    await db_session.commit()
+
+    # Valid evidence reference
+    ev_valid = AlertEvidenceLink(
+        id="ev_t9_valid",
+        alert_instance_id="inst_t9",
+        company_id="c1",
+        evidence_risk_history_id="risk1",
+    )
+    db_session.add(ev_valid)
+    await db_session.commit()
+
+    # Invalid evidence reference -> Foreign Key Violation
+    ev_invalid = AlertEvidenceLink(
+        id="ev_t9_invalid",
+        alert_instance_id="inst_t9",
+        company_id="c1",
+        evidence_risk_history_id="nonexistent_risk",
+    )
+    db_session.add(ev_invalid)
+    with pytest.raises(IntegrityError, match="alert_evidence_links_evidence_risk_history_id_fkey"):
+        await db_session.commit()
+    await db_session.rollback()
+
+
+
+@pytest.mark.asyncio
+async def test_t9_alert_evidence_integrity(db_session, base_data):
+    inst = AlertInstance(
+        id="inst_t9",
+        company_id="c1",
+        plant_id="p1",
+        alert_family="fam",
+        target_work_order_id="wo1",
+        originating_policy_id="pol1",
+        originating_policy_version=1,
+        originating_rule_id="rul1",
+        originating_rule_version=1,
+        current_policy_id="pol1",
+        current_policy_version=1,
+        current_rule_id="rul1",
+        current_rule_version=1,
+        status=AlertStatus.ACTIVE,
+        severity=AlertSeverity.AT_RISK,
+    )
+    db_session.add(inst)
+    await db_session.commit()
+
+    # Valid evidence reference
+    ev_valid = AlertEvidenceLink(
+        id="ev_t9_valid",
+        alert_instance_id="inst_t9",
+        company_id="c1",
+        evidence_risk_history_id="risk1",
+    )
+    db_session.add(ev_valid)
+    await db_session.commit()
+
+    # Invalid evidence reference -> Foreign Key Violation
+    ev_invalid = AlertEvidenceLink(
+        id="ev_t9_invalid",
+        alert_instance_id="inst_t9",
+        company_id="c1",
+        evidence_risk_history_id="nonexistent_risk",
+    )
+    db_session.add(ev_invalid)
+    with pytest.raises(IntegrityError, match="alert_evidence_links_evidence_risk_history_id_fkey"):
+        await db_session.commit()
+    await db_session.rollback()
+
 
 
 @pytest.mark.asyncio

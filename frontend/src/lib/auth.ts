@@ -13,11 +13,16 @@
  *   GET  /api/auth/me         → { data: { email, full_name, company_id } }
  */
 
-const API_BASE = 
-  process.env.NEXT_PUBLIC_API_URL || 
-  (process.env.NODE_ENV === 'production' 
-    ? 'https://api.xaiote.com/api/v1' 
-    : 'http://localhost:8000/api/v1');
+const API_BASE = (() => {
+  const configuredUrl = process.env.NEXT_PUBLIC_API_URL;
+  if (process.env.NODE_ENV === 'production') {
+    if (configuredUrl && configuredUrl.includes('localhost')) {
+      throw new Error("PRODUCTION CONFIGURATION ERROR: NEXT_PUBLIC_API_URL cannot point to localhost in production.");
+    }
+    return configuredUrl || 'https://api.xaiote.com/api/v1';
+  }
+  return configuredUrl || 'http://localhost:8000/api/v1';
+})();
 const AUTH_API_BASE = API_BASE.replace(/\/api\/v1$/, '/api/auth');
 
 // ────────────────────────────────────────────

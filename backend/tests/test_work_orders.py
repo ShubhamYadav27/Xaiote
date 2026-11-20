@@ -76,7 +76,7 @@ async def test_work_orders_crud_and_isolation():
         # Setup master data for B
         plant_b_res = await ac.post(
             "/api/v1/plants",
-            json={"name": "Plant B", "location": "L1"},
+            json={"name": "Plant B", "location": "L1", "timezone": "UTC"},
             headers={"Authorization": f"Bearer {token_b}"},
         )
         plant_b_id = plant_b_res.json()["data"]["id"]
