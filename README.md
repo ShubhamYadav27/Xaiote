@@ -1,12 +1,5 @@
 # Xaiote — Manufacturing Intelligence Platform
 
-[![Python 3.12](https://img.shields.io/badge/python-3.12-blue.svg)](https://www.python.org/downloads/release/python-3120/)
-[![Next.js 15.2](https://img.shields.io/badge/next.js-15.2.0-black.svg)](https://nextjs.org/)
-[![FastAPI 0.111](https://img.shields.io/badge/fastapi-0.111.0-009688.svg)](https://fastapi.tiangolo.com/)
-[![PostgreSQL 15](https://img.shields.io/badge/postgresql-15-336791.svg)](https://www.postgresql.org/)
-[![Alembic HEAD](https://img.shields.io/badge/alembic-f33a7c860f9c-orange.svg)](https://alembic.sqlalchemy.org/)
-[![AWS Fargate](https://img.shields.io/badge/aws-fargate-FF9900.svg)](https://aws.amazon.com/fargate/)
-
 > **Xaiote** is an enterprise Manufacturing Intelligence platform that bridges the operational latency between physical shop-floor disruptions and enterprise resource systems. It ingests informal, noisy manufacturing evidence directly from plant operators (via voice audio and messaging), extracts domain signals via AI models, correlates them into canonical manufacturing events, and quantifies real-time blast-radius impact on active work orders and customer commitments.
 
 ---
