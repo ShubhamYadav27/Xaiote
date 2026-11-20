@@ -1,10 +1,5 @@
 # Xaiote — Frontend Web Console
 
-[![Next.js 15.2](https://img.shields.io/badge/next.js-15.2.0-black.svg)](https://nextjs.org/)
-[![React 19](https://img.shields.io/badge/react-19.2.8-blue.svg)](https://react.dev/)
-[![Tailwind CSS 4](https://img.shields.io/badge/tailwindcss-v4-06B6D4.svg)](https://tailwindcss.com/)
-[![AWS Amplify](https://img.shields.io/badge/aws-amplify-FF9900.svg)](https://aws.amazon.com/amplify/)
-
 The Xaiote web console is an enterprise Next.js 15 (App Router) application providing factory operators and plant leadership with real-time operational visibility, incident investigation workflows, work order risk forecasting, and master data management.
 
 Hosted on **AWS Amplify Hosting** in Mumbai (`ap-south-1`) at [https://xaiote.com](https://xaiote.com), communicating securely with the backend API at `https://api.xaiote.com`.
