@@ -1,11 +1,5 @@
 # Xaiote — Backend Engine & Processing Core
 
-[![Python 3.12](https://img.shields.io/badge/python-3.12-blue.svg)](https://www.python.org/downloads/release/python-3120/)
-[![FastAPI 0.111](https://img.shields.io/badge/fastapi-0.111.0-009688.svg)](https://fastapi.tiangolo.com/)
-[![SQLAlchemy 2.0](https://img.shields.io/badge/sqlalchemy-2.0.30-red.svg)](https://www.sqlalchemy.org/)
-[![Alembic HEAD](https://img.shields.io/badge/alembic-f33a7c860f9c-orange.svg)](https://alembic.sqlalchemy.org/)
-[![Sarvam AI](https://img.shields.io/badge/stt-sarvam__saaras:v4-green.svg)](https://www.sarvam.ai/)
-
 The Xaiote backend is an asynchronous, high-throughput manufacturing intelligence engine built on Python 3.12, FastAPI, and SQLAlchemy 2.0 Async (`asyncpg`). It runs in AWS ECS Fargate (`ap-south-1`) behind an Application Load Balancer (`https://api.xaiote.com`).
 
 ---
